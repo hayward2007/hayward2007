@@ -1,0 +1,151 @@
+:root {
+    --background-color: #000000;
+    --container-color: #111113;
+    --content-color: #FFFFFF;
+}
+
+@font-face {
+    font-family: "MonaSansExpanded";
+    font-weight: bold;
+    src: url("./assets/MonaSansCondensed-Bold.woff2");
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    color: var(--content-color);
+    font-family: "MonaSansExpanded";
+}
+
+body {
+    width: calc(100vw - 48px);
+    height: calc(100vh - 48px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    gap: 24px;
+    background-image: url("./assets/model_0_color.png");
+    background-color: var(--background-color);
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+div {
+    display: flex;
+}
+
+.container {
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    gap: 24px;
+}
+
+.content {
+    flex: 1;
+    font-weight: bold;
+    background-color: rgba(17, 17, 19, 0.67);
+    padding: 12px 24px 24px 24px;
+    border: solid 1px rgba(255, 255,    255, 0.42);
+    border-radius: 8px;
+    flex-direction: column;
+    align-items: center;
+    font-size: 64px;
+    line-height: 64px;
+    backdrop-filter: blur(36px);
+    gap: 12px;
+}
+
+.list {
+    flex: 1;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    width: 100%;
+}
+
+.item {
+    height: calc(128px - 24px);
+    background-color: var(--content-color);
+    border-radius: 8px;
+    box-shadow: 0px -4px 12px rgba(0, 0, 0, 0.50);
+    margin-bottom: -64px;
+    padding: 12px;
+    gap: 12px;
+    color: var(--background-color); 
+    font-size: 36px;
+    line-height: 36px;
+    width: calc(100% - 24px);
+    z-index: 1;
+}
+
+.currentlyWorkingOn {
+    font-size: 48px;
+    line-height: 48px;
+    flex: 0;
+}
+
+.currentlyWorkingOn div {
+    justify-content: center;
+    align-items: center;
+    height: 64px;
+    width: 100%;
+    background-color: #FFFFFF;
+    color: var(--background-color);
+    border-radius: 4px;
+}
+
+.projects {
+
+}
+
+.careers {
+
+}
+
+.haywardKim {
+    font-size: 128px;
+    line-height: auto;
+    justify-content: center;
+    border-radius: 8px;
+    background-color: var(--background-color);
+}
+
+.haywardKim:hover {
+    /* scale: 1.25; */
+}
+
+.blogs {
+    
+}
+
+.flag {
+    font-size: 36px;
+    line-height: 36px;
+    flex: 0;
+    padding: 12px 24px;
+    flex-direction: row;
+}
+
+.flagInput {
+    flex: 1;
+    background-color: transparent;
+    border: none;
+    height: calc(100% - 8px);
+    font-size: 36px;
+}
+
+.roadMap {
+    flex: 0;
+    padding: 12px 24px;
+}
+
+.skills {
+    flex: 0;
+    padding: 12px 24px;
+}

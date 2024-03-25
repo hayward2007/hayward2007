@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <title>HAYWARD.KIM</title>
+    <link rel="stylesheet" type="text/css" href="./index.css" />
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://unpkg.com/three@<version>/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@<version>/examples/jsm/"
+          }
+        }
+    </script>
+    <script>
+        const data = {
+            "projects": {
+                "HANPOON": {
+                    "description": "A application that allows users to spend their money more efficiently"
+                },
+                "SCONE": {
+                    "description": "Six-legged robot Capable of rotating motioN ( Enhanced )"
+                },
+                "TEST1": {
+                    "description": "TEST1"
+                },
+                "TEST2": {
+                    "description": "TEST1"
+                },
+                "TEST3": {
+                    "description": "TEST1"
+                },
+                "TEST4": {
+                    "description": "TEST1"
+                },
+            },
+            "blogs": {
+
+            },
+            "careers": {
+
+            }
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="currentlyWorkingOn content">
+            CURRENTLY WORKING ON
+            <div>
+                MAKING G.F.
+            </div>
+        </div>
+        <div class="projects content">
+            PROJECTS
+            <div class="list">
+                <script>
+                    const list = document.getElementsByClassName('list')[0];
+                    for(item in data.projects) {
+                        let div = document.createElement('div');
+                        div.className = 'item';
+                        div.addEventListener('mouseover', function(e){
+                            div.style = 'transform: translateY(-30px); transition: 0.5s';
+                        });
+                        div.addEventListener('mouseout', function(e){
+                            div.style = 'transform: translateY(0px); transition: 0.5s';
+                        });
+                        list.appendChild(div).innerText = item;
+                    }
+                </script>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div style="flex: 1; flex-direction: row; gap: 24px;">
+            <div class="content">
+
+            </div>
+            <div style="flex: 1; flex-direction: column; gap: 24px;">
+                <div class="roadMap content">
+                    ROAD MAP
+                </div>
+                <div class="skills content">
+                    SKILLS
+                </div>
+                <div class="content">
+                
+                </div>
+            </div>
+        </div>
+        <div class="haywardKim">
+            HAYWARD KIM
+        </div>
+        <div class="content">
+            Hi, 
+        </div>
+    </div>
+    <div class="container">
+        <div class="careers content">
+            CAREERS
+        </div>
+        <div class="blogs content">
+            BLOGS
+        </div>
+        <div class="flag content">
+            FLAG : 
+            <input class="flagInput" onkeyup="if(window.event.keyCode == 13) {decode();}"/>
+            <script>
+                function decode(){
+                    try {
+                        if(atob(document.getElementsByClassName('flagInput')[0].value) === "HAYWARD_KIM")
+                            alert("CORRECT");
+                        else
+                            alert("INCORRECT");
+                            // return "CORRECT";
+                    } catch (e) {
+                        alert("INCORRECT");
+                        // return "INCORRECT";
+                    }
+                }
+            </script>
+        </div>
+    </div>
+        <script>
+            const haywardKim = document.getElementsByClassName('haywardKim')[0];
+            haywardKim.addEventListener('mousemove', function(e){
+                var x = e.offsetX
+                var y = e.offsetY
+                var rotateY = -1/100 * x + 5;
+                var rotateX = 1/10 * y - 15;
+                haywardKim.style = `transform : perspective(350px) rotateX(${rotateX}deg) rotateY(${rotateY}deg); transition: transform 0.1s;`
+            });
+            haywardKim.addEventListener('mouseout', function(e){
+                haywardKim.style = 'transform : perspective(350px) rotateY(0deg) rotateX(0deg); transition: transform 0.5s;'
+            });
+            
+            // const rect = document.getElementsByClassName('haywardKim')[0].getBoundingClientRect();
+            // const container = document.getElementsByClassName('container')[0];
+            // console.log(rect);
+            // container.addEventListener('mousemove', function(e){
+            //     var x = e.offsetX
+            //     var y = e.offsetY
+            //     console.log(x, y);
+            //     var rotateY = -1/5 * x + 20
+            //     var rotateX = 4/30 * y - 20
+            //     // overlay.style = `background-position : ${x/5 + y/5}%; filter : opacity(${x/200}) brightness(1.2)`
+            //     container.style = `transform : perspective(350px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
+            // });
+
+            // container.addEventListener('mouseout', function(){
+                // overlay.style = 'filter : opacity(0)'
+            //     container.style = 'transform : perspective(350px) rotateY(0deg) rotateX(0deg)'
+            // });
+        </script>
+    </body>
+</html>
