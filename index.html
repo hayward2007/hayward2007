@@ -12,6 +12,8 @@
           }
         }
     </script>
+
+    <!-- this is for my portfolio -->
     <script>
         const data = {
             "projects": {
@@ -21,7 +23,7 @@
                 "SCONE": {
                     "description": "Six-legged robot Capable of rotating motioN ( Enhanced )"
                 },
-                "TEST1": {
+                "TEST1": {  
                     "description": "TEST1"
                 },
                 "TEST2": {
@@ -39,9 +41,19 @@
             },
             "careers": {
 
+            },
+            "flags": {
+                "maybe": "flag{8c6976e5b5}",
+                "you": "flag{410415bde908bd}",
+                "cant": "flag{4dee15dfb167a}",
+                "beat": "flag{9c873fc4bb}",
+                "me": "flag{8a81f6f2ab448a918}",
+                "if": "flag{SEFZV0FSRF9LSU0=}",
             }
         };
     </script>
+
+    <!-- try if u can :P -->
 </head>
 <body>
     <div class="container">
@@ -104,18 +116,88 @@
         </div>
         <div class="flag content">
             FLAG : 
-            <input class="flagInput" onkeyup="if(window.event.keyCode == 13) {decode();}"/>
+            <input class="flagInput" onkeyup="if(window.event.keyCode == 13) { submitFlag(); }"/>
             <script>
-                function decode(){
+                var magicFunction = function magicFunction(ascii) {
+                    function rightRotate(value, amount) {
+                        return (value>>>amount) | (value<<(32 - amount));
+                    }
+                    var mathPow = Math.pow;
+                    var maxWord = mathPow(2, 32);
+                    var lengthProperty = 'length'
+                    var i, j;
+                    var result = ''
+                    var words = [];
+                    var asciiBitLength = ascii[lengthProperty]*8;
+                    var magic = magicFunction.h = magicFunction.h || [];
+                    var k = magicFunction.k = magicFunction.k || [];
+                    var primeCounter = k[lengthProperty];
+                    var isComposite = {};
+                    for (var candidate = 2; primeCounter < 64; candidate++) {
+                        if (!isComposite[candidate]) {
+                            for (i = 0; i < 313; i += candidate) {
+                                isComposite[i] = candidate;
+                            }
+                            magic[primeCounter] = (mathPow(candidate, .5)*maxWord)|0;
+                            k[primeCounter++] = (mathPow(candidate, 1/3)*maxWord)|0;
+                        }
+                    }
+                    ascii += '\x80'
+                    while (ascii[lengthProperty]%64 - 56) ascii += '\x00'
+                    for (i = 0; i < ascii[lengthProperty]; i++) {
+                        j = ascii.charCodeAt(i);
+                        if (j>>8) return;
+                        words[i>>2] |= j << ((3 - i)%4)*8;
+                    }
+                    words[words[lengthProperty]] = ((asciiBitLength/maxWord)|0);
+                    words[words[lengthProperty]] = (asciiBitLength)
+            
+                    for (j = 0; j < words[lengthProperty];) {
+                        var w = words.slice(j, j += 16);
+                        var oldmagic = magic;
+                        magic = magic.slice(0, 8);    
+                        for (i = 0; i < 64; i++) {
+                            var i2 = i + j;
+                            var w15 = w[i - 15], w2 = w[i - 2];
+                            var a = magic[0], e = magic[4];
+                            var temp1 = magic[7] + (rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25)) + ((e&magic[5])^((~e)&magic[6])) + k[i] + (w[i] = (i < 16) ? w[i] : (w[i - 16] + (rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15>>>3)) + w[i - 7] + (rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2>>>10)))|0);
+                            var temp2 = (rightRotate(a, 2) ^ rightRotate(a, 13) ^ rightRotate(a, 22)) + ((a&magic[1])^(a&magic[2])^(magic[1]&magic[2]));
+                            magic = [(temp1 + temp2)|0].concat(magic);
+                            magic[4] = (magic[4] + temp1)|0;
+                        }
+                        for (i = 0; i < 8; i++) {
+                            magic[i] = (magic[i] + oldmagic[i])|0;
+                        }
+                    }
+
+                    for (i = 0; i < 8; i++) {
+                        for (j = 3; j + 1; j--) {
+                            var b = (magic[i]>>(j*8))&255;
+                            result += ((b < 16) ? 0 : '') + b.toString(16);
+                        }
+                    }
+                    return result;
+                };
+
+                function submitFlag() {
+                    const urlParams = new URLSearchParams(window.location.search);
                     try {
-                        if(atob(document.getElementsByClassName('flagInput')[0].value) === "HAYWARD_KIM")
-                            alert("CORRECT");
+                        if(urlParams.has("user")) {
+                            let flag = "flag{HAYWARD_KIM}".replace("flag{HAYWARD_KIM}", "");
+                            for(_flag in data.flags) {
+                                flag += data.flags[_flag].replace("flag{", "").replace("}", "");
+                            }
+                            if(magicFunction(urlParams.get("user")) === flag) {
+                                if(atob(document.getElementsByClassName('flagInput')[0].value) === "HAYWARD_KIM")
+                                    alert("CORRECT");
+                                else
+                                    alert("NOPE");
+                            }
+                        }
                         else
-                            alert("INCORRECT");
-                            // return "CORRECT";
-                    } catch (e) {
-                        alert("INCORRECT");
-                        // return "INCORRECT";
+                            alert("NAH U DONT HAVE ACCESS");
+                    } catch(e) {
+                        alert("THUMTING WOUNG");
                     }
                 }
             </script>
