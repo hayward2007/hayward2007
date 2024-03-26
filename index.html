@@ -187,12 +187,10 @@
                             for(_flag in data.flags) {
                                 flag += data.flags[_flag].replace("flag{", "").replace("}", "");
                             }
-                            if(magicFunction(urlParams.get("user")) === flag) {
-                                if(atob(document.getElementsByClassName('flagInput')[0].value) === "HAYWARD_KIM")
-                                    alert("CORRECT");
-                                else
-                                    alert("NOPE");
-                            }
+                            if(atob(document.getElementsByClassName('flagInput')[0].value) === "HAYWARD_KIM")
+                                alert("CORRECT");
+                            else
+                                alert("NOPE");
                         }
                         else
                             alert("NAH U DONT HAVE ACCESS");
