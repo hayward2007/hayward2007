@@ -68,13 +68,21 @@
 
             scene = new THREE.Scene();
 
-            const ambientLight = new THREE.AmbientLight( 0xFFFFFF, 1 );
-            scene.add( ambientLight );
+            // const ambientLight = new THREE.AmbientLight( 0xFFFFFF, 1 );
+            // scene.add( ambientLight );
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // 환경광
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // 방향광
+            directionalLight.position.set(1, 1, 1).normalize();
+            scene.add(directionalLight);
 
             scene.add( camera );
 
             const textureLoader = new THREE.TextureLoader();
             const objLoader = new OBJLoader();
+            
 
             [ texture, obj ] = await Promise.all( [
                 textureLoader.loadAsync( './assets/air-jordan.jpg' ),
@@ -82,24 +90,31 @@
             ] );
 
             obj.traverse( function ( child ) {
-
+                texture.encoding = THREE.sRGBEncoding;
                 if ( child.isMesh ) {
-
                     child.material.map = texture;
                     child.geometry.computeVertexNormals();
-
                 }
-
             } );
 
             scene.add( obj );
 
             renderer = new THREE.WebGLRenderer();
+            renderer.gammaFactor = 2.2;
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.setClearColor( 0xFFFFFF );
             renderer.setPixelRatio( window.devicePixelRatio );
             renderer.setSize( window.innerWidth, window.innerHeight );
 
             document.body.appendChild( renderer.domElement );
             window.addEventListener( 'resize', onWindowResize );
+
+            // window.addEventListener( 'mouseover', (event) => {
+            //     rotationStep = 0.005;    
+            // });
+            // window.addEventListener( 'mouseout', (event) => {
+            //     rotationStep = 0.01;    
+            // });
         }
 
         function onWindowResize() {
@@ -109,7 +124,7 @@
         }
 
         function animate() {
-            obj.rotation.y -= 0.01;
+            obj.rotation.y -= rotationStep;
             requestAnimationFrame( animate );
             render();
         }
