@@ -32,8 +32,8 @@
             align-items: center;
             padding: 8px;
             gap: 8px;
-            /* background-image: url("./assets/background.png"); */
-            background-color: var(--background-color);
+            background-image: url('./assets/background.jpg');
+            /* background-color: var(--background-color); */
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -57,8 +57,10 @@
         import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 
         let camera, scene, renderer, texture, obj;
-        let rotationStep = 0.01;
+        // let rotationStep = 0.01;
 
+        // init().then( render );
+        // init().then( initAnimation );
         init().then( animate );
 
         async function init() {
@@ -68,13 +70,10 @@
 
             scene = new THREE.Scene();
 
-            // const ambientLight = new THREE.AmbientLight( 0xFFFFFF, 1 );
-            // scene.add( ambientLight );
-
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // 환경광
+            const ambientLight = new THREE.AmbientLight(0xF0F0F0, 1);
             scene.add(ambientLight);
 
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // 방향광
+            const directionalLight = new THREE.DirectionalLight(0xF0F0F0, 2.5); // 방향광
             directionalLight.position.set(1, 1, 1).normalize();
             scene.add(directionalLight);
 
@@ -102,7 +101,7 @@
             renderer = new THREE.WebGLRenderer();
             renderer.gammaFactor = 2.2;
             renderer.outputEncoding = THREE.sRGBEncoding;
-            renderer.setClearColor( 0xFFFFFF );
+            renderer.setClearColor( 0xffffff, 0);
             renderer.setPixelRatio( window.devicePixelRatio );
             renderer.setSize( window.innerWidth, window.innerHeight );
 
@@ -117,6 +116,13 @@
             // });
         }
 
+        // async function initAnimation() {
+        //     if(obj.rotation.y < -0.5) return;
+        //     obj.rotation.y -= 0.005;
+        //     requestAnimationFrame( initAnimation );
+        //     render();
+        // }
+
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
@@ -124,7 +130,12 @@
         }
 
         function animate() {
-            obj.rotation.y -= rotationStep;
+            // obj.rotation.x += 0.005;
+            obj.rotation.y += 0.01;
+            // obj.rotation.z += 0.005;
+
+
+            // obj.rotation.y += rotationStep;
             requestAnimationFrame( animate );
             render();
         }
