@@ -2,13 +2,15 @@
 <html>
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>HAYWARD.KIM</title>
     <style>
-        :root {
+        /* :root {
             --background-color: #000000;
             --container-color: #111113;
             --content-color: #FFFFFF;
-        }
+        } */
 
         @font-face {
             font-family: "MonaSansExpanded";
@@ -32,8 +34,8 @@
             align-items: center;
             padding: 8px;
             gap: 8px;
-            background-image: url('./assets/background.jpg');
-            /* background-color: var(--background-color); */
+            background-image: url('./assets/background.svg');
+            background-size: cover;
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
@@ -43,109 +45,123 @@
         div {
             display: flex;
         }
+
+        .fallingDiv {
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            position: absolute;
+        }
     </style>
-    <script type="importmap">
-        {
-          "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.164.1/examples/jsm/"
-          }
-        }
-      </script>
-      <script type="module">
-        import * as THREE from 'three';
-        import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-
-        let camera, scene, renderer, texture, obj;
-        // let rotationStep = 0.01;
-
-        // init().then( render );
-        // init().then( initAnimation );
-        init().then( animate );
-
-        async function init() {
-            camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-            camera.position.z = 50;
-            camera.position.y = 5;
-
-            scene = new THREE.Scene();
-
-            const ambientLight = new THREE.AmbientLight(0xF0F0F0, 1);
-            scene.add(ambientLight);
-
-            const directionalLight = new THREE.DirectionalLight(0xF0F0F0, 2.5); // 방향광
-            directionalLight.position.set(1, 1, 1).normalize();
-            scene.add(directionalLight);
-
-            scene.add( camera );
-
-            const textureLoader = new THREE.TextureLoader();
-            const objLoader = new OBJLoader();
-            
-
-            [ texture, obj ] = await Promise.all( [
-                textureLoader.loadAsync( './assets/air-jordan.jpg' ),
-                objLoader.loadAsync( './assets/air-jordan.obj' ),
-            ] );
-
-            obj.traverse( function ( child ) {
-                texture.encoding = THREE.sRGBEncoding;
-                if ( child.isMesh ) {
-                    child.material.map = texture;
-                    child.geometry.computeVertexNormals();
-                }
-            } );
-
-            scene.add( obj );
-
-            renderer = new THREE.WebGLRenderer();
-            renderer.gammaFactor = 2.2;
-            renderer.outputEncoding = THREE.sRGBEncoding;
-            renderer.setClearColor( 0xffffff, 0);
-            renderer.setPixelRatio( window.devicePixelRatio );
-            renderer.setSize( window.innerWidth, window.innerHeight );
-
-            document.body.appendChild( renderer.domElement );
-            window.addEventListener( 'resize', onWindowResize );
-
-            // window.addEventListener( 'mouseover', (event) => {
-            //     rotationStep = 0.005;    
-            // });
-            // window.addEventListener( 'mouseout', (event) => {
-            //     rotationStep = 0.01;    
-            // });
-        }
-
-        // async function initAnimation() {
-        //     if(obj.rotation.y < -0.5) return;
-        //     obj.rotation.y -= 0.005;
-        //     requestAnimationFrame( initAnimation );
-        //     render();
+    
+     <script>
+        // class Element {
+        //     constructor(x, y, vectorX, vectorY) {
+        //         this.x = x;
+        //         this.y = y;
+        //         this.vx = vx;
+        //         this.vy = vy;
+        //     }
         // }
 
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize( window.innerWidth, window.innerHeight );
-        }
 
-        function animate() {
-            // obj.rotation.x += 0.005;
-            obj.rotation.y += 0.01;
-            // obj.rotation.z += 0.005;
+        document.addEventListener('DOMContentLoaded', function () {
+            const numDivs = 5;
+            const divs = [];
+            const bodyHeight = document.body.clientHeight;
+            const bodyWidth = document.body.clientWidth;
+            const gravity = 0.5;
+            const friction = 0.98; // 마찰력 계수
 
+            for (let i = 0; i < numDivs; i++) {
+                const div = document.createElement('div');
+                div.classList.add('fallingDiv');
+                div.style.left = `${Math.random() * (bodyWidth - 50)}px`;
+                div.style.top = `${Math.random() * (bodyHeight / 2)}px`;
+                document.body.appendChild(div);
+                divs.push({
+                    element: div,
+                    x: parseFloat(div.style.left),
+                    y: parseFloat(div.style.top),
+                    vy: Math.random() * 5 + 2,
+                    vx: Math.random() * 2 - 1
+                });
+            }
 
-            // obj.rotation.y += rotationStep;
-            requestAnimationFrame( animate );
-            render();
-        }
+            function detectCollision(div1, div2) {
+                return (
+                    div1.x < div2.x + 50 &&
+                    div1.x + 50 > div2.x &&
+                    div1.y < div2.y + 50 &&
+                    div1.y + 50 > div2.y
+                );
+            }
 
-        function render() {
-            renderer.render( scene, camera );
-        }
+            function resolveCollision(div1, div2) {
+                // 간단한 충돌 해결: 위치를 조정하여 겹치지 않도록 함
+                const overlapX = (div1.x + 50 - div2.x) / 2;
+                const overlapY = (div1.y + 50 - div2.y) / 2;
 
+                if (overlapX > overlapY) {
+                    if (div1.y < div2.y) {
+                        div1.y -= overlapY;
+                        div2.y += overlapY;
+                    } else {
+                        div1.y += overlapY;
+                        div2.y -= overlapY;
+                    }
+                } else {
+                    if (div1.x < div2.x) {
+                        div1.x -= overlapX;
+                        div2.x += overlapX;
+                    } else {
+                        div1.x += overlapX;
+                        div2.x -= overlapX;
+                    }
+                }
+
+                // 속도 교환
+                const tempVy = div1.vy;
+                const tempVx = div1.vx;
+                div1.vy = div2.vy;
+                div1.vx = div2.vx;
+                div2.vy = tempVy;
+                div2.vx = tempVx;
+            }
+
+            function animate() {
+                divs.forEach(div => {
+                    div.vy += gravity;
+                    div.y += div.vy;
+                    div.x += div.vx;
+
+                    if (div.y + 50 > bodyHeight) {
+                        div.y = bodyHeight - 50;
+                        div.vy = 0; // 속도를 0으로 설정
+                        div.vx *= friction; // 마찰력 적용
+                    }
+
+                    if (div.x + 50 > bodyWidth || div.x < 0) {
+                        div.vx *= -1;
+                    }
+
+                    divs.forEach(otherDiv => {
+                        if (div !== otherDiv && detectCollision(div, otherDiv)) {
+                            resolveCollision(div, otherDiv);
+                        }
+                    });
+
+                    div.element.style.top = `${div.y}px`;
+                    div.element.style.left = `${div.x}px`;
+                });
+
+                requestAnimationFrame(animate);
+            }
+
+            animate();
+        });
     </script>
 </head>
-    <body>
-    </body>
+<body>
+</body>
 </html>
