@@ -1,14 +1,14 @@
-interface Plane {
+interface _Plane {
     x: number;
     y: number;
 }
 
-class Point implements Plane {
+class Coordinate2D implements _Plane {
     x: number;
     y: number;
 
-    move(vector: Vector2D) {
-        return new Point(this.x + vector.x, this.y + vector.y);
+    add(vector: Vector2D) {
+        return new Coordinate2D(this.x + vector.x, this.y + vector.y);
     }
 
     constructor(x = 0, y = 0) {
@@ -17,7 +17,7 @@ class Point implements Plane {
     }
 }
 
-class Vector2D implements Plane {
+class Vector2D implements _Plane {
     x: number;
     y: number;
 
@@ -44,26 +44,36 @@ class Body {
 
     mass: number;
 
-    position: Point;
     isDragging = false;
+
 
     velocity = new Vector2D();
     acceleration = new Vector2D();
-
-    moveBody(vector: Vector2D) {
-        this.position = this.position.move(vector);
-        this.element.style.left = `${this.position.x}px`;
-        this.element.style.top = `${this.position.y}px`;
-    }
+    position = new Coordinate2D();
+    collider = new CollisionDetector();
 
     applyForce(force: Vector2D) {
         this.acceleration = this.acceleration.add(force.multiply(1 / this.mass));
     }
 
+    // move the div
     update(timeStep: number) {
-        this.velocity = this.velocity.add(this.acceleration.multiply(timeStep));
-        this.position = this.position.move(this.velocity.multiply(timeStep));
-        this.acceleration = new Vector2D();
+        if(this.collider.isFloor(this)) {
+            this.velocity = new Vector2D(this.velocity.x, 0);
+        } else {
+            this.velocity = this.velocity.add(this.acceleration.multiply(timeStep));
+            this.position = this.position.add(this.velocity.multiply(timeStep));
+
+            // if body's position goes beyond the floor, set it to the floor
+            if (this.position.y + this.element.offsetHeight >= this.collider.root.offsetHeight - this.collider.padding) {
+                this.position = new Coordinate2D(this.position.x, this.collider.root.offsetHeight - this.element.offsetHeight - this.collider.padding);
+            }
+
+            this.element.style.left = `${this.position.x}px`;
+            this.element.style.top = `${this.position.y}px`;
+
+            this.acceleration = new Vector2D();
+        }
     }
 
     constructor(element: HTMLElement) {
@@ -81,9 +91,11 @@ class Body {
                 const top = e.clientY - offsetY;
                 if (left >= 0 && left + element.offsetWidth <= document.body.clientWidth) {
                     element.style.left = `${left}px`;
+                    this.position.x = left;
                 }
                 if (top >= 0 && top + element.offsetHeight <= document.body.clientHeight) {
                     element.style.top = `${top}px`;
+                    this.position.y = top;
                 }
             }
         });
@@ -94,8 +106,8 @@ class Body {
         });
 
         this.element = element;
+        this.position = new Coordinate2D(element.offsetLeft, element.offsetTop);
         this.mass = element.offsetWidth * element.offsetHeight;
-        this.position = new Point(element.offsetLeft, element.offsetTop);
     }
 }
 
@@ -103,8 +115,8 @@ class CollisionDetector {
     root = document.getElementsByTagName('body')[0];
     padding = 12;
 
-    detectFloor(body: Body) {
-        return body.element.offsetTop + body.element.offsetHeight > this.root.offsetHeight - this.padding;
+    isFloor(body: Body) {
+        return body.element.offsetTop + body.element.offsetHeight >= this.root.offsetHeight - this.padding;
     }
 }
 
@@ -129,18 +141,20 @@ class Engine {
 
     applyGravity() {
         this.bodies.forEach(body => {
-            if (!this.collider.detectFloor(body) && !body.isDragging) {
+            if (!this.collider.isFloor(body) && !body.isDragging) {
                 body.applyForce(new Vector2D(0, this.gravityConstant * body.mass));
+            } else {
+                body.velocity = new Vector2D();
             }
         });
     }
 
     async update() {
         this.bodies.forEach(body => {
-            if (!this.collider.detectFloor(body) && !body.isDragging) {
+            if (!this.collider.isFloor(body) && !body.isDragging) {
                 body.update(this.timeStep);
-                body.element.style.left = `${body.position.x}px`;
-                body.element.style.top = `${body.position.y}px`;
+            } else {
+                body.velocity = new Vector2D();
             }
         });
 
