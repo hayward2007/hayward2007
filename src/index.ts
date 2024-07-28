@@ -1,5 +1,4 @@
-const elements = document.getElementsByTagName('div');
-
+// import { Physics } from "./physics";
 interface Plane {
     x: number;
     y: number;
@@ -52,9 +51,9 @@ class Body {
         this.acceleration = this.acceleration.add(force.multiply(1 / this.mass));
     }
 
-    update() {
-        this.velocity = this.velocity.add(this.acceleration);
-        this.position = this.position.move(this.velocity);
+    update(timeStep: number) {
+        this.velocity = this.velocity.add(this.acceleration.multiply(timeStep));
+        this.position = this.position.move(this.velocity.multiply(timeStep));
         this.acceleration = new Vector2D();
     }
 
@@ -65,52 +64,87 @@ class Body {
     }
 }
 
-class Physics {
+class Engine {
+    bodies: Body[];
+    timeStep: number;
 
+    applyGravity(gravityConstant: number) {
+        this.bodies.forEach(body => {
+            body.applyForce(new Vector2D(0, gravityConstant * body.mass * -1));
+        });
+    }
+
+    async update() {
+        this.bodies.forEach(body => {
+            body.update(this.timeStep);
+            // body.element.style.left = `${body.position.x}px`;
+            // body.element.style.top = `${body.position.y}px`;
+        });
+        await new Promise(handler => setTimeout(handler, this.timeStep));
+    }
+
+    constructor(bodies: Body[], timeStep: number) {
+        this.bodies = bodies;
+        this.timeStep = timeStep;
+    }
 }
 
+const gravityConstant = 9.8;
+const timeStep = 0.05;
 
-document.addEventListener('DOMContentLoaded', (event) => {
-    Array.prototype.forEach.call(elements,(element) => {
-        let isDragging = false;
-        let offsetX: number, offsetY: number;
+const elements = document.getElementsByTagName('div');
+const engine = new Engine(Array.prototype.map.call(elements, (element) => new Body(element)) as Body[], timeStep);
 
-        element.addEventListener('mousedown', (e: any) => {
-            isDragging = true;
-            offsetX = e.clientX - element.getBoundingClientRect().left;
-            offsetY = e.clientY - element.getBoundingClientRect().top;
-            document.body.style.userSelect = 'none';
-        });
 
-        document.addEventListener('mousemove', (e: any) => {
-            if (isDragging) {
-                const left = e.clientX - offsetX;
-                const top = e.clientY - offsetY;
+document.addEventListener('DOMContentLoaded', async (event) => {
+    async function simulate() {
+        engine.applyGravity(gravityConstant);
+        await engine.update();
+    }
+
+    await simulate();
+    
+
+    // Array.prototype.forEach.call(elements,(element) => {
+    //     let isDragging = false;
+    //     let offsetX: number, offsetY: number;
+
+    //     element.addEventListener('mousedown', (e: any) => {
+    //         isDragging = true;
+    //         offsetX = e.clientX - element.getBoundingClientRect().left;
+    //         offsetY = e.clientY - element.getBoundingClientRect().top;
+    //         document.body.style.userSelect = 'none';
+    //     });
+
+    //     document.addEventListener('mousemove', (e: any) => {
+    //         if (isDragging) {
+    //             const left = e.clientX - offsetX;
+    //             const top = e.clientY - offsetY;
                 
-                if (left >= 0 && left + element.offsetWidth <= document.body.clientWidth) {
-                    element.style.left = `${left}px`;
-                }
-                if (top >= 0 && top + element.offsetHeight <= document.body.clientHeight) {
-                    element.style.top = `${top}px`;
-                }
-            }
-        });
+    //             if (left >= 0 && left + element.offsetWidth <= document.body.clientWidth) {
+    //                 element.style.left = `${left}px`;
+    //             }
+    //             if (top >= 0 && top + element.offsetHeight <= document.body.clientHeight) {
+    //                 element.style.top = `${top}px`;
+    //             }
+    //         }
+    //     });
 
-        document.addEventListener('mouseup', () => {
-            isDragging = false;
-            document.body.style.userSelect = 'auto';
-        });
+    //     document.addEventListener('mouseup', () => {
+    //         isDragging = false;
+    //         document.body.style.userSelect = 'auto';
+    //     });
 
-        function animate() {
-            if(!isDragging) {
+    //     function animate() {
+    //         if(!isDragging) {
 
-            }
+    //         }
 
-            requestAnimationFrame(animate);
-        }
+    //         requestAnimationFrame(animate);
+    //     }
 
-        animate();
-    });
+    //     animate();
+    // });
 });
 
 
