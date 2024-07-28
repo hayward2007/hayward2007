@@ -1,20 +1,37 @@
 const elements = document.getElementsByTagName('div');
 
-const gravityConstant = 9.8;
+interface Plane {
+    x: number;
+    y: number;
+}
 
-class Vector2D {
-    x = 0;
-    y = 0;
+class Point implements Plane {
+    x: number;
+    y: number;
 
-    add(this: Vector2D, other: Vector2D) {
-        return new Vector2D(this.x + other.x, this.y + other.y);
+    move(vector: Vector2D) {
+        return new Point(this.x + vector.x, this.y + vector.y);
     }
 
-    subtract(this: Vector2D, other: Vector2D) {
-        return new Vector2D(this.x - other.x, this.y - other.y);
+    constructor(x = 0, y = 0) {
+        this.x = x;
+        this.y = y;
+    }
+}
+
+class Vector2D implements Plane {
+    x: number;
+    y: number;
+
+    add(vector: Vector2D) {
+        return new Vector2D(this.x + vector.x, this.y + vector.y);
     }
 
-    multiply(this: Vector2D, scalar: number) {
+    subtract(vector: Vector2D) {
+        return new Vector2D(this.x - vector.x, this.y - vector.y);
+    }
+
+    multiply(scalar: number) {
         return new Vector2D(this.x * scalar, this.y * scalar);
     }
 
@@ -25,10 +42,31 @@ class Vector2D {
 }
 
 class Body {
-    mass = 0;
-    // position;
+    element: HTMLElement;
+    mass: number;
+    position: Point;
     velocity = new Vector2D();
     acceleration = new Vector2D();
+
+    applyForce(force: Vector2D) {
+        this.acceleration = this.acceleration.add(force.multiply(1 / this.mass));
+    }
+
+    update() {
+        this.velocity = this.velocity.add(this.acceleration);
+        this.position = this.position.move(this.velocity);
+        this.acceleration = new Vector2D();
+    }
+
+    constructor(element: HTMLElement) {
+        this.element = element;
+        this.mass = element.offsetWidth * element.offsetHeight;
+        this.position = new Point(element.offsetLeft, element.offsetTop);
+    }
+}
+
+class Physics {
+
 }
 
 
@@ -60,7 +98,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
         document.addEventListener('mouseup', () => {
             isDragging = false;
-            document.body.style.userSelect = 'auto'; // Restore text selection
+            document.body.style.userSelect = 'auto';
         });
 
         function animate() {
