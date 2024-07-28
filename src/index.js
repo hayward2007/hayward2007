@@ -46,7 +46,10 @@ class Body {
             this.position = this.position.add(this.velocity.multiply(timeStep));
             // if body's position goes beyond the floor, set it to the floor
             if (this.position.y + this.element.offsetHeight >= this.collider.root.offsetHeight - this.collider.padding) {
-                this.position = new Coordinate2D(this.position.x, this.collider.root.offsetHeight - this.element.offsetHeight - this.collider.padding);
+                // this.velocity = this.velocity.add(this.acceleration.multiply(timeStep));
+                this.position = this.position.add(this.velocity.multiply(timeStep * -1));
+                this.position = this.position.add(this.velocity.multiply(timeStep * -1));
+                // this.position = new Coordinate2D(this.position.x, this.collider.root.offsetHeight - this.element.offsetHeight - this.collider.padding);
             }
             this.element.style.left = `${this.position.x}px`;
             this.element.style.top = `${this.position.y}px`;
@@ -60,30 +63,30 @@ class Body {
         this.position = new Coordinate2D();
         this.collider = new CollisionDetector();
         let offsetX, offsetY;
-        element.addEventListener('mousedown', (e) => {
-            this.isDragging = true;
-            offsetX = e.clientX - element.getBoundingClientRect().left;
-            offsetY = e.clientY - element.getBoundingClientRect().top;
-            document.body.style.userSelect = 'none';
-        });
-        document.addEventListener('mousemove', (e) => {
-            if (this.isDragging) {
-                const left = e.clientX - offsetX;
-                const top = e.clientY - offsetY;
-                if (left >= 0 && left + element.offsetWidth <= document.body.clientWidth) {
-                    element.style.left = `${left}px`;
-                    this.position.x = left;
-                }
-                if (top >= 0 && top + element.offsetHeight <= document.body.clientHeight) {
-                    element.style.top = `${top}px`;
-                    this.position.y = top;
-                }
-            }
-        });
-        document.addEventListener('mouseup', () => {
-            this.isDragging = false;
-            document.body.style.userSelect = 'auto';
-        });
+        // element.addEventListener('mousedown', (e: any) => {
+        //     this.isDragging = true;
+        //     offsetX = e.clientX - element.getBoundingClientRect().left;
+        //     offsetY = e.clientY - element.getBoundingClientRect().top;
+        //     document.body.style.userSelect = 'none';
+        // });
+        // element.addEventListener('mousemove', (e: any) => {
+        //     if (this.isDragging) {
+        //         const left = e.clientX - offsetX;
+        //         const top = e.clientY - offsetY;
+        //         if (!this.collider.isWall(this) && left >= 0 && left + element.offsetWidth <= document.body.clientWidth) {
+        //             element.style.left = `${left}px`;
+        //             this.position.x = left;
+        //         }
+        //         if (top >= 0 && top + element.offsetHeight <= document.body.clientHeight) {
+        //             element.style.top = `${top}px`;
+        //             this.position.y = top;
+        //         }
+        //     }
+        // });
+        // element.addEventListener('mouseup', () => {
+        //     this.isDragging = false;
+        //     document.body.style.userSelect = 'auto';
+        // });
         this.element = element;
         this.position = new Coordinate2D(element.offsetLeft, element.offsetTop);
         this.mass = element.offsetWidth * element.offsetHeight;
@@ -96,6 +99,9 @@ class CollisionDetector {
     }
     isFloor(body) {
         return body.element.offsetTop + body.element.offsetHeight >= this.root.offsetHeight - this.padding;
+    }
+    isWall(body) {
+        return body.element.offsetLeft <= 0 || body.element.offsetLeft + body.element.offsetWidth >= this.root.offsetWidth;
     }
 }
 class Engine {
