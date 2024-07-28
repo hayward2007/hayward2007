@@ -47,60 +47,91 @@ class Body {
         this.acceleration = new Vector2D();
     }
     constructor(element) {
+        this.isDragging = false;
         this.velocity = new Vector2D();
         this.acceleration = new Vector2D();
+        let offsetX, offsetY;
+        element.addEventListener('mousedown', (e) => {
+            this.isDragging = true;
+            offsetX = e.clientX - element.getBoundingClientRect().left;
+            offsetY = e.clientY - element.getBoundingClientRect().top;
+            document.body.style.userSelect = 'none';
+        });
+        document.addEventListener('mousemove', (e) => {
+            if (this.isDragging) {
+                const left = e.clientX - offsetX;
+                const top = e.clientY - offsetY;
+                if (left >= 0 && left + element.offsetWidth <= document.body.clientWidth) {
+                    element.style.left = `${left}px`;
+                }
+                if (top >= 0 && top + element.offsetHeight <= document.body.clientHeight) {
+                    element.style.top = `${top}px`;
+                }
+            }
+        });
+        document.addEventListener('mouseup', () => {
+            this.isDragging = false;
+            document.body.style.userSelect = 'auto';
+        });
         this.element = element;
         this.mass = element.offsetWidth * element.offsetHeight;
         this.position = new Point(element.offsetLeft, element.offsetTop);
     }
 }
-class Engine {
-    logger(logging) {
-        if (logging) {
-            this.bodies.forEach(body => {
-                console.log(`Body: ${body.element.className}`);
-                console.log(`Position: (${body.position.x}, ${body.position.y})`);
-                console.log(`Velocity: (${body.velocity.x}, ${body.velocity.y})`);
-                console.log(`Acceleration: (${body.acceleration.x}, ${body.acceleration.y})`);
-            });
-        }
+class CollisionDetector {
+    constructor() {
+        this.root = document.getElementsByTagName('body')[0];
+        this.padding = 12;
     }
-    applyGravity(gravityConstant) {
+    detectFloor(body) {
+        return body.element.offsetTop + body.element.offsetHeight > this.root.offsetHeight - this.padding;
+    }
+}
+class Engine {
+    logger() {
         this.bodies.forEach(body => {
-            if (body.position.y + body.element.offsetHeight < root.offsetHeight - 24) {
-                body.applyForce(new Vector2D(0, gravityConstant * body.mass));
+            console.log(`Body: ${body.element.className}`);
+            console.log(`Position: (${body.position.x}, ${body.position.y})`);
+            console.log(`Velocity: (${body.velocity.x}, ${body.velocity.y})`);
+            console.log(`Acceleration: (${body.acceleration.x}, ${body.acceleration.y})`);
+        });
+    }
+    applyGravity() {
+        this.bodies.forEach(body => {
+            if (!this.collider.detectFloor(body) && !body.isDragging) {
+                body.applyForce(new Vector2D(0, this.gravityConstant * body.mass));
             }
         });
     }
     update() {
         return __awaiter(this, void 0, void 0, function* () {
             this.bodies.forEach(body => {
-                if (body.position.y + body.element.offsetHeight < root.offsetHeight - 24) {
+                if (!this.collider.detectFloor(body) && !body.isDragging) {
                     body.update(this.timeStep);
                     body.element.style.left = `${body.position.x}px`;
                     body.element.style.top = `${body.position.y}px`;
                 }
             });
-            this.logger(this.logging);
+            if (this.logging)
+                this.logger();
             yield new Promise(handler => setTimeout(handler, this.timeStep));
         });
     }
-    constructor(bodies, timeStep, logging = false) {
+    constructor(bodies) {
+        this.logging = true;
+        // constants
+        this.timeStep = 0.1;
+        this.gravityConstant = 20;
+        this.collider = new CollisionDetector();
         this.bodies = bodies;
-        this.timeStep = timeStep;
-        this.logging = logging;
     }
 }
-const gravityConstant = 20;
-const timeStep = 0.1;
-const logging = true;
-const root = document.getElementsByTagName('body')[0];
 const elements = document.getElementsByTagName('div');
-const engine = new Engine(Array.prototype.map.call(elements, (element) => new Body(element)), timeStep, logging);
+const engine = new Engine(Array.prototype.map.call(elements, (element) => new Body(element)));
 document.addEventListener('DOMContentLoaded', (event) => __awaiter(void 0, void 0, void 0, function* () {
     function simulate() {
         return __awaiter(this, void 0, void 0, function* () {
-            engine.applyGravity(gravityConstant);
+            engine.applyGravity();
             yield engine.update();
             requestAnimationFrame(simulate);
         });

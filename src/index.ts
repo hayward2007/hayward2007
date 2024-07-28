@@ -41,8 +41,12 @@ class Vector2D implements Plane {
 
 class Body {
     element: HTMLElement;
+
     mass: number;
+
     position: Point;
+    isDragging = false;
+
     velocity = new Vector2D();
     acceleration = new Vector2D();
 
@@ -63,67 +67,99 @@ class Body {
     }
 
     constructor(element: HTMLElement) {
+        let offsetX: number, offsetY: number;
+        element.addEventListener('mousedown', (e: any) => {
+            this.isDragging = true;
+            offsetX = e.clientX - element.getBoundingClientRect().left;
+            offsetY = e.clientY - element.getBoundingClientRect().top;
+            document.body.style.userSelect = 'none';
+        });
+        
+        document.addEventListener('mousemove', (e: any) => {
+            if (this.isDragging) {
+                const left = e.clientX - offsetX;
+                const top = e.clientY - offsetY;
+                if (left >= 0 && left + element.offsetWidth <= document.body.clientWidth) {
+                    element.style.left = `${left}px`;
+                }
+                if (top >= 0 && top + element.offsetHeight <= document.body.clientHeight) {
+                    element.style.top = `${top}px`;
+                }
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            this.isDragging = false;
+            document.body.style.userSelect = 'auto';
+        });
+
         this.element = element;
         this.mass = element.offsetWidth * element.offsetHeight;
         this.position = new Point(element.offsetLeft, element.offsetTop);
     }
 }
 
+class CollisionDetector {
+    root = document.getElementsByTagName('body')[0];
+    padding = 12;
+
+    detectFloor(body: Body) {
+        return body.element.offsetTop + body.element.offsetHeight > this.root.offsetHeight - this.padding;
+    }
+}
+
 class Engine {
     bodies: Body[];
-    timeStep: number;
-    logging: boolean;
+    logging = true;
+    
+    // constants
+    timeStep = 0.1;
+    gravityConstant = 20;
 
-    logger(logging: boolean) {
-        if (logging) {
-            this.bodies.forEach(body => {
-                console.log(`Body: ${body.element.className}`);
-                console.log(`Position: (${body.position.x}, ${body.position.y})`);
-                console.log(`Velocity: (${body.velocity.x}, ${body.velocity.y})`);
-                console.log(`Acceleration: (${body.acceleration.x}, ${body.acceleration.y})`);
-            });
-        }
+    collider = new CollisionDetector();
+
+    logger() {
+        this.bodies.forEach(body => {
+            console.log(`Body: ${body.element.className}`);
+            console.log(`Position: (${body.position.x}, ${body.position.y})`);
+            console.log(`Velocity: (${body.velocity.x}, ${body.velocity.y})`);
+            console.log(`Acceleration: (${body.acceleration.x}, ${body.acceleration.y})`);
+        }); 
     }
 
-    applyGravity(gravityConstant: number) {
+    applyGravity() {
         this.bodies.forEach(body => {
-            if (body.position.y + body.element.offsetHeight < root.offsetHeight - 24) {
-                body.applyForce(new Vector2D(0, gravityConstant * body.mass));
+            if (!this.collider.detectFloor(body) && !body.isDragging) {
+                body.applyForce(new Vector2D(0, this.gravityConstant * body.mass));
             }
         });
     }
 
     async update() {
         this.bodies.forEach(body => {
-            if (body.position.y + body.element.offsetHeight < root.offsetHeight - 24) {
+            if (!this.collider.detectFloor(body) && !body.isDragging) {
                 body.update(this.timeStep);
                 body.element.style.left = `${body.position.x}px`;
                 body.element.style.top = `${body.position.y}px`;
             }
         });
-        this.logger(this.logging);
+
+        if (this.logging) this.logger();
+
         await new Promise(handler => setTimeout(handler, this.timeStep));
     }
 
-    constructor(bodies: Body[], timeStep: number, logging = false) {
+    constructor(bodies: Body[]) {
         this.bodies = bodies;
-        this.timeStep = timeStep;
-        this.logging = logging;
     }
 }
 
-const gravityConstant = 20;
-const timeStep = 0.1;
-const logging = true;
-
-const root = document.getElementsByTagName('body')[0];
 const elements = document.getElementsByTagName('div');
-const engine = new Engine(Array.prototype.map.call(elements, (element) => new Body(element)) as Body[], timeStep, logging);
-
+const engine = new Engine(Array.prototype.map.call(elements, (element) => new Body(element)) as Body[]);
 
 document.addEventListener('DOMContentLoaded', async (event) => {
     async function simulate() {
-        engine.applyGravity(gravityConstant);
+        engine.applyGravity();
         await engine.update();
         requestAnimationFrame(simulate);
     }
