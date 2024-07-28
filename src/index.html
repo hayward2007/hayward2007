@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>HAYWARD.KIM</title>
+    <style>
+        /* :root {
+            --background-color: #000000;
+            --container-color: #111113;
+            --content-color: #FFFFFF;
+        } */
+
+        @font-face {
+            font-family: "MonaSansExpanded";
+            font-weight: bold;
+            src: url("/assets/MonaSansCondensed-Bold.woff2");
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            color: var(--content-color);
+            font-family: "MonaSansExpanded";
+        }
+
+        body {
+            width: calc(100vw - 16px);
+            height: calc(100vh - 16px);
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            padding: 8px;
+            gap: 8px;
+            background-image: url("/assets/background.svg");
+            background-size: cover;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        div {
+            display: flex;
+            position: absolute;
+        }
+
+        .hayward_kim {
+            color: white;
+            font-size: 128px;
+            padding: 0px 24px 0px 24px;
+
+            border-radius: 8px;
+            box-shadow: 0px 4px 40px rgba(0, 0, 0, 0.25);
+
+            background-image: url("/assets/hayward_kim.svg");
+            background-size: cover;
+            background-position: center;
+
+            position: absolute;
+            top: 0px;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="hayward_kim">HAYWARD KIM</div>
+    <script src="index.js"></script>
+</body>
+</html>
