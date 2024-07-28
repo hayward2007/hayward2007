@@ -47,6 +47,12 @@ class Body {
     velocity = new Vector2D();
     acceleration = new Vector2D();
 
+    moveBody(vector: Vector2D) {
+        this.position = this.position.move(vector);
+        this.element.style.left = `${this.position.x}px`;
+        this.element.style.top = `${this.position.y}px`;
+    }
+
     applyForce(force: Vector2D) {
         this.acceleration = this.acceleration.add(force.multiply(1 / this.mass));
     }
@@ -67,6 +73,18 @@ class Body {
 class Engine {
     bodies: Body[];
     timeStep: number;
+    logging: boolean;
+
+    logger(logging: boolean) {
+        if (logging) {
+            this.bodies.forEach(body => {
+                console.log(`Body: ${body.element.id}`);
+                console.log(`Position: (${body.position.x}, ${body.position.y})`);
+                console.log(`Velocity: (${body.velocity.x}, ${body.velocity.y})`);
+                console.log(`Acceleration: (${body.acceleration.x}, ${body.acceleration.y})`);
+            });
+        }
+    }
 
     applyGravity(gravityConstant: number) {
         this.bodies.forEach(body => {
@@ -80,26 +98,30 @@ class Engine {
             // body.element.style.left = `${body.position.x}px`;
             // body.element.style.top = `${body.position.y}px`;
         });
+        this.logger(this.logging);
         await new Promise(handler => setTimeout(handler, this.timeStep));
     }
 
-    constructor(bodies: Body[], timeStep: number) {
+    constructor(bodies: Body[], timeStep: number, logging = false) {
         this.bodies = bodies;
         this.timeStep = timeStep;
+        this.logging = logging;
     }
 }
 
 const gravityConstant = 9.8;
-const timeStep = 0.05;
+const timeStep = 0.1;
+const logging = true;
 
 const elements = document.getElementsByTagName('div');
-const engine = new Engine(Array.prototype.map.call(elements, (element) => new Body(element)) as Body[], timeStep);
+const engine = new Engine(Array.prototype.map.call(elements, (element) => new Body(element)) as Body[], timeStep, logging);
 
 
 document.addEventListener('DOMContentLoaded', async (event) => {
     async function simulate() {
         engine.applyGravity(gravityConstant);
         await engine.update();
+        // requestAnimationFrame(simulate);
     }
 
     await simulate();
