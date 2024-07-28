@@ -58,7 +58,7 @@ class Engine {
     logger(logging) {
         if (logging) {
             this.bodies.forEach(body => {
-                console.log(`Body: ${body.element.id}`);
+                console.log(`Body: ${body.element.className}`);
                 console.log(`Position: (${body.position.x}, ${body.position.y})`);
                 console.log(`Velocity: (${body.velocity.x}, ${body.velocity.y})`);
                 console.log(`Acceleration: (${body.acceleration.x}, ${body.acceleration.y})`);
@@ -67,15 +67,15 @@ class Engine {
     }
     applyGravity(gravityConstant) {
         this.bodies.forEach(body => {
-            body.applyForce(new Vector2D(0, gravityConstant * body.mass * -1));
+            body.applyForce(new Vector2D(0, gravityConstant * body.mass));
         });
     }
     update() {
         return __awaiter(this, void 0, void 0, function* () {
             this.bodies.forEach(body => {
                 body.update(this.timeStep);
-                // body.element.style.left = `${body.position.x}px`;
-                // body.element.style.top = `${body.position.y}px`;
+                body.element.style.left = `${body.position.x}px`;
+                body.element.style.top = `${body.position.y}px`;
             });
             this.logger(this.logging);
             yield new Promise(handler => setTimeout(handler, this.timeStep));
