@@ -1,3 +1,5 @@
+[banner image](/assets/banner.jpeg)
+
 ### Hi there 👋
 My name is **Hyoung-Seok Kim**, a.k.a **Hayward Kim**.
 
