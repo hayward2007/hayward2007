@@ -1,8 +1,10 @@
-### Hi there 👋
-My name is **Kim Hyeong-Seok**, a.k.a **Hayward Kim**.
+### Hayward Kim
 
-I'm born in Seoul, South Korea, 02.21.2007.
+I'm **Kim Hyeong-Seok**, also known as **Hayward Kim**.
 
-I'm into **Robotics** and **Artificial Intelligence**.
+I build at the intersection of **robotics**, **artificial intelligence**, and **product engineering**.
 
-I'm currently attending **Korea Digital Media High School** in Ansan, South Korea.
+I graduated from the **Department of Hacking Defense, Korea Digital Media High School**, 22nd cohort, and I am currently studying at **Korea University College of Engineering**.
+
+Portfolio: [hayward.kim](https://hayward.kim)  
+Email: [hayward_kim@korea.ac.kr](mailto:hayward_kim@korea.ac.kr)
