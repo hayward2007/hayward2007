@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "deploy": "wrangler deploy"
+    "deploy": "npx --yes wrangler deploy"
   },
   "devDependencies": {
     "wrangler": "^4.0.0"
