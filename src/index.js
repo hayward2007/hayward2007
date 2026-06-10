@@ -6,6 +6,15 @@ const DATABASES = {
   activities: "314685d7-d96a-8145-b41b-db2955b8849d",
 };
 
+class NotionApiError extends Error {
+  constructor(status, body) {
+    super(`Notion API returned ${status}`);
+    this.name = "NotionApiError";
+    this.status = status;
+    this.body = body;
+  }
+}
+
 function richTextToPlain(items = []) {
   return items.map((item) => item.plain_text || "").join("");
 }
@@ -199,6 +208,7 @@ function jsonResponse(data, init = {}) {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
       "Cache-Control": "no-store",
+      "X-Portfolio-Runtime": "cloudflare-worker",
       ...(init.headers || {}),
     },
   });
@@ -217,7 +227,7 @@ async function notionRequest(token, path, options = {}) {
 
   if (!response.ok) {
     const message = await response.text();
-    throw new Error(`Notion ${response.status}: ${message}`);
+    throw new NotionApiError(response.status, message);
   }
 
   return response.json();
@@ -268,7 +278,10 @@ async function getPageBlocks(token, pageId) {
 async function handleNotionApi(request, env) {
   if (!env.NOTION_ACCESS_TOKEN) {
     return jsonResponse(
-      { error: "NOTION_ACCESS_TOKEN is not configured." },
+      {
+        error: "notion_token_missing",
+        message: "NOTION_ACCESS_TOKEN is not configured in the Worker runtime.",
+      },
       { status: 500 },
     );
   }
@@ -276,18 +289,49 @@ async function handleNotionApi(request, env) {
   const url = new URL(request.url);
   const pageId = url.searchParams.get("page");
 
-  if (pageId) {
-    const blocks = await getPageBlocks(env.NOTION_ACCESS_TOKEN, pageId);
-    return jsonResponse({ blocks });
+  try {
+    if (pageId) {
+      const blocks = await getPageBlocks(env.NOTION_ACCESS_TOKEN, pageId);
+      return jsonResponse({ blocks });
+    }
+
+    const [projects, competitions, activities] = await Promise.all([
+      queryDatabase(env.NOTION_ACCESS_TOKEN, DATABASES.projects),
+      queryDatabase(env.NOTION_ACCESS_TOKEN, DATABASES.competitions),
+      queryDatabase(env.NOTION_ACCESS_TOKEN, DATABASES.activities),
+    ]);
+
+    return jsonResponse(transformData({ projects, competitions, activities }));
+  } catch (error) {
+    if (error instanceof NotionApiError) {
+      return jsonResponse(
+        {
+          error: "notion_api_error",
+          notionStatus: error.status,
+          hint: notionStatusHint(error.status),
+        },
+        { status: 500 },
+      );
+    }
+
+    throw error;
   }
+}
 
-  const [projects, competitions, activities] = await Promise.all([
-    queryDatabase(env.NOTION_ACCESS_TOKEN, DATABASES.projects),
-    queryDatabase(env.NOTION_ACCESS_TOKEN, DATABASES.competitions),
-    queryDatabase(env.NOTION_ACCESS_TOKEN, DATABASES.activities),
-  ]);
-
-  return jsonResponse(transformData({ projects, competitions, activities }));
+function notionStatusHint(status) {
+  if (status === 401) {
+    return "The Notion token is invalid or was not saved correctly.";
+  }
+  if (status === 403) {
+    return "The Notion integration does not have permission to read this resource.";
+  }
+  if (status === 404) {
+    return "A Notion database was not found. Share each database with the integration and confirm the database IDs.";
+  }
+  if (status === 429) {
+    return "Notion rate-limited the request. Try again after a short wait.";
+  }
+  return "Open the Worker logs in Cloudflare for the detailed Notion error body.";
 }
 
 export default {
@@ -295,6 +339,14 @@ export default {
     const url = new URL(request.url);
 
     try {
+      if (url.pathname === "/api/health") {
+        return jsonResponse({
+          ok: true,
+          runtime: "cloudflare-worker",
+          notionTokenConfigured: Boolean(env.NOTION_ACCESS_TOKEN),
+        });
+      }
+
       if (url.pathname === "/api/notion") {
         return handleNotionApi(request, env);
       }
