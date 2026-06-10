@@ -1,9 +1,7 @@
-name: Deploy to GitHub Pages
+name: GitHub Pages Static Fallback
 
 on:
-  push:
-    branches:
-      - feature/physics-engine
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -17,5 +15,5 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./src  # HTML, JS 파일이 있는 디렉토리 (루트라면 `./`으로 설정)
-          publish_branch: feature/physics-engine  # Pages에 사용할 브랜치
+          publish_dir: ./public
+          publish_branch: gh-pages

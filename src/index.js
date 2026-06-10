@@ -15,7 +15,9 @@ function propValue(prop) {
   if (prop.type === "title") return richTextToPlain(prop.title);
   if (prop.type === "rich_text") return richTextToPlain(prop.rich_text);
   if (prop.type === "select") return prop.select?.name || "";
-  if (prop.type === "multi_select") return prop.multi_select?.map((item) => item.name) || [];
+  if (prop.type === "multi_select") {
+    return prop.multi_select?.map((item) => item.name) || [];
+  }
   if (prop.type === "number") return prop.number;
   if (prop.type === "checkbox") return prop.checkbox;
   if (prop.type === "date") return prop.date?.start || "";
@@ -35,6 +37,7 @@ function flattenPage(page) {
   const props = Object.fromEntries(
     Object.entries(page.properties || {}).map(([key, value]) => [key, propValue(value)]),
   );
+
   return {
     id: page.id,
     url: page.url,
@@ -51,11 +54,22 @@ function yearFromName(name, fallback = "") {
 function rankInfo(result = "") {
   const text = String(result);
   const lower = text.toLowerCase();
-  if (lower.includes("gold") || text.includes("금") || text.includes("🥇")) return { key: "gold", label: "Gold", weight: 1 };
-  if (lower.includes("silver") || text.includes("은") || text.includes("🥈")) return { key: "silver", label: "Silver", weight: 2 };
-  if (lower.includes("bronze") || text.includes("동") || text.includes("🥉")) return { key: "bronze", label: "Bronze", weight: 3 };
-  if (lower.includes("encouragement") || text.includes("장려") || text.includes("🏅")) return { key: "encouragement", label: "Encouragement", weight: 4 };
-  if (lower.includes("none") || text.includes("❌")) return { key: "none", label: "Participated", weight: 8 };
+
+  if (lower.includes("gold") || text.includes("금") || text.includes("🥇")) {
+    return { key: "gold", label: "Gold", weight: 1 };
+  }
+  if (lower.includes("silver") || text.includes("은") || text.includes("🥈")) {
+    return { key: "silver", label: "Silver", weight: 2 };
+  }
+  if (lower.includes("bronze") || text.includes("동") || text.includes("🥉")) {
+    return { key: "bronze", label: "Bronze", weight: 3 };
+  }
+  if (lower.includes("encouragement") || text.includes("장려") || text.includes("🏅")) {
+    return { key: "encouragement", label: "Encouragement", weight: 4 };
+  }
+  if (lower.includes("none") || text.includes("❌")) {
+    return { key: "none", label: "Participated", weight: 8 };
+  }
   return { key: "special", label: "Award", weight: 0 };
 }
 
@@ -81,6 +95,7 @@ function transformData(raw) {
       const priority = getProp(item.props, ["Priority", "PRIORITY"], "");
       const host = getProp(item.props, ["Host", "HOST & ORGANIZER"], []);
       const rank = rankInfo(result);
+
       return {
         id: item.id,
         type: "competition",
@@ -98,7 +113,12 @@ function transformData(raw) {
       };
     })
     .filter((item) => item.name)
-    .sort((a, b) => a.priority - b.priority || rankInfo(a.result).weight - rankInfo(b.result).weight || Number(b.year || 0) - Number(a.year || 0));
+    .sort(
+      (a, b) =>
+        a.priority - b.priority ||
+        rankInfo(a.result).weight - rankInfo(b.result).weight ||
+        Number(b.year || 0) - Number(a.year || 0),
+    );
 
   const projects = raw.projects
     .map(flattenPage)
@@ -134,6 +154,7 @@ function transformData(raw) {
     .map((item) => {
       const name = getProp(item.props, ["Name", "NAME"], "");
       const visibility = getProp(item.props, ["Visibility"], "");
+
       return {
         id: item.id,
         type: "activity",
@@ -172,6 +193,17 @@ function blockText(block) {
   return "";
 }
 
+function jsonResponse(data, init = {}) {
+  return new Response(JSON.stringify(data), {
+    ...init,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store",
+      ...(init.headers || {}),
+    },
+  });
+}
+
 async function notionRequest(token, path, options = {}) {
   const response = await fetch(`https://api.notion.com/v1${path}`, {
     ...options,
@@ -194,24 +226,31 @@ async function notionRequest(token, path, options = {}) {
 async function queryDatabase(token, databaseId) {
   const pages = [];
   let startCursor;
+
   do {
     const payload = { page_size: 100 };
     if (startCursor) payload.start_cursor = startCursor;
+
     const data = await notionRequest(token, `/databases/${databaseId}/query`, {
       method: "POST",
       body: JSON.stringify(payload),
     });
+
     pages.push(...data.results);
     startCursor = data.next_cursor;
   } while (startCursor);
+
   return pages;
 }
 
 async function getPageBlocks(token, pageId) {
   const blocks = [];
   let startCursor;
+
   do {
-    const query = startCursor ? `?start_cursor=${encodeURIComponent(startCursor)}&page_size=100` : "?page_size=100";
+    const query = startCursor
+      ? `?start_cursor=${encodeURIComponent(startCursor)}&page_size=100`
+      : "?page_size=100";
     const data = await notionRequest(token, `/blocks/${pageId}/children${query}`);
     blocks.push(...data.results);
     startCursor = data.next_cursor;
@@ -226,32 +265,47 @@ async function getPageBlocks(token, pageId) {
     .filter((block) => block.text);
 }
 
-module.exports = async function handler(req, res) {
-  const token = process.env.NOTION_ACCESS_TOKEN;
-  if (!token) {
-    res.status(500).json({ error: "NOTION_ACCESS_TOKEN is not configured." });
-    return;
+async function handleNotionApi(request, env) {
+  if (!env.NOTION_ACCESS_TOKEN) {
+    return jsonResponse(
+      { error: "NOTION_ACCESS_TOKEN is not configured." },
+      { status: 500 },
+    );
   }
 
-  try {
-    const url = new URL(req.url, `https://${req.headers.host || "localhost"}`);
-    const pageId = url.searchParams.get("page");
+  const url = new URL(request.url);
+  const pageId = url.searchParams.get("page");
 
-    res.setHeader("Cache-Control", "s-maxage=300, stale-while-revalidate=600");
+  if (pageId) {
+    const blocks = await getPageBlocks(env.NOTION_ACCESS_TOKEN, pageId);
+    return jsonResponse({ blocks });
+  }
 
-    if (pageId) {
-      const blocks = await getPageBlocks(token, pageId);
-      res.status(200).json({ blocks });
-      return;
+  const [projects, competitions, activities] = await Promise.all([
+    queryDatabase(env.NOTION_ACCESS_TOKEN, DATABASES.projects),
+    queryDatabase(env.NOTION_ACCESS_TOKEN, DATABASES.competitions),
+    queryDatabase(env.NOTION_ACCESS_TOKEN, DATABASES.activities),
+  ]);
+
+  return jsonResponse(transformData({ projects, competitions, activities }));
+}
+
+export default {
+  async fetch(request, env) {
+    const url = new URL(request.url);
+
+    try {
+      if (url.pathname === "/api/notion") {
+        return handleNotionApi(request, env);
+      }
+
+      if (url.pathname.startsWith("/api/")) {
+        return jsonResponse({ error: "Not found." }, { status: 404 });
+      }
+
+      return env.ASSETS.fetch(request);
+    } catch (error) {
+      return jsonResponse({ error: error.message }, { status: 500 });
     }
-
-    const [projects, competitions, activities] = await Promise.all([
-      queryDatabase(token, DATABASES.projects),
-      queryDatabase(token, DATABASES.competitions),
-      queryDatabase(token, DATABASES.activities),
-    ]);
-    res.status(200).json(transformData({ projects, competitions, activities }));
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+  },
 };
