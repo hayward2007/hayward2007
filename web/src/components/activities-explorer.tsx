@@ -2,17 +2,23 @@
 
 import { useMemo, useState } from "react";
 import { ActivityLedger } from "@/components/ledger";
+import { EntryDetailPanel, type DetailEntry } from "@/components/entry-detail-panel";
 
-type Activity = { id: string; name: string; year: string; tags: string[] };
+type Activity = { id: string; name: string; year: string; tags: string[]; aiSummary: string };
 
 export function ActivitiesExplorer({
   activities,
   allLabel = "All",
+  closeLabel = "Close",
+  emptyLabel = "Nothing written up yet.",
 }: {
   activities: Activity[];
   allLabel?: string;
+  closeLabel?: string;
+  emptyLabel?: string;
 }) {
   const [filter, setFilter] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Activity | null>(null);
 
   const tags = useMemo(() => {
     const set = new Set<string>();
@@ -21,6 +27,10 @@ export function ActivitiesExplorer({
   }, [activities]);
 
   const filtered = filter ? activities.filter((a) => a.tags.includes(filter)) : activities;
+
+  const detailEntry: DetailEntry | null = selected
+    ? { id: selected.id, name: selected.name, meta: selected.year, tags: selected.tags, aiSummary: selected.aiSummary }
+    : null;
 
   return (
     <div>
@@ -55,7 +65,8 @@ export function ActivitiesExplorer({
           ))}
         </div>
       )}
-      <ActivityLedger items={filtered} />
+      <ActivityLedger items={filtered} onSelect={setSelected} />
+      <EntryDetailPanel entry={detailEntry} onClose={() => setSelected(null)} closeLabel={closeLabel} emptyLabel={emptyLabel} />
     </div>
   );
 }

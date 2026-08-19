@@ -55,6 +55,8 @@ export const dictionaries = {
       of: "of",
       enteredNationwide: "entered nationwide",
       intro: "A ledger, not a highlight reel — every competition entered is listed, ranked or not.",
+      placedOnly: "Placed only",
+      viewAll: "View all",
     },
     activities: {
       eyebrow: "Activities",
@@ -89,6 +91,7 @@ export const dictionaries = {
       submit: "Post comment",
       submitting: "Posting…",
       backToSocial: "← Back to Social",
+      allTags: "All",
     },
     common: {
       backToProjects: "← Back to all projects",
@@ -100,6 +103,8 @@ export const dictionaries = {
       recognition: "Recognition",
       noWriteupYet: "Details for this project are being written up — check back soon.",
       seeMore: "See more →",
+      close: "Close",
+      noSummaryYet: "Nothing written up yet — check back soon.",
     },
   },
   ko: {
@@ -155,6 +160,8 @@ export const dictionaries = {
       of: "총",
       enteredNationwide: "회 전국 대회 참가",
       intro: "하이라이트만 모은 게 아니라 참가한 모든 대회를 순위 여부와 상관없이 기록한 장부입니다.",
+      placedOnly: "입상만",
+      viewAll: "전체보기",
     },
     activities: {
       eyebrow: "활동",
@@ -189,6 +196,7 @@ export const dictionaries = {
       submit: "댓글 남기기",
       submitting: "등록 중…",
       backToSocial: "← 소셜로 돌아가기",
+      allTags: "전체",
     },
     common: {
       backToProjects: "← 모든 프로젝트로",
@@ -200,6 +208,8 @@ export const dictionaries = {
       recognition: "수상 내역",
       noWriteupYet: "아직 상세 내용을 작성 중입니다 — 곧 업데이트됩니다.",
       seeMore: "더보기 →",
+      close: "닫기",
+      noSummaryYet: "아직 정리된 내용이 없습니다 — 곧 업데이트됩니다.",
     },
   },
 } as const;

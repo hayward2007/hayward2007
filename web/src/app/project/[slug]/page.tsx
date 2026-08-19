@@ -18,7 +18,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
   const [project, { locale, dict }] = await Promise.all([getProjectBySlug(slug), getServerDict()]);
   if (!project) notFound();
 
-  const primaryDesc = locale === "ko" ? project.descKo || project.descEn : project.descEn || project.descKo;
+  // aiSummary (a local-LLM write-up built from the full Notion page body) is
+  // the primary story once it exists; the short descKo/descEn property text
+  // is only a fallback for projects that haven't been summarized yet.
+  const primaryDesc =
+    project.aiSummary || (locale === "ko" ? project.descKo || project.descEn : project.descEn || project.descKo);
 
   return (
     <main style={{ background: "var(--bg-inverted)", color: "var(--fg-inverted)" }}>

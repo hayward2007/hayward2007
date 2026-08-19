@@ -2,6 +2,7 @@ import { getPublicProjects } from "@/lib/data";
 import { getServerDict } from "@/lib/locale-server";
 import { ProjectGrid } from "@/components/project-grid";
 import { Reveal } from "@/components/reveal";
+import { CountUp } from "@/components/count-up";
 
 export const dynamic = "force-dynamic";
 
@@ -25,15 +26,19 @@ export default async function ProjectsPage() {
       </div>
 
       <div className="wrap mb-12 flex items-center gap-8 border-t pt-6" style={{ borderColor: "var(--line)" }}>
-        <div>
-          <p className="text-2xl font-semibold tabular-nums">{projects.length}</p>
+        <div className="group cursor-default rounded-lg px-2 py-1 -mx-2 transition-colors duration-200 hover:bg-[var(--bg-raised)]">
+          <p className="text-2xl font-semibold tabular-nums transition-colors duration-200 group-hover:text-[var(--accent-robotics)]">
+            <CountUp value={projects.length} />
+          </p>
           <p className="text-sm" style={{ color: "var(--fg-3)" }}>
             {dict.projects.shown}
           </p>
         </div>
         {goldCount > 0 && (
-          <div>
-            <p className="text-2xl font-semibold tabular-nums">{goldCount}</p>
+          <div className="group cursor-default rounded-lg px-2 py-1 -mx-2 transition-colors duration-200 hover:bg-[var(--bg-raised)]">
+            <p className="text-2xl font-semibold tabular-nums transition-colors duration-200 group-hover:text-[var(--accent-signal)]">
+              <CountUp value={goldCount} />
+            </p>
             <p className="text-sm" style={{ color: "var(--fg-3)" }}>
               {dict.projects.goldRanked}
             </p>

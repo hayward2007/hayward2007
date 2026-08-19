@@ -30,6 +30,11 @@ model Project {
   order      Int       @default(0)
   notionUrl  String?
   editedTime DateTime?
+  // Recursively-fetched Notion page body (blocks, not just the DB properties
+  // above) — kept as the "original" for provenance/regeneration. aiSummary is
+  // the local-LLM write-up rendered on the public project page.
+  rawContent String?
+  aiSummary  String?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
@@ -49,6 +54,8 @@ model Competition {
   priority    Int       @default(99)
   notionUrl   String?
   editedTime  DateTime?
+  rawContent  String?
+  aiSummary   String?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -76,6 +83,8 @@ model Activity {
   tags       String    @default("[]") // JSON-encoded string[]
   notionUrl  String?
   editedTime DateTime?
+  rawContent String?
+  aiSummary  String?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 }
@@ -153,6 +162,11 @@ model BlogPost {
   // they were original reporting.
   source    String?
   sourceUrl String?
+  // Structured curation metadata (field = "분야" category, tags = short
+  // keyword list) — rendered as real UI pills on the public pages instead of
+  // being mashed into body HTML.
+  field     String?
+  tags      String   @default("[]") // JSON-encoded string[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

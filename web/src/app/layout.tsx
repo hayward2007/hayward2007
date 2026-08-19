@@ -3,7 +3,6 @@ import { Suspense } from "react";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeInitScript } from "@/components/theme-toggle";
-import { SmoothScroll } from "@/components/smooth-scroll";
 import { Cursor } from "@/components/cursor";
 import { Grain } from "@/components/grain";
 import { Preloader } from "@/components/preloader";
@@ -43,7 +42,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <PageviewBeacon />
           </Suspense>
           <Preloader />
-          <SmoothScroll />
           <Cursor />
           <Grain />
           <SiteHeader />

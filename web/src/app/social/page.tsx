@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { Reveal } from "@/components/reveal";
 import { CopyRow } from "@/components/copy-row";
 import { HeroDiagram } from "@/components/hero-diagram";
+import { BlogList } from "@/components/blog-list";
 import { getServerDict } from "@/lib/locale-server";
 import { getPublishedBlogPosts } from "@/lib/data";
 
@@ -40,33 +40,8 @@ export default async function SocialPage() {
                 {dict.social.noPosts}
               </p>
             ) : (
-              <div className="mt-4 space-y-5">
-                {posts.map((post) => (
-                  <Link
-                    key={post.slug}
-                    href={`/social/${post.slug}`}
-                    data-cursor="true"
-                    className="group block border-t pt-5 first:border-t-0 first:pt-0"
-                    style={{ borderColor: "var(--line)" }}
-                  >
-                    <div className="flex items-baseline justify-between gap-4">
-                      <h2 className="text-lg font-medium">{post.title}</h2>
-                      <span className="shrink-0 font-mono text-xs" style={{ color: "var(--fg-3)" }}>
-                        {new Date(post.createdAt).toLocaleDateString(dateLocale)}
-                      </span>
-                    </div>
-                    {post.source && (
-                      <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.06em]" style={{ color: "var(--accent-robotics)" }}>
-                        Curated from {post.source}
-                      </p>
-                    )}
-                    {post.excerpt && (
-                      <p className="mt-1 line-clamp-2 text-sm" style={{ color: "var(--fg-3)" }}>
-                        {post.excerpt}
-                      </p>
-                    )}
-                  </Link>
-                ))}
+              <div className="mt-4">
+                <BlogList posts={posts} dateLocale={dateLocale} allLabel={dict.social.allTags} />
               </div>
             )}
           </div>

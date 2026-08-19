@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import { Pictogram } from "@/components/pictogram";
 import { Reveal } from "@/components/reveal";
 import { TiltCard } from "@/components/tilt-card";
+import { TagPill } from "@/components/tag-pill";
 
 type ProjectCard = {
   slug: string;
@@ -57,9 +59,12 @@ export function ProjectGrid({ projects }: { projects: ProjectCard[] }) {
                 // min-height only for multi-row cards: a single-row (banner) card's
                 // grid track is exactly 190px, and forcing a taller min-height here
                 // than that track made the card overflow into — and visually overlap
-                // — the row directly below it.
-                className={`h-full overflow-hidden rounded-2xl border ${span.row > 1 ? "min-h-[260px]" : ""}`}
-                style={{ borderColor: "var(--line)" }}
+                // — the row directly below it. Border hover-color relies on plain
+                // CSS :hover (which bubbles up from the inner Link automatically),
+                // targeting this tile's own accent via a CSS var so each card's
+                // border matches its own fill color instead of one global accent.
+                className={`h-full overflow-hidden rounded-2xl border transition-colors duration-300 hover:[border-color:var(--tile-accent)] ${span.row > 1 ? "min-h-[260px]" : ""}`}
+                style={{ borderColor: "var(--line)", "--tile-accent": span.hoverStroke } as CSSProperties}
               >
                 <Link
                   href={`/project/${project.slug}`}
@@ -86,6 +91,13 @@ export function ProjectGrid({ projects }: { projects: ProjectCard[] }) {
                       />
                     )}
                   </div>
+                  {/* Hover color-fill: a soft wash of the tile's own accent, not just
+                      the pre-existing desaturation removal — the concrete version of
+                      "커서 올라가면 색 채워짐." */}
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-[0.16]"
+                    style={{ background: span.hoverStroke }}
+                  />
                   <div
                     className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3"
                     style={{ background: "linear-gradient(to top, var(--bg-raised) 12%, transparent 100%)" }}
@@ -115,13 +127,7 @@ export function ProjectGrid({ projects }: { projects: ProjectCard[] }) {
                     {span.row > 1 && project.tags.length > 0 && (
                       <div className="mt-3 flex min-w-0 flex-wrap gap-2">
                         {project.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="min-w-0 max-w-[9rem] shrink-0 truncate rounded-full border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.06em]"
-                            style={{ borderColor: "var(--line-strong)", color: "var(--fg-3)", background: "var(--bg-raised)" }}
-                          >
-                            {tag}
-                          </span>
+                          <TagPill key={tag} tag={tag} />
                         ))}
                       </div>
                     )}

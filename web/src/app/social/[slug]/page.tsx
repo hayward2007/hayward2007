@@ -4,6 +4,7 @@ import { getBlogPostBySlug } from "@/lib/data";
 import { getServerDict } from "@/lib/locale-server";
 import { Reveal } from "@/components/reveal";
 import { CommentForm } from "@/components/comment-form";
+import { TagPill } from "@/components/tag-pill";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +36,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                 <>Curated from {post.source}</>
               )}
             </p>
+          )}
+          {(post.field || post.tags.length > 0) && (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {post.field && <TagPill tag={post.field} />}
+              {post.tags.map((tag) => (
+                <TagPill key={tag} tag={tag} />
+              ))}
+            </div>
           )}
         </Reveal>
 

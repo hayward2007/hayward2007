@@ -14,12 +14,17 @@ const prisma = new PrismaClient();
 const rss = new Parser({ customFields: { item: ["summary", "id"] }, timeout: 15_000 });
 
 const OLLAMA_URL = process.env.OLLAMA_URL || "http://127.0.0.1:11434/api/chat";
-const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "qwen2.5:3b-instruct";
+// Bumped from 3b to 7b: the 3b model's Korean write-ups read stiff and
+// translation-ese ("글이 서툴러") — 7b is still comfortably fast on the M1 Max
+// this runs on, and the per-item timeout below already has headroom for it.
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "qwen2.5:7b-instruct";
 const MAX_NEW_POSTS_PER_RUN = 8; // caps this run only — anything past it just waits for the next hourly run
+const MAX_GITHUB_PER_RUN = 3; // raw GitHub issues are the thinnest source content-wise — cap their share so they don't crowd out arXiv/RSS
 
-const SYSTEM_PROMPT = `You are a curator for a personal robotics/physical-AI blog. You are given one
-scraped item (an arXiv paper abstract, a GitHub issue, or a news article) and
-must produce ONLY a JSON object, no other text, with this exact shape:
+const SYSTEM_PROMPT = `You are the editor of a personal robotics/physical-AI blog, writing in natural,
+polished Korean for a technically fluent audience. You are given one scraped
+item (an arXiv paper abstract, a GitHub issue/discussion, or a news article)
+and must produce ONLY a JSON object, no other text, with this exact shape:
 
 {
   "title": string,            // keep the original title as-is; do not invent one
@@ -33,12 +38,21 @@ must produce ONLY a JSON object, no other text, with this exact shape:
                                 // or claims not present in the source text.
 }
 
-Rules:
-- Write summary_lines and detail in Korean, regardless of the source language.
+Voice and style rules:
+- Write summary_lines and detail in Korean, regardless of the source language —
+  natural editorial Korean, not a literal translation. Vary sentence structure
+  across summary_lines and detail; never restate the same sentence pattern twice.
+- If the source is a GitHub issue, frame it as an active development discussion
+  in that project (what's being proposed/debugged and why it matters to people
+  following the project) — not a transcript of a bug report.
+- Write in pure Hangul — never mix in Hanja (Chinese characters) for Korean
+  words, even for common compound words.
 - Never claim this is original reporting — write as a curator summarizing someone
   else's work, and do not use first person as if you did the work.
 - If the source text is too short/thin to summarize meaningfully, still return the
-  JSON, but keep "detail" honest about how little is known rather than padding it.
+  JSON, but keep "detail" honest about how little is known rather than padding it
+  with filler or repeating summary_lines verbatim.
+- Do not fabricate facts, numbers, or claims not present in the source text.
 - Output nothing but the JSON object — no markdown fences, no preamble.`;
 
 type ScrapedItem = {
@@ -227,7 +241,11 @@ async function curate(item: ScrapedItem): Promise<CuratedPost> {
   ) {
     throw new Error(`Ollama returned an incomplete curation object: ${raw.slice(0, 300)}`);
   }
-  return parsed as CuratedPost;
+  return {
+    ...parsed,
+    field: parsed.field.trim(),
+    tags: parsed.tags.filter((t) => typeof t === "string" && t.trim().length > 0).map((t) => t.trim()),
+  } as CuratedPost;
 }
 
 // ---------- Rendering + persistence ----------
@@ -236,9 +254,11 @@ function escapeHtml(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
+// field/tags are stored as their own BlogPost columns (see main()) and
+// rendered as real UI pills by the app — no longer mashed into body HTML as
+// inline <code> badges, which had no structure/filtering behind it.
 function renderBody(curated: CuratedPost, item: ScrapedItem): string {
   const summary = curated.summary_lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("");
-  const badges = [curated.field, ...curated.tags].filter(Boolean).map((t) => `<code>${escapeHtml(t)}</code>`).join(" ");
   const detailParagraphs = curated.detail
     .split(/\n{2,}/)
     .map((p) => p.trim())
@@ -246,7 +266,6 @@ function renderBody(curated: CuratedPost, item: ScrapedItem): string {
     .map((p) => `<p>${escapeHtml(p)}</p>`)
     .join("");
   return [
-    badges ? `<p>${badges}</p>` : "",
     `<blockquote>${summary}</blockquote>`,
     detailParagraphs,
     `<p><a href="${escapeHtml(item.url)}">원문 보기 →</a></p>`,
@@ -296,14 +315,37 @@ async function fetchSourceSafely(label: string, fn: () => Promise<ScrapedItem[]>
   }
 }
 
+// Straight concatenation (arxiv items, then all github, then all rss) let
+// GitHub's raw bug-report issues dominate a run whenever arXiv came back thin
+// or rate-limited — round-robin across sources instead, and cap GitHub's
+// share outright, since it's the thinnest source content-wise.
+function interleaveSources(arxiv: ScrapedItem[], github: ScrapedItem[], articles: ScrapedItem[]): ScrapedItem[] {
+  // Copies, not the original arrays — shift() below would otherwise drain
+  // arxiv/articles in place, and main() logs their .length right after this
+  // call returns.
+  const queues = [[...arxiv], github.slice(0, MAX_GITHUB_PER_RUN), [...articles]];
+  const result: ScrapedItem[] = [];
+  let cursor = 0;
+  while (queues.some((q) => q.length > 0)) {
+    const queue = queues[cursor % queues.length];
+    cursor += 1;
+    const next = queue.shift();
+    if (next) result.push(next);
+  }
+  return result;
+}
+
 async function main() {
   const [arxiv, github, articles] = await Promise.all([
     fetchSourceSafely("arxiv", fetchArxiv),
     fetchSourceSafely("github", fetchGithubIssues),
     fetchSourceSafely("rss", fetchRssFeeds),
   ]);
-  const items = [...arxiv, ...github, ...articles];
-  console.log(`[curation-worker] scraped ${items.length} candidate items`);
+  const items = interleaveSources(arxiv, github, articles);
+  console.log(
+    `[curation-worker] scraped ${arxiv.length + github.length + articles.length} candidate items ` +
+      `(arxiv=${arxiv.length}, github=${github.length}${github.length > MAX_GITHUB_PER_RUN ? `, capped to ${MAX_GITHUB_PER_RUN}` : ""}, rss=${articles.length})`,
+  );
 
   let published = 0;
   for (const item of items) {
@@ -329,6 +371,8 @@ async function main() {
           published: true,
           source: item.source,
           sourceUrl: item.url,
+          field: curated.field || null,
+          tags: JSON.stringify(curated.tags || []),
         },
       });
       await prisma.curationSeen.create({ data: { sourceUrl: item.url } });

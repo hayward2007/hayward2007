@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { summarizeNotionContent, type SummarizeKind } from "@/lib/ollama";
 
 const NOTION_VERSION = "2022-06-28";
 
@@ -177,34 +178,84 @@ async function queryDatabase(token: string, databaseId: string): Promise<NotionP
   return pages;
 }
 
-function blockText(block: Record<string, unknown> & { type: string }) {
-  const value = block[block.type] as { rich_text?: RichTextItem[]; caption?: RichTextItem[] } | undefined;
+type NotionBlock = Record<string, unknown> & { id: string; type: string; has_children?: boolean };
+
+const LINE_PREFIX: Record<string, string> = {
+  bulleted_list_item: "- ",
+  numbered_list_item: "1. ",
+  quote: "> ",
+  heading_1: "# ",
+  heading_2: "## ",
+  heading_3: "### ",
+};
+
+function blockText(block: NotionBlock): string {
+  const value = block[block.type] as
+    | { rich_text?: RichTextItem[]; caption?: RichTextItem[]; checked?: boolean; cells?: RichTextItem[][] }
+    | undefined;
   if (!value) return "";
-  if (Array.isArray(value.rich_text)) return richTextToPlain(value.rich_text);
-  if (Array.isArray(value.caption)) return richTextToPlain(value.caption);
-  return "";
+
+  if (Array.isArray(value.cells)) return value.cells.map((cell) => richTextToPlain(cell)).join(" | ");
+
+  const text = Array.isArray(value.rich_text)
+    ? richTextToPlain(value.rich_text)
+    : Array.isArray(value.caption)
+      ? richTextToPlain(value.caption)
+      : "";
+  if (!text) return "";
+
+  if (block.type === "to_do") return `${value.checked ? "[x] " : "[ ] "}${text}`;
+  return `${LINE_PREFIX[block.type] || ""}${text}`;
 }
 
-export async function getPageBlocks(token: string, pageId: string) {
-  const blocks: Record<string, unknown>[] = [];
+async function fetchBlockChildren(token: string, blockId: string): Promise<NotionBlock[]> {
+  const blocks: NotionBlock[] = [];
   let startCursor: string | undefined;
 
   do {
     const query = startCursor
       ? `?start_cursor=${encodeURIComponent(startCursor)}&page_size=100`
       : "?page_size=100";
-    const data = await notionRequest(token, `/blocks/${pageId}/children${query}`);
-    blocks.push(...data.results);
+    const data = await notionRequest(token, `/blocks/${blockId}/children${query}`);
+    blocks.push(...(data.results as NotionBlock[]));
     startCursor = data.next_cursor;
   } while (startCursor);
 
-  return blocks
-    .map((block) => ({
-      id: block.id as string,
-      type: block.type as string,
-      text: blockText(block as Record<string, unknown> & { type: string }),
-    }))
-    .filter((block) => block.text);
+  return blocks;
+}
+
+const MAX_BLOCK_DEPTH = 6;
+// child_page/child_database point at an entirely separate Notion page/DB —
+// recursing into those would pull in unrelated content (and risks cycles),
+// not this page's own body.
+const SKIP_RECURSION_TYPES = new Set(["child_page", "child_database"]);
+
+async function walkBlocks(token: string, blockId: string, depth: number): Promise<string[]> {
+  if (depth > MAX_BLOCK_DEPTH) return [];
+  const children = await fetchBlockChildren(token, blockId);
+  const lines: string[] = [];
+
+  for (const block of children) {
+    const text = blockText(block);
+    if (text) lines.push(text);
+    if (block.has_children && !SKIP_RECURSION_TYPES.has(block.type)) {
+      lines.push(...(await walkBlocks(token, block.id, depth + 1)));
+    }
+  }
+
+  return lines;
+}
+
+/**
+ * Recursively fetches a Notion page's full body — every nested block, not
+ * just the one level `/blocks/{id}/children` returns on its own — flattened
+ * to plain text. This is the actual page content you see when you open the
+ * page in Notion, distinct from its database properties (title, selects,
+ * short rich-text fields), which `flattenPage`/`propValue` already cover.
+ */
+export async function getPageText(token: string, pageId: string): Promise<string> {
+  const lines = await walkBlocks(token, pageId, 0);
+  return lines.join("\n");
 }
 
 export function notionStatusHint(status: number) {
@@ -215,6 +266,34 @@ export function notionStatusHint(status: number) {
   }
   if (status === 429) return "Notion rate-limited the request. Try again after a short wait.";
   return "Check the server logs for the detailed Notion error body.";
+}
+
+// The recursive block fetch + LLM call is the expensive part of a sync (a
+// handful of Notion API round-trips and one Ollama call per item). Gate it on
+// Notion's own last_edited_time so a steady-state 30-min auto-sync only pays
+// that cost for pages that actually changed, not every page every time.
+async function fetchSummaryFields(
+  token: string,
+  kind: SummarizeKind,
+  pageId: string,
+  name: string,
+  newEditedTime: string,
+  existing: { editedTime: Date | null; aiSummary: string | null } | null | undefined,
+  currentTags: string[],
+): Promise<{ rawContent?: string; aiSummary?: string; tags?: string[] }> {
+  const unchanged = existing?.editedTime?.toISOString() === new Date(newEditedTime).toISOString();
+  if (unchanged && existing?.aiSummary) return {};
+
+  try {
+    const rawContent = await getPageText(token, pageId);
+    if (!rawContent.trim()) return {};
+    const result = await summarizeNotionContent(kind, name, rawContent, currentTags);
+    if (!result) return { rawContent };
+    return { rawContent, aiSummary: result.summaryHtml, tags: result.tags };
+  } catch (err) {
+    console.error(`[notion] summarize step failed for ${kind} "${name}":`, err);
+    return {};
+  }
 }
 
 /**
@@ -244,6 +323,17 @@ export async function syncFromNotion(token: string) {
     const host = getProp<string[]>(item.props, ["Host", "HOST & ORGANIZER"], []);
     const rank = rankInfo(result as string);
 
+    const existingCompetition = await prisma.competition.findUnique({ where: { notionId: item.id } });
+    const summary = await fetchSummaryFields(
+      token,
+      "competition",
+      item.id,
+      name as string,
+      item.editedTime,
+      existingCompetition,
+      [],
+    );
+
     const row = await prisma.competition.upsert({
       where: { notionId: item.id },
       create: {
@@ -257,6 +347,8 @@ export async function syncFromNotion(token: string) {
         priority: priorityValue(priority),
         notionUrl: item.url,
         editedTime: new Date(item.editedTime),
+        rawContent: summary.rawContent,
+        aiSummary: summary.aiSummary,
       },
       update: {
         name: name as string,
@@ -268,6 +360,8 @@ export async function syncFromNotion(token: string) {
         priority: priorityValue(priority),
         notionUrl: item.url,
         editedTime: new Date(item.editedTime),
+        rawContent: summary.rawContent,
+        aiSummary: summary.aiSummary,
       },
     });
     competitionNotionToLocalId.set(item.id, row.id);
@@ -305,6 +399,18 @@ export async function syncFromNotion(token: string) {
     }
     usedSlugs.add(slug);
 
+    const existingProjectTags: string[] = existing?.tags ? JSON.parse(existing.tags) : [];
+    const summary = await fetchSummaryFields(
+      token,
+      "project",
+      item.id,
+      name as string,
+      item.editedTime,
+      existing,
+      existingProjectTags,
+    );
+    const finalTags = summary.tags ?? existingProjectTags;
+
     const row = await prisma.project.upsert({
       where: { notionId: item.id },
       create: {
@@ -319,6 +425,9 @@ export async function syncFromNotion(token: string) {
         notionUrl: item.url,
         editedTime: new Date(item.editedTime),
         order: projectCount,
+        tags: JSON.stringify(finalTags),
+        rawContent: summary.rawContent,
+        aiSummary: summary.aiSummary,
       },
       update: {
         name: name as string,
@@ -329,6 +438,9 @@ export async function syncFromNotion(token: string) {
         visibility: isPublic(visibility) ? "public" : "private",
         notionUrl: item.url,
         editedTime: new Date(item.editedTime),
+        tags: JSON.stringify(finalTags),
+        rawContent: summary.rawContent,
+        aiSummary: summary.aiSummary,
       },
     });
 
@@ -352,9 +464,26 @@ export async function syncFromNotion(token: string) {
 
     const visibility = getProp(item.props, ["Visibility"], "");
     const tagsRaw = getProp(item.props, ["Tags", "TAGS", "Type", "TYPE", "Category", "CATEGORY"], []);
-    const tags = Array.isArray(tagsRaw)
+    const notionTags = Array.isArray(tagsRaw)
       ? tagsRaw
       : String(tagsRaw || "").split(",").map((v) => v.trim()).filter(Boolean);
+
+    const existingActivity = await prisma.activity.findUnique({ where: { notionId: item.id } });
+    const summary = await fetchSummaryFields(
+      token,
+      "activity",
+      item.id,
+      name as string,
+      item.editedTime,
+      existingActivity,
+      notionTags,
+    );
+    // Notion's own Tags property always wins when present; the LLM only
+    // fills the gap when Notion has none ("부족한 태그" — fill missing, don't
+    // override curated ones), and a skipped/failed summarize step falls back
+    // to whatever was already stored rather than clearing tags to empty.
+    const existingActivityTags: string[] = existingActivity?.tags ? JSON.parse(existingActivity.tags) : [];
+    const finalTags = notionTags.length > 0 ? notionTags : summary.tags ?? existingActivityTags;
 
     await prisma.activity.upsert({
       where: { notionId: item.id },
@@ -363,17 +492,21 @@ export async function syncFromNotion(token: string) {
         name: name as string,
         visibility: isPublic(visibility) ? "public" : "private",
         year: yearFromName(name as string, item.createdTime),
-        tags: JSON.stringify(tags),
+        tags: JSON.stringify(finalTags),
         notionUrl: item.url,
         editedTime: new Date(item.editedTime),
+        rawContent: summary.rawContent,
+        aiSummary: summary.aiSummary,
       },
       update: {
         name: name as string,
         visibility: isPublic(visibility) ? "public" : "private",
         year: yearFromName(name as string, item.createdTime),
-        tags: JSON.stringify(tags),
+        tags: JSON.stringify(finalTags),
         notionUrl: item.url,
         editedTime: new Date(item.editedTime),
+        rawContent: summary.rawContent,
+        aiSummary: summary.aiSummary,
       },
     });
     activityCount += 1;

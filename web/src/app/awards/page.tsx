@@ -1,6 +1,6 @@
 import { getCompetitions, getPublicActivities } from "@/lib/data";
 import { getServerDict } from "@/lib/locale-server";
-import { CompetitionLedger } from "@/components/ledger";
+import { CompetitionsExplorer } from "@/components/competitions-explorer";
 import { ActivitiesExplorer } from "@/components/activities-explorer";
 import { Reveal } from "@/components/reveal";
 
@@ -60,7 +60,13 @@ export default async function AwardsPage() {
       </Reveal>
 
       <div className="wrap">
-        <CompetitionLedger items={featured} />
+        <CompetitionsExplorer
+          competitions={competitions}
+          placedOnlyLabel={dict.awards.placedOnly}
+          viewAllLabel={dict.awards.viewAll}
+          closeLabel={dict.common.close}
+          emptyLabel={dict.common.noSummaryYet}
+        />
       </div>
 
       <div className="wrap mt-20 border-t pt-16" style={{ borderColor: "var(--line)" }}>
@@ -74,7 +80,12 @@ export default async function AwardsPage() {
           </p>
         </Reveal>
         <div className="mt-10">
-          <ActivitiesExplorer activities={activities} allLabel={dict.activities.all} />
+          <ActivitiesExplorer
+            activities={activities}
+            allLabel={dict.activities.all}
+            closeLabel={dict.common.close}
+            emptyLabel={dict.common.noSummaryYet}
+          />
         </div>
       </div>
     </main>

@@ -19,23 +19,32 @@ export async function getPublicProjects() {
     include: { awards: { include: { competition: true } } },
   });
 
-  return projects.map((project) => ({
-    id: project.id,
-    slug: project.slug,
-    name: project.name,
-    descKo: stripHtml(project.descKo),
-    descEn: stripHtml(project.descEn),
-    cover: project.cover || "",
-    icon: project.icon || "",
-    tags: [...new Set(project.awards.map((a) => stripHtml(a.competition.rankLabel)).filter(Boolean))] as string[],
-    awards: project.awards.map((a) => ({
-      name: a.competition.name,
-      result: a.competition.result || "",
-      rank: a.competition.rank || "",
-      rankLabel: a.competition.rankLabel || "",
-      year: a.competition.year || "",
-    })),
-  }));
+  return projects.map((project) => {
+    const ownTags = parseJsonArray(project.tags);
+    return {
+      id: project.id,
+      slug: project.slug,
+      name: project.name,
+      descKo: stripHtml(project.descKo),
+      descEn: stripHtml(project.descEn),
+      cover: project.cover || "",
+      icon: project.icon || "",
+      // Real content tags (LLM-filled from the Notion write-up when Project.tags
+      // is empty) take priority; award rank labels are only a fallback for
+      // projects that haven't been summarized yet.
+      tags:
+        ownTags.length > 0
+          ? ownTags
+          : ([...new Set(project.awards.map((a) => stripHtml(a.competition.rankLabel)).filter(Boolean))] as string[]),
+      awards: project.awards.map((a) => ({
+        name: a.competition.name,
+        result: a.competition.result || "",
+        rank: a.competition.rank || "",
+        rankLabel: a.competition.rankLabel || "",
+        year: a.competition.year || "",
+      })),
+    };
+  });
 }
 
 export async function getProjectBySlug(slug: string) {
@@ -51,6 +60,7 @@ export async function getProjectBySlug(slug: string) {
     name: project.name,
     descKo: sanitizeHtml(project.descKo),
     descEn: sanitizeHtml(project.descEn),
+    aiSummary: sanitizeHtml(project.aiSummary),
     cover: project.cover || "",
     icon: project.icon || "",
     awards: project.awards.map((a) => ({
@@ -73,6 +83,7 @@ export async function getPublicActivities() {
     name: activity.name,
     year: activity.year || "",
     tags: parseJsonArray(activity.tags),
+    aiSummary: sanitizeHtml(activity.aiSummary),
   }));
 }
 
@@ -87,6 +98,7 @@ export async function getCompetitions() {
     rank: c.rank || "",
     rankLabel: c.rankLabel || "",
     host: parseJsonArray(c.host),
+    aiSummary: sanitizeHtml(c.aiSummary),
     year: c.year || "",
     priority: c.priority,
     isAward: c.rank !== "none",
@@ -205,6 +217,8 @@ export async function getPublishedBlogPosts() {
     excerpt: stripHtml(post.body).slice(0, 160),
     createdAt: post.createdAt.toISOString(),
     source: post.source || "",
+    field: post.field || "",
+    tags: parseJsonArray(post.tags),
   }));
 }
 
@@ -222,6 +236,8 @@ export async function getBlogPostBySlug(slug: string) {
     createdAt: post.createdAt.toISOString(),
     source: post.source || "",
     sourceUrl: post.sourceUrl || "",
+    field: post.field || "",
+    tags: parseJsonArray(post.tags),
     comments: post.comments.map((c) => ({
       id: c.id,
       name: c.name,

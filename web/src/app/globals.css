@@ -97,10 +97,6 @@ html {
   scroll-behavior: auto;
 }
 
-html.lenis {
-  height: auto;
-}
-
 body {
   background: var(--bg);
   color: var(--fg);
