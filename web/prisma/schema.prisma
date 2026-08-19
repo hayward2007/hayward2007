@@ -1,0 +1,168 @@
+// Prisma schema — local site database.
+// Notion stays the authoring source; the admin console pulls a snapshot into
+// these tables via /api/admin/sync, then edits happen here (not written back
+// to Notion).
+
+generator client {
+  provider      = "prisma-client"
+  output        = "../src/generated/prisma"
+  // "native" covers local dev (macOS/Windows/etc); linux-musl covers the
+  // Alpine-based Docker image used for deployment.
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id         String    @id @default(cuid())
+  notionId   String?   @unique
+  name       String
+  slug       String    @unique
+  descKo     String?
+  descEn     String?
+  cover      String?
+  icon       String?
+  visibility String    @default("private") // "public" | "private"
+  tags       String    @default("[]") // JSON-encoded string[]
+  order      Int       @default(0)
+  notionUrl  String?
+  editedTime DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  awards         ProjectAward[]
+  portfolioItems PortfolioProject[]
+}
+
+model Competition {
+  id          String    @id @default(cuid())
+  notionId    String?   @unique
+  name        String
+  result      String?
+  rank        String?
+  rankLabel   String?
+  host        String    @default("[]") // JSON-encoded string[]
+  year        String?
+  priority    Int       @default(99)
+  notionUrl   String?
+  editedTime  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  awards ProjectAward[]
+}
+
+// Join table: which competitions a project earned awards through.
+model ProjectAward {
+  id            String @id @default(cuid())
+  projectId     String
+  competitionId String
+
+  project     Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  competition Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, competitionId])
+}
+
+model Activity {
+  id         String    @id @default(cuid())
+  notionId   String?   @unique
+  name       String
+  visibility String    @default("private")
+  year       String?
+  tags       String    @default("[]") // JSON-encoded string[]
+  notionUrl  String?
+  editedTime DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+// A generated, application-specific portfolio ("apply to OH! Gym with only
+// the robotics/RL projects"), shareable via /p/[slug] or <slug>.<baseDomain>.
+model PortfolioBuild {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  targetRole  String?
+  targetOrg   String?
+  intro       String?
+  accent      String   @default("teal")
+  isPublished Boolean  @default(true)
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items PortfolioProject[]
+}
+
+model PortfolioProject {
+  id            String  @id @default(cuid())
+  portfolioId   String
+  projectId     String
+  order         Int     @default(0)
+  highlightNote String?
+
+  portfolio PortfolioBuild @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  project   Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, projectId])
+}
+
+model SyncLog {
+  id        String   @id @default(cuid())
+  source    String   @default("notion")
+  status    String // "success" | "error"
+  message   String?
+  createdAt DateTime @default(now())
+}
+
+// One row per real page load, logged client-side (src/components/pageview-beacon.tsx)
+// rather than in proxy.ts, so prefetches/assets/API calls never get counted.
+// `ref`/utm_* are whatever the visited URL's query string carried, verbatim —
+// e.g. share a link as "?ref=linkedin" to see it show up grouped in /admin/analytics.
+model PageView {
+  id           String   @id @default(cuid())
+  path         String
+  ref          String?
+  utmSource    String?
+  utmMedium    String?
+  utmCampaign  String?
+  referrerHost String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path])
+}
+
+// The "Social" page's blog. Body is rich-text HTML, same convention/editor as
+// Project.descKo/descEn (src/components/admin/rich-text-editor.tsx).
+model BlogPost {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  body      String   @default("")
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comments Comment[]
+}
+
+// Public, unauthenticated, published immediately (no moderation queue) — see
+// src/app/api/blog/[slug]/comments/route.ts, which still sanitizes to plain
+// text and caps length before insert.
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  name      String
+  body      String
+  createdAt DateTime @default(now())
+
+  post BlogPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+}
