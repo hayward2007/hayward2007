@@ -1,24 +1,34 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import dynamic from "next/dynamic";
 import { useEffect, useRef, useState, type ComponentType } from "react";
-import { GravityEffect } from "@/components/easter-egg/gravity-effect";
-import { RainbowEffect } from "@/components/easter-egg/rainbow-effect";
-import { GlitchEffect } from "@/components/easter-egg/glitch-effect";
-import { ZeroGravityEffect } from "@/components/easter-egg/zero-gravity-effect";
-import { MatrixRainEffect } from "@/components/easter-egg/matrix-rain-effect";
-import { ConfettiEffect } from "@/components/easter-egg/confetti-effect";
 import type { EasterEggEffectProps } from "@/components/easter-egg/types";
 
-// One is picked at random each time the button is pressed.
+// Lazy-loaded so matter-js and friends only download once the button is
+// actually clicked, not on every single page load for every visitor.
 const EFFECTS: ComponentType<EasterEggEffectProps>[] = [
-  GravityEffect,
-  RainbowEffect,
-  GlitchEffect,
-  ZeroGravityEffect,
-  MatrixRainEffect,
-  ConfettiEffect,
+  dynamic(() => import("@/components/easter-egg/gravity-effect").then((m) => m.GravityEffect)),
+  dynamic(() => import("@/components/easter-egg/rainbow-effect").then((m) => m.RainbowEffect)),
+  dynamic(() => import("@/components/easter-egg/glitch-effect").then((m) => m.GlitchEffect)),
+  dynamic(() => import("@/components/easter-egg/zero-gravity-effect").then((m) => m.ZeroGravityEffect)),
+  dynamic(() => import("@/components/easter-egg/matrix-rain-effect").then((m) => m.MatrixRainEffect)),
+  dynamic(() => import("@/components/easter-egg/confetti-effect").then((m) => m.ConfettiEffect)),
+  dynamic(() => import("@/components/easter-egg/converge-effect").then((m) => m.ConvergeEffect)),
+  dynamic(() => import("@/components/easter-egg/orbit-effect").then((m) => m.OrbitEffect)),
+  dynamic(() => import("@/components/easter-egg/vortex-effect").then((m) => m.VortexEffect)),
+  dynamic(() => import("@/components/easter-egg/warp-effect").then((m) => m.WarpEffect)),
+  dynamic(() => import("@/components/easter-egg/shockwave-effect").then((m) => m.ShockwaveEffect)),
 ];
+
+function shuffled<T>(items: T[]): T[] {
+  const arr = items.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
 
 export function EasterEggButton() {
   const pathname = usePathname();
@@ -26,11 +36,13 @@ export function EasterEggButton() {
   const [closing, setClosing] = useState(false);
   const [EffectComponent, setEffectComponent] = useState<ComponentType<EasterEggEffectProps> | null>(null);
   const prevPathname = useRef(pathname);
+  // A shuffled queue of effect indices — trigger() pops the front instead of
+  // picking uniformly at random, so every effect is seen once per cycle before
+  // any repeat, and a fresh shuffle never starts with what the last one ended on.
+  const queueRef = useRef<number[]>([]);
+  const lastIndexRef = useRef<number | null>(null);
 
   useEffect(() => {
-    // Navigating away mid-effect: the page's own DOM is about to be torn
-    // down regardless, so cut straight to a hard reset instead of running
-    // the graceful fly-back — there's nothing left to animate back onto.
     if (prevPathname.current !== pathname && active) {
       setActive(false);
       setClosing(false);
@@ -40,18 +52,26 @@ export function EasterEggButton() {
   }, [pathname, active]);
 
   useEffect(() => {
-    // TiltCard rewrites its own ancestor's transform on every mousemove,
-    // which undoes the one-time containing-block neutralization Gravity/
-    // ZeroGravity did at mount — re-clipping their now-fixed-position cards
-    // the instant the pointer re-enters one. Freezing tilt for the whole
-    // active+closing window sidesteps that instead of patching every effect.
     document.body.dataset.easterEgg = active ? "1" : "";
   }, [active]);
 
   if (pathname.startsWith("/admin")) return null;
 
+  function nextIndex(): number {
+    if (queueRef.current.length === 0) {
+      const shuffle = shuffled(EFFECTS.map((_, i) => i));
+      if (lastIndexRef.current !== null && shuffle[0] === lastIndexRef.current && shuffle.length > 1) {
+        [shuffle[0], shuffle[1]] = [shuffle[1], shuffle[0]];
+      }
+      queueRef.current = shuffle;
+    }
+    const index = queueRef.current.shift()!;
+    lastIndexRef.current = index;
+    return index;
+  }
+
   function trigger() {
-    const pick = EFFECTS[Math.floor(Math.random() * EFFECTS.length)];
+    const pick = EFFECTS[nextIndex()];
     setEffectComponent(() => pick);
     setActive(true);
     setClosing(false);

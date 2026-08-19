@@ -30,18 +30,23 @@ export function GravityEffect({ closing, onFinished }: EasterEggEffectProps) {
     const all = Array.from(main.querySelectorAll<HTMLElement>(SELECTOR));
     // Safety net: if a tagged element is nested inside another tagged element,
     // keep only the outer one so we never spawn two overlapping bodies for one item.
-    // Also skip anything far outside the current viewport — a long page can have
-    // tagged elements well below the fold, and dropping those invisibly is just
-    // wasted simulation (and a source of "why did things end up so far away" confusion).
-    const viewportH = window.innerHeight;
-    const targets = all
+    const outermost = all
       .filter((el) => !all.some((other) => other !== el && other.contains(el)))
-      .filter((el) => el.offsetWidth > 4 && el.offsetHeight > 4)
-      .filter((el) => {
-        const r = el.getBoundingClientRect();
-        return r.bottom > -viewportH && r.top < viewportH * 2;
-      })
-      .slice(0, MAX_BODIES);
+      .filter((el) => el.offsetWidth > 4 && el.offsetHeight > 4);
+
+    // Prefer elements near the current scroll position — a long page can have
+    // tagged elements well below the fold, and dropping those invisibly is just
+    // wasted simulation. But if that filter happens to catch nothing (the user
+    // triggered the effect scrolled to a stretch of page with no nearby tagged
+    // elements at all), fall back to the full set rather than silently doing
+    // nothing — that fallback-less version is what made the effect look like it
+    // "didn't turn on" some of the time.
+    const viewportH = window.innerHeight;
+    const nearViewport = outermost.filter((el) => {
+      const r = el.getBoundingClientRect();
+      return r.bottom > -viewportH && r.top < viewportH * 2;
+    });
+    const targets = (nearViewport.length > 0 ? nearViewport : outermost).slice(0, MAX_BODIES);
 
     if (targets.length === 0) {
       onFinishedRef.current();

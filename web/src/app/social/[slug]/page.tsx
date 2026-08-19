@@ -25,6 +25,17 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           <p className="mt-2 font-mono text-xs" style={{ color: "var(--fg-3)" }}>
             {new Date(post.createdAt).toLocaleDateString(dateLocale)}
           </p>
+          {post.source && (
+            <p className="mt-2 font-mono text-xs uppercase tracking-[0.06em]" style={{ color: "var(--accent-robotics)" }}>
+              {post.sourceUrl ? (
+                <a href={post.sourceUrl} data-cursor="true" target="_blank" rel="noreferrer">
+                  Curated from {post.source} →
+                </a>
+              ) : (
+                <>Curated from {post.source}</>
+              )}
+            </p>
+          )}
         </Reveal>
 
         <Reveal delay={0.06} className="mt-10">

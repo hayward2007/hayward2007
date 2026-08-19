@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeInitScript } from "@/components/theme-toggle";
 import { SmoothScroll } from "@/components/smooth-scroll";
@@ -12,6 +13,16 @@ import { EasterEggButton } from "@/components/easter-egg/easter-egg-button";
 import { PageviewBeacon } from "@/components/pageview-beacon";
 import { getServerLocale } from "@/lib/locale-server";
 
+// Self-hosted (was a cdn.jsdelivr.net <link>, which cost every first-time
+// visitor an extra DNS+TLS round trip to a third-party origin before the
+// stylesheet — let alone the font file — could even start loading).
+const pretendard = localFont({
+  src: "./fonts/PretendardVariable.woff2",
+  display: "swap",
+  weight: "45 920",
+  variable: "--font-pretendard",
+});
+
 export const metadata: Metadata = {
   title: "Hayward Kim — Robotics & Physical AI",
   description:
@@ -22,14 +33,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const locale = await getServerLocale();
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning className={pretendard.variable}>
       <head>
         <ThemeInitScript />
-        <link
-          rel="stylesheet"
-          as="style"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.css"
-        />
       </head>
       <body className="min-h-dvh antialiased">
         <LocaleProvider locale={locale}>

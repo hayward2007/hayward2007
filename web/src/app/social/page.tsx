@@ -55,6 +55,11 @@ export default async function SocialPage() {
                         {new Date(post.createdAt).toLocaleDateString(dateLocale)}
                       </span>
                     </div>
+                    {post.source && (
+                      <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.06em]" style={{ color: "var(--accent-robotics)" }}>
+                        Curated from {post.source}
+                      </p>
+                    )}
                     {post.excerpt && (
                       <p className="mt-1 line-clamp-2 text-sm" style={{ color: "var(--fg-3)" }}>
                         {post.excerpt}

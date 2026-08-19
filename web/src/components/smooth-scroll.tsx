@@ -9,9 +9,13 @@ export function SmoothScroll() {
     if (window.matchMedia("(pointer: coarse)").matches) return; // native scroll on touch
 
     const lenis = new Lenis({
-      duration: 0.35,
-      easing: (t) => 1 - Math.pow(1 - t, 1.5),
-      wheelMultiplier: 1.4,
+      // Short and close to linear: the point is to still get the very brief,
+      // sub-100ms glide that keeps trackpad flicks from feeling clipped, without
+      // the wheel input trailing noticeably behind the pointer — a longer
+      // duration/curvier easing here is exactly what read as "답답해" (stuffy).
+      duration: 0.18,
+      easing: (t) => t,
+      wheelMultiplier: 1.7,
     });
 
     let raf = 0;

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { getCounts, getLastSync, getPublicProjects, getCompetitions } from "@/lib/data";
 import { getServerDict } from "@/lib/locale-server";
 import { Hero } from "@/components/hero";
@@ -7,13 +8,13 @@ import { Reveal } from "@/components/reveal";
 export const dynamic = "force-dynamic";
 
 export default async function AboutPage() {
-  const [counts, syncedAt, projects, competitions] = await Promise.all([
+  const [counts, syncedAt, projects, competitions, { dict }] = await Promise.all([
     getCounts(),
     getLastSync(),
     getPublicProjects(),
     getCompetitions(),
+    getServerDict(),
   ]);
-  const { dict } = await getServerDict();
   const selectedProjects = projects.slice(0, 3);
   const recordEntries = competitions.filter((c) => c.isAward).slice(0, 4);
 
@@ -24,10 +25,12 @@ export default async function AboutPage() {
       <section className="border-t py-20 md:py-24" style={{ borderColor: "var(--line)" }}>
         <div className="wrap grid grid-cols-1 gap-14 md:grid-cols-[0.75fr_1.25fr]">
           <Reveal>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src="/assets/banner.jpeg"
               alt="Hayward Kim"
+              width={1800}
+              height={1200}
+              priority
               className="w-full rounded-2xl object-cover grayscale"
               style={{ aspectRatio: "4 / 5" }}
             />

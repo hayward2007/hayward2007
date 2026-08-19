@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { CSSProperties, ReactNode, MouseEvent as ReactMouseEvent } from "react";
 import { useHasHover } from "@/lib/use-has-hover";
 
@@ -17,6 +17,24 @@ export function TiltCard({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const hasHover = useHasHover();
+  // Native mousemove can fire well above 60/sec; writing style.transform on
+  // every single event is more synchronous layout/paint work than any one
+  // frame needs. Collapse to at most one write per animation frame instead.
+  const pendingRef = useRef<{ px: number; py: number } | null>(null);
+  const rafRef = useRef(0);
+
+  useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
+
+  function scheduleApply() {
+    if (rafRef.current) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = 0;
+      const el = ref.current;
+      const point = pendingRef.current;
+      if (!el || !point) return;
+      el.style.transform = `perspective(1200px) rotateX(${(-point.py * intensity).toFixed(2)}deg) rotateY(${(point.px * intensity).toFixed(2)}deg)`;
+    });
+  }
 
   function onMouseMove(e: ReactMouseEvent<HTMLDivElement>) {
     if (!hasHover) return;
@@ -27,13 +45,18 @@ export function TiltCard({
     const el = ref.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    const px = (e.clientX - rect.left) / rect.width - 0.5;
-    const py = (e.clientY - rect.top) / rect.height - 0.5;
-    el.style.transform = `perspective(1200px) rotateX(${(-py * intensity).toFixed(2)}deg) rotateY(${(px * intensity).toFixed(2)}deg)`;
+    pendingRef.current = {
+      px: (e.clientX - rect.left) / rect.width - 0.5,
+      py: (e.clientY - rect.top) / rect.height - 0.5,
+    };
+    scheduleApply();
   }
 
   function onMouseLeave() {
     if (document.body.dataset.easterEgg) return;
+    pendingRef.current = null;
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = 0;
     const el = ref.current;
     if (!el) return;
     el.style.transform = "perspective(1200px) rotateX(0deg) rotateY(0deg)";

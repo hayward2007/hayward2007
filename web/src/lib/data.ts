@@ -94,12 +94,10 @@ export async function getCompetitions() {
 }
 
 export async function getCounts() {
-  const [projects, competitions, activities] = await Promise.all([
+  const [projects, competitions, activities, visibleProjects, visibleActivities] = await Promise.all([
     prisma.project.count(),
     prisma.competition.count(),
     prisma.activity.count(),
-  ]);
-  const [visibleProjects, visibleActivities] = await Promise.all([
     prisma.project.count({ where: { visibility: "public" } }),
     prisma.activity.count({ where: { visibility: "public" } }),
   ]);
@@ -206,6 +204,7 @@ export async function getPublishedBlogPosts() {
     title: post.title,
     excerpt: stripHtml(post.body).slice(0, 160),
     createdAt: post.createdAt.toISOString(),
+    source: post.source || "",
   }));
 }
 
@@ -221,6 +220,8 @@ export async function getBlogPostBySlug(slug: string) {
     title: post.title,
     body: sanitizeHtml(post.body),
     createdAt: post.createdAt.toISOString(),
+    source: post.source || "",
+    sourceUrl: post.sourceUrl || "",
     comments: post.comments.map((c) => ({
       id: c.id,
       name: c.name,

@@ -5,27 +5,16 @@ import type { EasterEggEffectProps } from "@/components/easter-egg/types";
 
 const SELECTOR = "main [data-physics]";
 const MAX_ITEMS = 60;
+const EASE_IN_MS = 750;
 const FLY_BACK_MS = 600;
+const MIN_SCALE = 0.4;
 
-type Item = {
-  el: HTMLElement;
-  left: number;
-  top: number;
-  ampX: number;
-  ampY: number;
-  speedX: number;
-  speedY: number;
-  phaseX: number;
-  phaseY: number;
-  rotAmp: number;
-  rotSpeed: number;
-  rotPhase: number;
-};
+type Item = { el: HTMLElement; left: number; top: number; centerX: number; centerY: number; startedAt: number };
 
-// A calmer, physics-free cousin of GravityEffect: elements detach and drift
-// on independent sine waves instead of falling, then ease straight back to
-// their original spot on close — no matter-js engine needed for this one.
-export function ZeroGravityEffect({ closing, onFinished }: EasterEggEffectProps) {
+// Everything eases toward the viewport center (with a slight scale-down) and
+// holds there with a gentle breathing pulse, then flies back to its original
+// spot on close — the "gather to the center" effect.
+export function ConvergeEffect({ closing, onFinished }: EasterEggEffectProps) {
   const savedStyles = useRef<Map<HTMLElement, string>>(new Map());
   const itemsRef = useRef<Item[]>([]);
   const closingRef = useRef(false);
@@ -41,8 +30,6 @@ export function ZeroGravityEffect({ closing, onFinished }: EasterEggEffectProps)
     const outermost = Array.from(main.querySelectorAll<HTMLElement>(SELECTOR)).filter(
       (el) => el.offsetWidth > 4 && el.offsetHeight > 4,
     );
-    // Same fallback as GravityEffect: prefer near-viewport elements, but don't
-    // silently do nothing if that filter happens to catch zero of them.
     const nearViewport = outermost.filter((el) => {
       const r = el.getBoundingClientRect();
       return r.bottom > -viewportH && r.top < viewportH * 2;
@@ -56,12 +43,8 @@ export function ZeroGravityEffect({ closing, onFinished }: EasterEggEffectProps)
 
     const savedMap = savedStyles.current;
 
-    // A `position: fixed` descendant is positioned relative to the nearest ancestor
-    // that establishes a containing block — which per spec includes any ancestor with
-    // a `transform` other than none, or `transform-style: preserve-3d` (TiltCard sets
-    // this permanently for its own tilt). Neutralize both up to <main> so position:fixed
-    // here means what it's supposed to mean. Mirrors gravity-effect.tsx's own fix for
-    // the same issue.
+    // Same containing-block neutralization GravityEffect/ZeroGravityEffect need
+    // for a position:fixed descendant to mean "relative to the viewport."
     function neutralizeAncestorTransforms(el: HTMLElement) {
       let node = el.parentElement;
       while (node && node !== main) {
@@ -75,6 +58,10 @@ export function ZeroGravityEffect({ closing, onFinished }: EasterEggEffectProps)
       }
     }
 
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
+    const now = performance.now();
+
     const items: Item[] = els.map((el) => {
       const rect = el.getBoundingClientRect();
       neutralizeAncestorTransforms(el);
@@ -86,34 +73,33 @@ export function ZeroGravityEffect({ closing, onFinished }: EasterEggEffectProps)
       el.style.height = `${rect.height}px`;
       el.style.margin = "0";
       el.style.zIndex = "400";
+      el.style.transformOrigin = "center";
       el.style.willChange = "transform";
       return {
         el,
         left: rect.left,
         top: rect.top,
-        ampX: 8 + Math.random() * 14,
-        ampY: 10 + Math.random() * 16,
-        speedX: 0.4 + Math.random() * 0.5,
-        speedY: 0.35 + Math.random() * 0.45,
-        phaseX: Math.random() * Math.PI * 2,
-        phaseY: Math.random() * Math.PI * 2,
-        rotAmp: 1.5 + Math.random() * 3,
-        rotSpeed: 0.3 + Math.random() * 0.4,
-        rotPhase: Math.random() * Math.PI * 2,
+        centerX: centerX - (rect.left + rect.width / 2),
+        centerY: centerY - (rect.top + rect.height / 2),
+        startedAt: now,
       };
     });
     itemsRef.current = items;
 
+    function easeOutCubic(t: number) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+
     let raf = 0;
-    let t = 0;
-    function tick() {
+    function tick(time: number) {
       if (closingRef.current) return;
-      t += 1 / 60;
       items.forEach((item) => {
-        const dx = Math.sin(t * item.speedX + item.phaseX) * item.ampX;
-        const dy = Math.cos(t * item.speedY + item.phaseY) * item.ampY;
-        const rot = Math.sin(t * item.rotSpeed + item.rotPhase) * item.rotAmp;
-        item.el.style.transform = `translate(${dx}px, ${dy}px) rotate(${rot.toFixed(2)}deg)`;
+        const elapsed = time - item.startedAt;
+        const t = Math.min(1, elapsed / EASE_IN_MS);
+        const eased = easeOutCubic(t);
+        const breathe = t >= 1 ? Math.sin(time / 500) * 0.03 : 0;
+        const scale = 1 - (1 - MIN_SCALE) * eased + breathe;
+        item.el.style.transform = `translate(${item.centerX * eased}px, ${item.centerY * eased}px) scale(${scale.toFixed(3)})`;
       });
       raf = requestAnimationFrame(tick);
     }
@@ -134,7 +120,7 @@ export function ZeroGravityEffect({ closing, onFinished }: EasterEggEffectProps)
     if (!closing) return;
     itemsRef.current.forEach((item) => {
       item.el.style.transition = `transform ${FLY_BACK_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`;
-      item.el.style.transform = "translate(0px, 0px) rotate(0deg)";
+      item.el.style.transform = "translate(0px, 0px) scale(1)";
     });
     const t = setTimeout(() => onFinishedRef.current(), FLY_BACK_MS + 40);
     return () => clearTimeout(t);

@@ -15,8 +15,11 @@ const RANK_LABELS: Record<string, string> = {
 };
 
 export default async function AwardsPage() {
-  const [competitions, activities] = await Promise.all([getCompetitions(), getPublicActivities()]);
-  const { dict } = await getServerDict();
+  const [competitions, activities, { dict }] = await Promise.all([
+    getCompetitions(),
+    getPublicActivities(),
+    getServerDict(),
+  ]);
   const featured = competitions.filter((c) => c.isAward);
 
   const breakdown = featured.reduce<Record<string, number>>((acc, c) => {

@@ -146,10 +146,26 @@ model BlogPost {
   title     String
   body      String   @default("")
   published Boolean  @default(false)
+  // Set only for posts created by scripts/curation-worker.mjs — e.g. "arxiv",
+  // "github", "rss:ieee-spectrum". Null for the owner's own manually-written
+  // posts. The public pages show a "Curated from {source} →" attribution line
+  // whenever this is set, so auto-curated summaries are never presented as if
+  // they were original reporting.
+  source    String?
+  sourceUrl String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   comments Comment[]
+}
+
+// Dedup ledger for scripts/curation-worker.mjs — one row per scraped item
+// (paper/issue/article) it has already turned into a BlogPost, keyed by the
+// item's own URL, so re-running the worker never creates a duplicate post.
+model CurationSeen {
+  id        String   @id @default(cuid())
+  sourceUrl String   @unique
+  createdAt DateTime @default(now())
 }
 
 // Public, unauthenticated, published immediately (no moderation queue) — see

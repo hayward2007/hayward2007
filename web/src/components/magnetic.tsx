@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { ReactNode, MouseEvent as ReactMouseEvent } from "react";
 
 export function Magnetic({
@@ -15,6 +15,23 @@ export function Magnetic({
   cursorLabel?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  // Native mousemove can fire well above 60/sec; collapse to at most one
+  // style write per animation frame instead of one per event.
+  const pendingRef = useRef<{ x: number; y: number } | null>(null);
+  const rafRef = useRef(0);
+
+  useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
+
+  function scheduleApply() {
+    if (rafRef.current) return;
+    rafRef.current = requestAnimationFrame(() => {
+      rafRef.current = 0;
+      const el = ref.current;
+      const point = pendingRef.current;
+      if (!el || !point) return;
+      el.style.transform = `translate(${point.x * strength}px, ${point.y * strength}px)`;
+    });
+  }
 
   function onMouseMove(e: ReactMouseEvent<HTMLDivElement>) {
     // While an easter egg is active, a physics-tagged descendant may be
@@ -25,13 +42,18 @@ export function Magnetic({
     const el = ref.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
-    const x = e.clientX - rect.left - rect.width / 2;
-    const y = e.clientY - rect.top - rect.height / 2;
-    el.style.transform = `translate(${x * strength}px, ${y * strength}px)`;
+    pendingRef.current = {
+      x: e.clientX - rect.left - rect.width / 2,
+      y: e.clientY - rect.top - rect.height / 2,
+    };
+    scheduleApply();
   }
 
   function onMouseLeave() {
     if (document.body.dataset.easterEgg) return;
+    pendingRef.current = null;
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = 0;
     const el = ref.current;
     if (!el) return;
     el.style.transform = "translate(0, 0)";

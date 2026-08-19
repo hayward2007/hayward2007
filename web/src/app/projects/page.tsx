@@ -6,8 +6,7 @@ import { Reveal } from "@/components/reveal";
 export const dynamic = "force-dynamic";
 
 export default async function ProjectsPage() {
-  const projects = await getPublicProjects();
-  const { dict } = await getServerDict();
+  const [projects, { dict }] = await Promise.all([getPublicProjects(), getServerDict()]);
 
   const goldCount = projects.filter((p) => p.awards.some((a) => a.rank === "gold")).length;
 
