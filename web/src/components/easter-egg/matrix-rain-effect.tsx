@@ -43,11 +43,17 @@ export function MatrixRainEffect({ closing, onFinished }: EasterEggEffectProps) 
     window.addEventListener("resize", resize);
 
     let columns = Math.ceil(canvas.width / FONT_SIZE);
-    let drops = Array.from({ length: columns }, () => Math.random() * -50);
+    let drops = Array.from(
+      { length: columns },
+      () => Math.random() * (canvas.height / FONT_SIZE + 24) - 24,
+    );
 
     function resetColumns() {
       columns = Math.ceil(canvas.width / FONT_SIZE);
-      drops = Array.from({ length: columns }, () => Math.random() * -50);
+      drops = Array.from(
+        { length: columns },
+        () => Math.random() * (canvas.height / FONT_SIZE + 24) - 24,
+      );
     }
     window.addEventListener("resize", resetColumns);
 

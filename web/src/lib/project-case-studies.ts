@@ -33,7 +33,9 @@ export type ProjectCaseStudy = {
   accent: CaseStudyAccent;
   statusLabel: string;
   tagline: string;
+  taglineEn: string;
   description: string;
+  descriptionEn: string;
   tags: string[];
   repositoryUrl?: string;
   heroImage: string;
@@ -59,8 +61,11 @@ const studies: ProjectCaseStudy[] = [
     accent: "robotics",
     statusLabel: "2023-2024 · Robotics",
     tagline: "주행과 보행을 하나의 다리에 담은 6족 응급 전달 로봇",
+    taglineEn: "A six-legged emergency-delivery robot that combines driving and walking in each leg",
     description:
       "평지 속도와 계단 등반을 함께 확보하기 위해 부채꼴 프레임을 바퀴이자 발로 설계한 6족 로봇 연구입니다.",
+    descriptionEn:
+      "A six-legged robot whose sector-shaped frames act as both wheels and feet, balancing speed on flat ground with stair-climbing ability.",
     tags: ["Robotics", "Mechanical Design", "Control", "Python"],
     repositoryUrl: "https://github.com/hayward2007/SCONE",
     heroImage: "/project-assets/scone/hero.png",
@@ -261,8 +266,11 @@ const studies: ProjectCaseStudy[] = [
     accent: "ai",
     statusLabel: "2026 · Physical AI",
     tagline: "스마트폰이 보고 듣고 움직이는 책상 위 5축 AI 비서",
+    taglineEn: "A five-axis desktop AI assistant that uses a smartphone to see, listen, and interact",
     description:
       "스마트폰을 센서·연산·출력 장치로 활용하고 5축 매니퓰레이터가 사용자를 추종하는 개인용 AI 비서입니다.",
+    descriptionEn:
+      "A personal AI assistant that uses a smartphone for sensing, computing, and display while a five-axis manipulator follows the user.",
     tags: ["Manipulator", "MediaPipe", "Kinematics", "Physical AI"],
     repositoryUrl: "https://github.com/hayward2007/desky",
     heroImage: "/project-assets/desky/hero.png",
@@ -448,8 +456,11 @@ const studies: ProjectCaseStudy[] = [
     accent: "signal",
     statusLabel: "2021-2022 · On-device ML",
     tagline: "스마트폰 하나로 완성하는 실시간 섀도우복싱 트레이너",
+    taglineEn: "A real-time shadowboxing trainer built around a single smartphone",
     description:
       "스마트폰 관성 센서 시퀀스로 네 가지 펀치를 분류하고, 높은 정확도의 검증 한계까지 추적한 온디바이스 ML 프로젝트입니다.",
+    descriptionEn:
+      "An on-device machine-learning project that classifies four punches from smartphone motion-sensor sequences and examines the limits behind its accuracy.",
     tags: ["GRU", "Sensor Fusion", "PyTorch", "Mobile"],
     repositoryUrl: "https://github.com/punch-boxing",
     heroImage: "/project-assets/punch/hero.png",
@@ -645,8 +656,11 @@ const studies: ProjectCaseStudy[] = [
     accent: "robotics",
     statusLabel: "In progress · Artificial muscle",
     tagline: "나일론과 전도성 실로 만드는 저가 선형 인공근육",
+    taglineEn: "A low-cost linear artificial muscle made from nylon and conductive thread",
     description:
       "초나선 나일론 섬유와 펠티어 열제어를 결합해 작고 가벼운 근육형 구동기를 검증하는 진행 중 연구입니다.",
+    descriptionEn:
+      "An ongoing study of a compact, lightweight artificial-muscle actuator combining coiled nylon fibers with Peltier thermal control.",
     tags: ["Artificial Muscle", "Peltier", "Experiment Design", "Robotics"],
     heroImage: "/project-assets/pluto/test-rig.jpg",
     heroImageAlt: "PLUTO 인공근육 시험 장치",
@@ -760,8 +774,11 @@ const studies: ProjectCaseStudy[] = [
     accent: "ai",
     statusLabel: "Research · Computer Vision",
     tagline: "특수 장비 없이 내장 카메라만으로 시선 입력을 만들기",
+    taglineEn: "Gaze input using only a built-in camera, without specialized hardware",
     description:
       "FaceMesh 기반 기하 모델로 접근 가능한 시선 입력을 시도하고, 얼굴 위상 이후 드러난 모델 한계를 기록한 연구입니다.",
+    descriptionEn:
+      "A computer-vision study that explores accessible gaze input with a FaceMesh-based geometric model and documents its limitations.",
     tags: ["Computer Vision", "FaceMesh", "Geometry", "Accessibility"],
     repositoryUrl: "https://github.com/hayward2007/noongil",
     heroImage: "/project-assets/noongil/hero.png",
@@ -886,7 +903,9 @@ export const PROJECT_CASE_STUDY_INDEX = studies.map((study) => ({
   accent: study.accent,
   statusLabel: study.statusLabel,
   tagline: study.tagline,
+  taglineEn: study.taglineEn,
   description: study.description,
+  descriptionEn: study.descriptionEn,
   tags: study.tags,
   repositoryUrl: study.repositoryUrl,
   heroImage: study.heroImage,

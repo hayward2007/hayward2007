@@ -5,6 +5,7 @@ import { useLocale, setLocaleCookie } from "@/components/locale-provider";
 export function LocaleToggle({ className }: { className?: string }) {
   const locale = useLocale();
   const next = locale === "en" ? "ko" : "en";
+  const nextLabel = next === "ko" ? "Korean" : "English";
 
   return (
     <button
@@ -12,9 +13,12 @@ export function LocaleToggle({ className }: { className?: string }) {
       data-cursor="true"
       onClick={() => setLocaleCookie(next)}
       className={className}
-      aria-label={`Switch to ${next === "ko" ? "Korean" : "English"}`}
+      aria-label={`Switch to ${nextLabel}`}
+      title={`Switch to ${nextLabel}`}
     >
-      {locale === "en" ? "KO" : "EN"}
+      <span aria-hidden="true" className="text-[17px] leading-none">
+        {next === "ko" ? "🇰🇷" : "🇺🇸"}
+      </span>
     </button>
   );
 }

@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     template: "%s | Hayward Kim",
   },
   description:
-    "Kim Hyeong-Seok (Hayward Kim) — robotics and physical AI, built to compete and shipped as products people use.",
+    "Kim Hyeong-Seok (Hayward Kim) designs unique robots across mechanisms, control, and physical AI.",
   openGraph: {
     type: "website",
     title: "Hayward Kim — Robotics & Physical AI",

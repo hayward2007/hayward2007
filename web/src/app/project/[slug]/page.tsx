@@ -9,6 +9,7 @@ import { Reveal } from "@/components/reveal";
 import { Magnetic } from "@/components/magnetic";
 import { ProjectCaseStudyView } from "@/components/project-case-study";
 import { getProjectCaseStudy, getProjectCaseStudySlugs } from "@/lib/project-case-studies";
+import { getCompetitionRankLabel } from "@/lib/competition-ranks";
 import { stripHtml } from "@/lib/html";
 
 export const dynamic = "force-dynamic";
@@ -71,13 +72,21 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
               </p>
             )}
             <h1 className="type-project-title mt-5 max-w-4xl break-words">{project.name}</h1>
-            {caseStudy && <p className="font-display mt-7 max-w-xl text-xl font-medium leading-8">{caseStudy.tagline}</p>}
+            {caseStudy && (
+              <p className="font-display mt-7 max-w-xl text-xl font-medium leading-8">
+                {locale === "ko" ? caseStudy.tagline : caseStudy.taglineEn}
+              </p>
+            )}
             {project.awards.length > 0 && (
               <p
                 className="type-label mt-6 text-sm"
                 style={{ color: "color-mix(in srgb, var(--fg-inverted) 70%, transparent)" }}
               >
-                {project.awards[0].rankLabel} · {project.awards[0].name}
+                {getCompetitionRankLabel(
+                  project.awards[0].rank,
+                  project.awards[0].rankLabel,
+                  locale,
+                )} · {project.awards[0].name}
               </p>
             )}
             {caseStudy?.repositoryUrl && (
@@ -148,7 +157,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
                       <div>
                         <p className="font-display font-semibold">{award.name}</p>
                         <p className="text-sm" style={{ color: "var(--fg-3)" }}>
-                          {award.rankLabel}
+                          {getCompetitionRankLabel(award.rank, award.rankLabel, locale)}
                         </p>
                       </div>
                       <span className="type-index text-sm" style={{ color: "var(--fg-3)" }}>

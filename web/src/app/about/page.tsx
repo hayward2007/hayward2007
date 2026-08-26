@@ -2,8 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import type { CSSProperties } from "react";
-import { getLastSync, getPublicProjects, getCompetitions, getPublicActivities } from "@/lib/data";
+import { ArrowUpRight } from "lucide-react";
+import { getPublicProjects, getCompetitions, getPublicActivities } from "@/lib/data";
 import { getServerDict } from "@/lib/locale-server";
+import { getCompetitionRankLabel } from "@/lib/competition-ranks";
 import { Reveal } from "@/components/reveal";
 import { PortfolioIndexNav } from "@/components/portfolio-index-nav";
 import { Pictogram } from "@/components/pictogram";
@@ -15,7 +17,7 @@ export const metadata: Metadata = { title: "Portfolio" };
 
 export const dynamic = "force-dynamic";
 
-const PROJECTS_LIMIT = 6;
+const FEATURED_PROJECT_SLUGS = ["scone", "punch"] as const;
 // Single semantic accent (globals.css: --accent, currently aliased to
 // --accent-robotics) instead of rotating through all three named accents —
 // recoloring the whole page's emphasis color is then a one-variable edit.
@@ -46,9 +48,136 @@ function SectionHeader({ num, title, count }: { num: string; title: string; coun
   );
 }
 
+type ProjectItem = Awaited<ReturnType<typeof getPublicProjects>>[number];
+
+function ProjectThumbnailCard({
+  project,
+  description,
+}: {
+  project: ProjectItem;
+  description: string;
+}) {
+  return (
+    <Link
+      href={`/project/${project.slug}`}
+      data-cursor="View project"
+      className="group relative flex min-h-[292px] h-full min-w-0 flex-col justify-end overflow-hidden rounded-md border p-5 transition-colors duration-300 hover:[border-color:var(--project-accent)]"
+      style={{
+        borderColor: "var(--line)",
+        background: "var(--bg-raised)",
+        "--project-accent": ACCENT,
+      } as CSSProperties}
+    >
+      <div className="absolute inset-0">
+        {project.cover ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={project.cover}
+            alt={`${project.name} thumbnail`}
+            className={`h-full w-full object-cover grayscale transition duration-500 group-hover:scale-[1.025] group-hover:grayscale-0 ${
+              project.slug === "punch" ? "object-right" : "object-center"
+            }`}
+            loading="lazy"
+          />
+        ) : (
+          <Pictogram
+            seedText={project.slug}
+            dotRadius={2.2}
+            complexity={1}
+            hoverStroke={ACCENT}
+            className="h-full w-full p-10"
+          />
+        )}
+      </div>
+      <div
+        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-[0.16]"
+        style={{ background: ACCENT }}
+      />
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-3/4"
+        style={{ background: "linear-gradient(to top, var(--bg-raised) 18%, transparent 100%)" }}
+      />
+      <div className="relative z-10 min-w-0">
+        <h3 className="type-card-title min-w-0 text-lg">{project.name}</h3>
+        {description && (
+          <p className="mt-2 line-clamp-3 text-sm leading-6" style={{ color: "var(--fg-3)" }}>
+            {description}
+          </p>
+        )}
+      </div>
+    </Link>
+  );
+}
+
+function FeaturedProjectCard({
+  project,
+  description,
+  index,
+}: {
+  project: ProjectItem;
+  description: string;
+  index: number;
+}) {
+  return (
+    <Link
+      href={`/project/${project.slug}`}
+      data-cursor="View project"
+      className="group grid min-w-0 overflow-hidden rounded-md border transition-colors duration-300 hover:[border-color:var(--project-accent)] sm:grid-cols-[220px_minmax(0,1fr)]"
+      style={{
+        borderColor: "var(--line)",
+        background: "var(--bg-raised)",
+        "--project-accent": ACCENT,
+      } as CSSProperties}
+    >
+      <div className="relative aspect-[16/10] min-h-[190px] overflow-hidden sm:aspect-auto sm:min-h-full">
+        {project.cover ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={project.cover}
+            alt={`${project.name} thumbnail`}
+            className={`h-full w-full object-cover grayscale transition duration-500 group-hover:scale-[1.025] group-hover:grayscale-0 ${
+              project.slug === "punch" ? "object-right" : "object-center"
+            }`}
+            loading="lazy"
+          />
+        ) : (
+          <Pictogram
+            seedText={project.slug}
+            dotRadius={2.2}
+            complexity={1}
+            hoverStroke={ACCENT}
+            className="h-full w-full p-8"
+          />
+        )}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-[0.14]"
+          style={{ background: ACCENT }}
+        />
+      </div>
+
+      <div className="flex min-w-0 flex-col p-5 sm:p-6">
+        <div className="flex items-center justify-between">
+          <span className="type-index text-xs tabular-nums" style={{ color: ACCENT }}>
+            {String(index).padStart(2, "0")}
+          </span>
+          <ArrowUpRight
+            aria-hidden="true"
+            size={17}
+            strokeWidth={1.8}
+            className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+          />
+        </div>
+        <h3 className="type-card-title mt-6 text-2xl">{project.name}</h3>
+        <p className="mt-3 text-sm leading-6" style={{ color: "var(--fg-2)" }}>
+          {description}
+        </p>
+      </div>
+    </Link>
+  );
+}
+
 export default async function AboutPage() {
-  const [syncedAt, projects, competitions, activities, { dict, locale }] = await Promise.all([
-    getLastSync(),
+  const [projects, competitions, activities, { dict, locale }] = await Promise.all([
     getPublicProjects(),
     getCompetitions(),
     getPublicActivities(),
@@ -60,13 +189,17 @@ export default async function AboutPage() {
   // follows that same ordering.
   const awards = competitions.filter((c) => c.isAward);
   const skillCount = SKILL_CATEGORIES.reduce((sum, cat) => sum + cat.items.length, 0);
+  const featuredProjects = FEATURED_PROJECT_SLUGS.flatMap((slug) => {
+    const project = projects.find((item) => item.slug === slug);
+    return project ? [project] : [];
+  });
 
   const navItems = [
     { id: "highlights", num: "01", label: dict.about.sections.highlights },
-    { id: "awards", num: "02", label: dict.about.sections.awards },
-    { id: "activities", num: "03", label: dict.about.sections.activities },
-    { id: "skills", num: "04", label: dict.about.sections.skills },
-    { id: "education", num: "05", label: dict.about.sections.education },
+    { id: "skills", num: "02", label: dict.about.sections.skills },
+    { id: "education", num: "03", label: dict.about.sections.education },
+    { id: "awards", num: "04", label: dict.about.sections.awards },
+    { id: "activities", num: "05", label: dict.about.sections.activities },
     { id: "projects", num: "06", label: dict.about.sections.projects },
   ];
 
@@ -131,86 +264,66 @@ export default async function AboutPage() {
                   </HighlightCard>
                 ))}
               </div>
-            </Reveal>
-          </section>
 
-          <section id="awards" className="scroll-mt-20 border-t py-10 md:py-12" style={{ borderColor: "var(--line)" }}>
-            <SectionHeader num="02" title={dict.about.sections.awards} count={awards.length} />
-            <Reveal>
-              <ul className="flex flex-col">
-                {awards.map((c) => (
-                  <li
-                    key={c.id}
-                    className="grid grid-cols-[58px_minmax(0,1fr)_auto] items-center gap-4 border-t py-4 first:border-t-0 first:pt-0"
-                    style={{ borderColor: "var(--line)" }}
-                  >
-                    <span className="type-index text-sm tabular-nums" style={{ color: "var(--fg-3)" }}>
-                      {c.year}
-                    </span>
-                    <p className="font-display min-w-0 truncate text-sm font-semibold">{stripLeadingYear(c.name)}</p>
-                    {c.rankLabel && (
-                      <span className="type-label shrink-0" style={{ color: "var(--accent-signal)" }}>
-                        {c.rankLabel}
-                      </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </Reveal>
-          </section>
-
-          <section id="activities" className="scroll-mt-20 border-t py-10 md:py-12" style={{ borderColor: "var(--line)" }}>
-            <SectionHeader num="03" title={dict.about.sections.activities} count={activities.length} />
-            <Reveal>
-              <ul className="flex flex-col">
-                {activities.map((a) => (
-                  <li
-                    key={a.id}
-                    className="grid grid-cols-[58px_minmax(0,1fr)] items-center gap-4 border-t py-4 first:border-t-0 first:pt-0"
-                    style={{ borderColor: "var(--line)" }}
-                  >
-                    <span className="type-index text-sm tabular-nums" style={{ color: "var(--fg-3)" }}>
-                      {a.year}
-                    </span>
-                    <p className="font-display min-w-0 truncate text-sm font-semibold">{stripLeadingYear(a.name)}</p>
-                  </li>
-                ))}
-              </ul>
+              <div className="mt-10">
+                <div className="mb-4 flex items-center justify-between border-b pb-3" style={{ borderColor: "var(--line-strong)" }}>
+                  <p className="type-page-kicker" style={{ color: ACCENT }}>
+                    {dict.about.featuredProjectsTitle}
+                  </p>
+                  <span className="type-index text-xs tabular-nums" style={{ color: "var(--fg-4)" }}>
+                    {String(featuredProjects.length).padStart(2, "0")}
+                  </span>
+                </div>
+                <p className="mb-5 max-w-[620px] text-sm leading-6" style={{ color: "var(--fg-2)" }}>
+                  {dict.about.featuredProjectsIntro}
+                </p>
+                <ul className="grid grid-cols-1 gap-3">
+                  {featuredProjects.map((project, index) => (
+                    <li key={project.slug}>
+                      <FeaturedProjectCard
+                        project={project}
+                        description={dict.about.featuredProjectDescriptions[project.slug as keyof typeof dict.about.featuredProjectDescriptions]}
+                        index={index + 1}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </Reveal>
           </section>
 
           <section id="skills" className="scroll-mt-20 border-t py-10 md:py-12" style={{ borderColor: "var(--line)" }}>
-            <SectionHeader num="04" title={dict.about.sections.skills} count={skillCount} />
+            <SectionHeader num="02" title={dict.about.sections.skills} count={skillCount} />
             <Reveal>
               <div className="flex flex-col">
                 {SKILL_CATEGORIES.map((category) => (
-                    <div
-                      key={category.id}
-                      className="grid grid-cols-1 gap-x-7 gap-y-3 border-t py-4 first:border-t-0 first:pt-0 md:grid-cols-[122px_1fr]"
-                      style={{ borderColor: "var(--line)" }}
-                    >
-                      <p className="type-label" style={{ color: "var(--fg-3)" }}>
-                        {locale === "ko" ? category.labelKo : category.labelEn}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-                        {category.items.map((item) => (
-                          <SkillTag
-                            key={item.name}
-                            name={item.name}
-                            path={item.path}
-                            hex={item.hex}
-                            primary={category.primary}
-                          />
-                        ))}
-                      </div>
+                  <div
+                    key={category.id}
+                    className="grid grid-cols-1 gap-x-7 gap-y-3 border-t py-4 first:border-t-0 first:pt-0 md:grid-cols-[122px_1fr]"
+                    style={{ borderColor: "var(--line)" }}
+                  >
+                    <p className="type-label" style={{ color: "var(--fg-3)" }}>
+                      {locale === "ko" ? category.labelKo : category.labelEn}
+                    </p>
+                    <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                      {category.items.map((item) => (
+                        <SkillTag
+                          key={item.name}
+                          name={item.name}
+                          path={item.path}
+                          hex={item.hex}
+                          primary={category.primary}
+                        />
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                ))}
               </div>
             </Reveal>
           </section>
 
           <section id="education" className="scroll-mt-20 border-t py-10 md:py-12" style={{ borderColor: "var(--line)" }}>
-            <SectionHeader num="05" title={dict.about.sections.education} count={dict.about.education.length} />
+            <SectionHeader num="03" title={dict.about.sections.education} count={dict.about.education.length} />
             <Reveal>
               <ul className="flex flex-col">
                 {dict.about.education.map((edu) => (
@@ -234,56 +347,64 @@ export default async function AboutPage() {
             </Reveal>
           </section>
 
+          <section id="awards" className="scroll-mt-20 border-t py-10 md:py-12" style={{ borderColor: "var(--line)" }}>
+            <SectionHeader num="04" title={dict.about.sections.awards} count={awards.length} />
+            <Reveal>
+              <ul className="flex flex-col">
+                {awards.map((c) => (
+                  <li
+                    key={c.id}
+                    className="grid grid-cols-[58px_minmax(0,1fr)_auto] items-center gap-4 border-t py-4 first:border-t-0 first:pt-0"
+                    style={{ borderColor: "var(--line)" }}
+                  >
+                    <span className="type-index text-sm tabular-nums" style={{ color: "var(--fg-3)" }}>
+                      {c.year}
+                    </span>
+                    <p className="font-display min-w-0 truncate text-sm font-semibold">{stripLeadingYear(c.name)}</p>
+                    {c.rankLabel && (
+                      <span className="type-label shrink-0" style={{ color: "var(--accent-signal)" }}>
+                        {getCompetitionRankLabel(c.rank, c.rankLabel, locale)}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+          </section>
+
+          <section id="activities" className="scroll-mt-20 border-t py-10 md:py-12" style={{ borderColor: "var(--line)" }}>
+            <SectionHeader num="05" title={dict.about.sections.activities} count={activities.length} />
+            <Reveal>
+              <ul className="flex flex-col">
+                {activities.map((a) => (
+                  <li
+                    key={a.id}
+                    className="grid grid-cols-[58px_minmax(0,1fr)] items-center gap-4 border-t py-4 first:border-t-0 first:pt-0"
+                    style={{ borderColor: "var(--line)" }}
+                  >
+                    <span className="type-index text-sm tabular-nums" style={{ color: "var(--fg-3)" }}>
+                      {a.year}
+                    </span>
+                    <p className="font-display min-w-0 truncate text-sm font-semibold">{stripLeadingYear(a.name)}</p>
+                  </li>
+                ))}
+              </ul>
+            </Reveal>
+          </section>
+
           <section id="projects" className="scroll-mt-20 border-t py-10 md:py-12" style={{ borderColor: "var(--line)" }}>
             <SectionHeader num="06" title={dict.about.sections.projects} count={projects.length} />
             <Reveal>
+              <p className="mb-7 max-w-[650px] text-base leading-7" style={{ color: "var(--fg-2)" }}>
+                {dict.about.projectsIntro}
+              </p>
               <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {projects.slice(0, PROJECTS_LIMIT).map((project) => {
-                  const description = project.descKo || project.descEn;
+                {projects.map((project) => {
+                  const description =
+                    locale === "ko" ? project.descKo || project.descEn : project.descEn || project.descKo;
                   return (
                     <li key={project.slug}>
-                      <Link
-                        href={`/project/${project.slug}`}
-                        data-cursor="View project"
-                        className="group relative flex min-h-[292px] h-full min-w-0 flex-col justify-end overflow-hidden rounded-md border p-5 transition-colors duration-300 hover:[border-color:var(--project-accent)]"
-                        style={{ borderColor: "var(--line)", background: "var(--bg-raised)", "--project-accent": ACCENT } as CSSProperties}
-                      >
-                        <div className="absolute inset-0">
-                          {project.cover ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={project.cover}
-                              alt={`${project.name} thumbnail`}
-                              className="h-full w-full object-cover grayscale transition duration-500 group-hover:scale-[1.025] group-hover:grayscale-0"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <Pictogram
-                              seedText={project.slug}
-                              dotRadius={2.2}
-                              complexity={1}
-                              hoverStroke={ACCENT}
-                              className="h-full w-full p-10"
-                            />
-                          )}
-                        </div>
-                        <div
-                          className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-[0.16]"
-                          style={{ background: ACCENT }}
-                        />
-                        <div
-                          className="pointer-events-none absolute inset-x-0 bottom-0 h-3/4"
-                          style={{ background: "linear-gradient(to top, var(--bg-raised) 18%, transparent 100%)" }}
-                        />
-                        <div className="relative z-10 min-w-0">
-                          <h3 className="type-card-title min-w-0 text-lg">{project.name}</h3>
-                          {description && (
-                            <p className="mt-2 line-clamp-3 text-sm leading-6" style={{ color: "var(--fg-3)" }}>
-                              {description}
-                            </p>
-                          )}
-                        </div>
-                      </Link>
+                      <ProjectThumbnailCard project={project} description={description} />
                     </li>
                   );
                 })}
@@ -297,9 +418,8 @@ export default async function AboutPage() {
       </div>
 
       <footer className="wrap mt-10 pt-8" style={{ borderTop: "1px solid var(--line)" }}>
-        <div className="flex flex-col gap-2 text-xs md:flex-row md:items-center md:justify-between" style={{ color: "var(--fg-4)" }}>
+        <div className="text-xs" style={{ color: "var(--fg-4)" }}>
           <span>© {new Date().getFullYear()} Hayward Kim</span>
-          {syncedAt && <span>Synced {new Date(syncedAt).toLocaleDateString()}</span>}
         </div>
       </footer>
     </main>

@@ -56,8 +56,9 @@ export function WarpEffect({ closing, onFinished }: EasterEggEffectProps) {
     }
     const stars: Star[] = Array.from({ length: STAR_COUNT }, spawnStar);
     stars.forEach((s) => {
-      s.prevScreenX = canvas.width / 2 + (s.x / s.z) * FOCAL_LENGTH;
-      s.prevScreenY = canvas.height / 2 + (s.y / s.z) * FOCAL_LENGTH;
+      const previousZ = s.z + SPEED * 0.08;
+      s.prevScreenX = canvas.width / 2 + (s.x / previousZ) * FOCAL_LENGTH;
+      s.prevScreenY = canvas.height / 2 + (s.y / previousZ) * FOCAL_LENGTH;
     });
 
     requestAnimationFrame(() => {

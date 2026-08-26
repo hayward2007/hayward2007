@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Projects" };
 
 export default async function ProjectsPage() {
-  const [projects, { dict }] = await Promise.all([getPublicProjects(), getServerDict()]);
+  const [projects, { dict, locale }] = await Promise.all([getPublicProjects(), getServerDict()]);
 
   const goldCount = projects.filter((p) => p.awards.some((a) => a.rank === "gold")).length;
 
@@ -49,7 +49,7 @@ export default async function ProjectsPage() {
       </div>
 
       <div className="wrap">
-        <ProjectGrid projects={projects} />
+        <ProjectGrid projects={projects} locale={locale} />
       </div>
     </main>
   );

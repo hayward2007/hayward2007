@@ -39,7 +39,7 @@ export function ConfettiEffect({ closing, onFinished }: EasterEggEffectProps) {
 
     const pieces: Piece[] = Array.from({ length: COUNT }, () => ({
       x: Math.random() * canvas.width,
-      y: -20 - Math.random() * canvas.height * 0.5,
+      y: Math.random() * canvas.height * 0.85 - canvas.height * 0.2,
       vx: (Math.random() - 0.5) * 2.2,
       vy: 2 + Math.random() * 3,
       rot: Math.random() * Math.PI * 2,

@@ -4,8 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ComponentType } from "react";
 import { Dices, LoaderCircle, X } from "lucide-react";
 import type { EasterEggEffectProps } from "@/components/easter-egg/types";
-
-const PHYSICS_SELECTOR = "main [data-physics]";
+import { getVisiblePhysicsContext } from "@/components/easter-egg/targets";
 
 type EffectDefinition = {
   id: string;
@@ -103,6 +102,7 @@ export function EasterEggButton() {
   const loadRequestRef = useRef(0);
   const queueRef = useRef<string[]>([]);
   const lastIdRef = useRef<string | null>(null);
+  const busyRef = useRef(false);
 
   useEffect(() => {
     if (prevPathname.current !== pathname) {
@@ -113,6 +113,7 @@ export function EasterEggButton() {
       setClosing(false);
       setActiveEffect(null);
       setEffectComponent(null);
+      busyRef.current = false;
     }
     prevPathname.current = pathname;
   }, [pathname]);
@@ -126,10 +127,19 @@ export function EasterEggButton() {
     };
   }, [active]);
 
+  useEffect(() => {
+    if (!active) return;
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape" && !closing) setClosing(true);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [active, closing]);
+
   if (pathname.startsWith("/admin")) return null;
 
   function compatibleEffects(): EffectDefinition[] {
-    const hasPhysicsTargets = Boolean(document.querySelector(PHYSICS_SELECTOR));
+    const hasPhysicsTargets = getVisiblePhysicsContext(1).targets.length > 0;
     return EFFECTS.filter((effect) => !effect.needsPhysicsTargets || hasPhysicsTargets);
   }
 
@@ -152,6 +162,8 @@ export function EasterEggButton() {
   }
 
   async function trigger() {
+    if (busyRef.current || active || loading || closing) return;
+    busyRef.current = true;
     const requestId = ++loadRequestRef.current;
     let effect = nextEffect();
 
@@ -177,11 +189,15 @@ export function EasterEggButton() {
       setActiveEffect(null);
       setEffectComponent(null);
     } finally {
-      if (loadRequestRef.current === requestId) setLoading(false);
+      if (loadRequestRef.current === requestId) {
+        setLoading(false);
+        busyRef.current = false;
+      }
     }
   }
 
   function requestClose() {
+    if (closing) return;
     setClosing(true);
   }
 
@@ -190,6 +206,7 @@ export function EasterEggButton() {
     setClosing(false);
     setActiveEffect(null);
     setEffectComponent(null);
+    busyRef.current = false;
   }
 
   const buttonLabel = loading
@@ -211,7 +228,7 @@ export function EasterEggButton() {
         className="fixed bottom-5 right-5 z-[450] flex h-11 w-11 items-center justify-center rounded-full border shadow-sm transition-transform duration-150 hover:scale-105 active:scale-95 disabled:opacity-60"
         style={{ borderColor: "var(--line-strong)", background: "var(--bg-raised)" }}
       >
-        {loading ? (
+        {loading || closing ? (
           <LoaderCircle className="animate-spin" size={17} aria-hidden="true" />
         ) : active ? (
           <X size={17} aria-hidden="true" />
@@ -219,6 +236,16 @@ export function EasterEggButton() {
           <Dices size={17} aria-hidden="true" />
         )}
       </button>
+      {(loading || active) && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="pointer-events-none fixed bottom-6 right-[4.75rem] z-[450] rounded-md border px-3 py-2 text-xs shadow-sm"
+          style={{ borderColor: "var(--line-strong)", background: "var(--bg-raised)", color: "var(--fg-2)" }}
+        >
+          {loading ? "Loading effect" : activeEffect?.label}
+        </div>
+      )}
       {active && EffectComponent && <EffectComponent closing={closing} onFinished={handleFinished} />}
     </>
   );

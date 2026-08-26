@@ -2,12 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import Matter from "matter-js";
+import { getVisiblePhysicsContext } from "@/components/easter-egg/targets";
 import type { EasterEggEffectProps } from "@/components/easter-egg/types";
 
-// Only elements a component explicitly opts into (by setting data-physics)
-// participate — a blind tag-selector sweep used to pick up nested/overlapping
-// fragments that jammed against each other.
-const SELECTOR = "main [data-physics]";
 const MAX_BODIES = 60;
 const INSET = 10; // shrink each body so adjacent grid cells never spawn touching/overlapped
 const FLY_BACK_MS = 600;
@@ -24,31 +21,8 @@ export function GravityEffect({ closing, onFinished }: EasterEggEffectProps) {
   }, [onFinished]);
 
   useEffect(() => {
-    const main = document.querySelector("main");
-    if (!main) return;
-
-    const all = Array.from(main.querySelectorAll<HTMLElement>(SELECTOR));
-    // Safety net: if a tagged element is nested inside another tagged element,
-    // keep only the outer one so we never spawn two overlapping bodies for one item.
-    const outermost = all
-      .filter((el) => !all.some((other) => other !== el && other.contains(el)))
-      .filter((el) => el.offsetWidth > 4 && el.offsetHeight > 4);
-
-    // Prefer elements near the current scroll position — a long page can have
-    // tagged elements well below the fold, and dropping those invisibly is just
-    // wasted simulation. But if that filter happens to catch nothing (the user
-    // triggered the effect scrolled to a stretch of page with no nearby tagged
-    // elements at all), fall back to the full set rather than silently doing
-    // nothing — that fallback-less version is what made the effect look like it
-    // "didn't turn on" some of the time.
-    const viewportH = window.innerHeight;
-    const nearViewport = outermost.filter((el) => {
-      const r = el.getBoundingClientRect();
-      return r.bottom > -viewportH && r.top < viewportH * 2;
-    });
-    const targets = (nearViewport.length > 0 ? nearViewport : outermost).slice(0, MAX_BODIES);
-
-    if (targets.length === 0) {
+    const { main, targets } = getVisiblePhysicsContext(MAX_BODIES);
+    if (!main || targets.length === 0) {
       onFinishedRef.current();
       return;
     }

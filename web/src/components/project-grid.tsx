@@ -36,12 +36,14 @@ const PATTERN = [
 const COMPLEXITY: Record<string, number> = { hero: 1.6, square: 1, banner: 0.6 };
 const DOT_RADIUS: Record<string, number> = { hero: 2.4, square: 2.2, banner: 1.4 };
 
-export function ProjectGrid({ projects }: { projects: ProjectCard[] }) {
+export function ProjectGrid({ projects, locale }: { projects: ProjectCard[]; locale: "en" | "ko" }) {
   return (
     <div className="bento-grid grid grid-cols-1 gap-4 md:[grid-auto-rows:190px] md:[grid-template-columns:repeat(6,1fr)]">
       {projects.map((project, i) => {
         const span = PATTERN[i % PATTERN.length];
         const wide = span.col >= 4;
+        const description =
+          locale === "ko" ? project.descKo || project.descEn : project.descEn || project.descKo;
 
         return (
           // min-w-0: grid/flex items default to a min-width based on their content's
@@ -115,12 +117,12 @@ export function ProjectGrid({ projects }: { projects: ProjectCard[] }) {
                         <ArrowUpRight aria-hidden="true" size={16} strokeWidth={1.8} />
                       </span>
                     </div>
-                    {(project.descKo || project.descEn) && (
+                    {description && (
                       <p
                         className={`mt-1 min-w-0 text-sm ${span.row === 1 ? "line-clamp-1" : "line-clamp-2"}`}
                         style={{ color: "var(--fg-3)" }}
                       >
-                        {project.descKo || project.descEn}
+                        {description}
                       </p>
                     )}
                   </div>

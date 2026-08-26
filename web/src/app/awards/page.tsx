@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getCompetitions, getPublicActivities } from "@/lib/data";
 import { getServerDict } from "@/lib/locale-server";
+import { getCompetitionRankLabel } from "@/lib/competition-ranks";
 import { CompetitionsExplorer } from "@/components/competitions-explorer";
 import { ActivitiesExplorer } from "@/components/activities-explorer";
 import { Reveal } from "@/components/reveal";
@@ -8,21 +9,17 @@ import { Reveal } from "@/components/reveal";
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Awards & Activities" };
 
-const RANK_LABELS: Record<string, string> = {
-  gold: "Gold",
-  silver: "Silver",
-  bronze: "Bronze",
-  encouragement: "Encouragement",
-  special: "Award",
-};
-
 export default async function AwardsPage() {
-  const [competitions, activities, { dict }] = await Promise.all([
+  const [competitions, activities, { dict, locale }] = await Promise.all([
     getCompetitions(),
     getPublicActivities(),
     getServerDict(),
   ]);
-  const featured = competitions.filter((c) => c.isAward);
+  const localizedCompetitions = competitions.map((competition) => ({
+    ...competition,
+    rankLabel: getCompetitionRankLabel(competition.rank, competition.rankLabel, locale),
+  }));
+  const featured = localizedCompetitions.filter((c) => c.isAward);
 
   const breakdown = featured.reduce<Record<string, number>>((acc, c) => {
     acc[c.rank] = (acc[c.rank] || 0) + 1;
@@ -37,10 +34,12 @@ export default async function AwardsPage() {
             {dict.awards.eyebrow}
           </p>
           <h1 className="type-page-title mt-4 max-w-5xl">
-            {featured.length} {dict.awards.placed}
+            {locale === "ko" ? `${featured.length}회 수상` : `${featured.length} awards`}
           </h1>
           <p className="type-label mt-4" style={{ color: "var(--fg-3)" }}>
-            {dict.awards.of} {competitions.length} {dict.awards.enteredNationwide}
+            {locale === "ko"
+              ? `총 ${competitions.length}개 대회 참가`
+              : `${competitions.length} competitions entered`}
           </p>
           <p className="type-page-lede mt-5" style={{ color: "var(--fg-2)" }}>
             {dict.awards.intro}
@@ -54,7 +53,7 @@ export default async function AwardsPage() {
             <div key={rank}>
               <p className="type-stat">{count}</p>
               <p className="type-label mt-2" style={{ color: "var(--fg-3)" }}>
-                {RANK_LABELS[rank] || rank}
+                {getCompetitionRankLabel(rank, rank, locale)}
               </p>
             </div>
           ))}
@@ -63,7 +62,7 @@ export default async function AwardsPage() {
 
       <div className="wrap">
         <CompetitionsExplorer
-          competitions={competitions}
+          competitions={localizedCompetitions}
           placedOnlyLabel={dict.awards.placedOnly}
           viewAllLabel={dict.awards.viewAll}
           closeLabel={dict.common.close}

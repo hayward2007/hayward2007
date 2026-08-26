@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { getVisiblePhysicsContext } from "@/components/easter-egg/targets";
 import type { EasterEggEffectProps } from "@/components/easter-egg/types";
 
-const SELECTOR = "main [data-physics]";
 const MAX_ITEMS = 60;
 const FLY_BACK_MS = 600;
 
@@ -35,21 +35,8 @@ export function ZeroGravityEffect({ closing, onFinished }: EasterEggEffectProps)
   }, [onFinished]);
 
   useEffect(() => {
-    const main = document.querySelector("main");
-    if (!main) return;
-    const viewportH = window.innerHeight;
-    const outermost = Array.from(main.querySelectorAll<HTMLElement>(SELECTOR)).filter(
-      (el) => el.offsetWidth > 4 && el.offsetHeight > 4,
-    );
-    // Same fallback as GravityEffect: prefer near-viewport elements, but don't
-    // silently do nothing if that filter happens to catch zero of them.
-    const nearViewport = outermost.filter((el) => {
-      const r = el.getBoundingClientRect();
-      return r.bottom > -viewportH && r.top < viewportH * 2;
-    });
-    const els = (nearViewport.length > 0 ? nearViewport : outermost).slice(0, MAX_ITEMS);
-
-    if (els.length === 0) {
+    const { main, targets: els } = getVisiblePhysicsContext(MAX_ITEMS);
+    if (!main || els.length === 0) {
       onFinishedRef.current();
       return;
     }

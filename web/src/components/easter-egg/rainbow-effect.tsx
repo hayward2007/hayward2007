@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { getVisiblePhysicsContext } from "@/components/easter-egg/targets";
 import type { EasterEggEffectProps } from "@/components/easter-egg/types";
 
-const SELECTOR = "main [data-physics]";
 const FADE_MS = 500;
 
 export function RainbowEffect({ closing, onFinished }: EasterEggEffectProps) {
@@ -16,9 +16,7 @@ export function RainbowEffect({ closing, onFinished }: EasterEggEffectProps) {
   }, [onFinished]);
 
   useEffect(() => {
-    const main = document.querySelector("main");
-    if (!main) return;
-    const els = Array.from(main.querySelectorAll<HTMLElement>(SELECTOR));
+    const { targets: els } = getVisiblePhysicsContext();
     if (els.length === 0) {
       onFinishedRef.current();
       return;
