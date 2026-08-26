@@ -175,7 +175,7 @@ export function StackTower() {
   return (
     <div className="flex flex-col items-center gap-4">
       <div
-        className="relative w-full max-w-sm cursor-pointer overflow-hidden rounded-2xl border select-none"
+        className="relative w-full max-w-sm cursor-pointer overflow-hidden rounded-lg border select-none"
         style={{ borderColor: "var(--line)" }}
         onClick={() => (started && !over ? drop() : start())}
       >
@@ -192,7 +192,7 @@ export function StackTower() {
           </div>
         )}
       </div>
-      <div className="flex gap-8 font-mono text-sm">
+      <div className="type-index flex gap-8 text-base">
         <span>HEIGHT {score}</span>
         <span style={{ color: "var(--fg-3)" }}>BEST {best}</span>
       </div>

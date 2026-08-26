@@ -9,7 +9,7 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-10">
       <div>
-        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <h1 className="type-section-title">Dashboard</h1>
         <p className="mt-1 text-sm" style={{ color: "var(--fg-3)" }}>
           {syncedAt ? `Last synced ${new Date(syncedAt).toLocaleString()}` : "Never synced from Notion yet."}
         </p>
@@ -23,9 +23,9 @@ export default async function AdminDashboardPage() {
           { label: "Competitions", value: counts.competitions },
           { label: "Activities", value: counts.activities, sub: `${counts.visibleActivities} public` },
         ].map((stat) => (
-          <div key={stat.label} className="rounded-xl border p-5" style={{ borderColor: "var(--line)" }}>
-            <p className="text-2xl font-semibold">{stat.value}</p>
-            <p className="text-sm" style={{ color: "var(--fg-3)" }}>
+          <div key={stat.label} className="rounded-lg border p-5" style={{ borderColor: "var(--line)" }}>
+            <p className="type-stat">{stat.value}</p>
+            <p className="type-label mt-2" style={{ color: "var(--fg-3)" }}>
               {stat.label}
             </p>
             {stat.sub && (

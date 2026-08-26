@@ -12,6 +12,7 @@ export const GAMES: CatalogEntry[] = [
 ];
 
 export const TOOLS: CatalogEntry[] = [
+  { slug: "melody-to-tab", title: "Melody to Tab", desc: "Turn a YouTube melody into playable guitar tablature.", href: "/tools/melody-to-tab" },
   { slug: "merge-pdf", title: "Merge PDF", desc: "Combine multiple PDFs into one.", href: "/tools/merge-pdf" },
   { slug: "compress-image", title: "Compress Image", desc: "Shrink an image's file size.", href: "/tools/compress-image" },
   { slug: "resume-export", title: "Résumé Export", desc: "Turn a generated portfolio into a PDF.", href: "/tools/resume-export" },

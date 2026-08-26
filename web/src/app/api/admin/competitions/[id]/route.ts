@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { authorizeAdminRequest } from "@/lib/admin-api";
+import { competitionPatchSchema } from "@/lib/admin-validation";
+import { readJsonObject } from "@/lib/request-security";
 
 const RANK_LABELS: Record<string, string> = {
   gold: "Gold",
@@ -11,17 +14,18 @@ const RANK_LABELS: Record<string, string> = {
 };
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const body = await request.json().catch(() => ({}));
+  const denied = await authorizeAdminRequest(request);
+  if (denied) return denied;
 
-  const data: Record<string, unknown> = {};
-  if ("name" in body) data.name = body.name;
-  if ("year" in body) data.year = body.year;
-  if ("priority" in body) data.priority = Number(body.priority) || 99;
-  if ("rank" in body && RANK_LABELS[body.rank]) {
-    data.rank = body.rank;
-    data.rankLabel = RANK_LABELS[body.rank];
-  }
+  const { id } = await params;
+  const bodyResult = await readJsonObject(request, 16_000);
+  if (!bodyResult.ok) return bodyResult.response;
+  const parsed = competitionPatchSchema.safeParse(bodyResult.value);
+  if (!parsed.success) return NextResponse.json({ error: "invalid_input" }, { status: 400 });
+  const data = {
+    ...parsed.data,
+    ...(parsed.data.rank ? { rankLabel: RANK_LABELS[parsed.data.rank] } : {}),
+  };
 
   try {
     const competition = await prisma.competition.update({ where: { id }, data });

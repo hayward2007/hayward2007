@@ -23,9 +23,19 @@ const pretendard = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Hayward Kim — Robotics & Physical AI",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://hayward.kim"),
+  title: {
+    default: "Hayward Kim — Robotics & Physical AI",
+    template: "%s | Hayward Kim",
+  },
   description:
     "Kim Hyeong-Seok (Hayward Kim) — robotics and physical AI, built to compete and shipped as products people use.",
+  openGraph: {
+    type: "website",
+    title: "Hayward Kim — Robotics & Physical AI",
+    description: "Robotics, embedded hardware, control systems, and physical AI.",
+    images: [{ url: "/assets/banner.jpeg", alt: "Hayward Kim" }],
+  },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

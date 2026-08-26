@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { Download, ImagePlus, Minimize2 } from "lucide-react";
 
 export function CompressImageTool() {
   const [file, setFile] = useState<File | null>(null);
@@ -49,10 +50,11 @@ export function CompressImageTool() {
   return (
     <div className="max-w-xl space-y-6">
       <label
-        className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed p-10 text-center text-sm"
+        className="surface-interactive flex cursor-pointer flex-col items-center justify-center gap-2 border-dashed p-10 text-center text-sm"
         style={{ borderColor: "var(--line-strong)" }}
       >
-        <span>{file ? file.name : "Click to choose an image"}</span>
+        <ImagePlus aria-hidden="true" size={24} strokeWidth={1.6} style={{ color: "var(--accent-ai)" }} />
+        <span className="font-display font-semibold">{file ? file.name : "Click to choose an image"}</span>
         <span style={{ color: "var(--fg-3)" }}>Processed locally in your browser</span>
         <input type="file" accept="image/*" onChange={onPick} className="hidden" />
       </label>
@@ -62,8 +64,8 @@ export function CompressImageTool() {
           <div className="space-y-4">
             <div>
               <div className="flex items-center justify-between text-sm">
-                <span>Quality</span>
-                <span style={{ color: "var(--fg-3)" }}>{Math.round(quality * 100)}%</span>
+                <span className="type-label">Quality</span>
+                <span className="type-index" style={{ color: "var(--fg-3)" }}>{Math.round(quality * 100)}%</span>
               </div>
               <input
                 type="range"
@@ -77,8 +79,8 @@ export function CompressImageTool() {
             </div>
             <div>
               <div className="flex items-center justify-between text-sm">
-                <span>Max width</span>
-                <span style={{ color: "var(--fg-3)" }}>{maxWidth}px</span>
+                <span className="type-label">Max width</span>
+                <span className="type-index" style={{ color: "var(--fg-3)" }}>{maxWidth}px</span>
               </div>
               <input
                 type="range"
@@ -96,16 +98,17 @@ export function CompressImageTool() {
             type="button"
             onClick={compress}
             disabled={working}
-            className="rounded-lg px-4 py-2 text-sm font-medium"
+            className="type-nav inline-flex min-h-10 items-center gap-2 rounded-lg px-4 py-2 text-sm"
             style={{ background: "var(--fg)", color: "var(--bg)" }}
           >
+            <Minimize2 aria-hidden="true" size={15} strokeWidth={1.8} />
             {working ? "Compressing…" : "Compress"}
           </button>
 
           <canvas ref={canvasRef} className="hidden" />
 
           {resultUrl && (
-            <div className="rounded-xl border p-4 text-sm" style={{ borderColor: "var(--line)" }}>
+            <div className="rounded-lg border p-4 text-sm" style={{ borderColor: "var(--line)" }}>
               <p>
                 {formatBytes(originalSize)} → <strong>{formatBytes(resultSize)}</strong> (
                 {Math.round((1 - resultSize / originalSize) * 100)}% smaller)
@@ -113,9 +116,10 @@ export function CompressImageTool() {
               <a
                 href={resultUrl}
                 download="compressed.jpg"
-                className="mt-3 inline-block rounded-lg px-4 py-2 text-sm font-medium"
+                className="type-nav mt-3 inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm"
                 style={{ background: "var(--fg)", color: "var(--bg)" }}
               >
+                <Download aria-hidden="true" size={15} strokeWidth={1.8} />
                 Download
               </a>
             </div>

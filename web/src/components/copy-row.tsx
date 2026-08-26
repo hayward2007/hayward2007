@@ -26,13 +26,13 @@ export function CopyRow({ label, value, href }: { label: string; value: string; 
       className="group flex w-full items-center justify-between border-b py-5 text-left"
       style={{ borderColor: "var(--line)", background: "var(--bg)" }}
     >
-      <span className="font-mono text-xs uppercase tracking-[0.06em]" style={{ color: "var(--fg-3)" }}>
+      <span className="type-label" style={{ color: "var(--fg-3)" }}>
         {label}
       </span>
-      <span className="flex items-center gap-3 text-lg font-medium">
+      <span className="font-display flex items-center gap-3 text-lg font-semibold md:text-xl">
         {value}
         <span
-          className="font-mono text-xs transition-opacity duration-150"
+          className="type-label transition-opacity duration-150"
           style={{ color: "var(--accent-robotics)", opacity: copied ? 1 : 0 }}
         >
           {copied ? dict.common.copied : ""}

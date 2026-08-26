@@ -44,7 +44,7 @@ export default function AdminProjectsPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-semibold">Projects</h1>
+      <h1 className="type-section-title">Projects</h1>
       <p className="text-sm" style={{ color: "var(--fg-3)" }}>
         Edited here, not written back to Notion. Re-syncing from Notion overwrites name/description/cover but keeps
         the slug.
@@ -55,6 +55,8 @@ export default function AdminProjectsPage() {
           <div key={project.id} className="py-4">
             <button
               type="button"
+              aria-expanded={openId === project.id}
+              aria-controls={`project-editor-${project.id}`}
               className="flex w-full items-center justify-between text-left"
               onClick={() => setOpenId(openId === project.id ? null : project.id)}
             >
@@ -69,34 +71,42 @@ export default function AdminProjectsPage() {
             </button>
 
             {openId === project.id && (
-              <div className="mt-4 space-y-3 rounded-xl border p-4" style={{ borderColor: "var(--line)" }}>
-                <label className="block text-xs font-medium">Slug</label>
+              <div id={`project-editor-${project.id}`} className="mt-4 space-y-3 rounded-lg border p-4" style={{ borderColor: "var(--line)" }}>
+                <label htmlFor={`project-${project.id}-slug`} className="block text-xs font-medium">Slug</label>
                 <input
+                  id={`project-${project.id}-slug`}
+                  name="slug"
                   defaultValue={project.slug}
                   onBlur={(e) => save(project.id, { slug: e.target.value })}
                   className="w-full rounded-lg border px-3 py-2 text-sm"
                   style={{ borderColor: "var(--line-strong)" }}
                 />
 
-                <label className="block text-xs font-medium">Description (KR)</label>
+                <label htmlFor={`project-${project.id}-description-ko`} className="block text-xs font-medium">Description (KR)</label>
                 <RichTextEditor
                   key={`${project.id}-ko`}
+                  id={`project-${project.id}-description-ko`}
+                  ariaLabel={`${project.name} Korean description`}
                   value={project.descKo ?? ""}
                   onSave={(html) => save(project.id, { descKo: html })}
                   placeholder="Write the Korean description…"
                 />
 
-                <label className="block text-xs font-medium">Description (EN)</label>
+                <label htmlFor={`project-${project.id}-description-en`} className="block text-xs font-medium">Description (EN)</label>
                 <RichTextEditor
                   key={`${project.id}-en`}
+                  id={`project-${project.id}-description-en`}
+                  ariaLabel={`${project.name} English description`}
                   value={project.descEn ?? ""}
                   onSave={(html) => save(project.id, { descEn: html })}
                   placeholder="Write the English description…"
                 />
 
                 <div className="flex items-center gap-3">
-                  <label className="text-xs font-medium">Visibility</label>
+                  <label htmlFor={`project-${project.id}-visibility`} className="text-xs font-medium">Visibility</label>
                   <select
+                    id={`project-${project.id}-visibility`}
+                    name="visibility"
                     defaultValue={project.visibility}
                     onChange={(e) => save(project.id, { visibility: e.target.value })}
                     className="rounded-lg border px-3 py-1.5 text-sm"

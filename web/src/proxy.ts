@@ -6,7 +6,7 @@ import { ADMIN_COOKIE_NAME, verifySessionToken } from "@/lib/auth";
 // so a generated application portfolio can be shared as a real subdomain
 // once a wildcard DNS record (and wildcard TLS) points at this server.
 // Until that DNS is set up, the same page is always reachable at /p/<slug>.
-const BASE_DOMAIN = process.env.BASE_DOMAIN || "hayward.kim";
+const BASE_DOMAIN = (process.env.BASE_DOMAIN || "hayward.kim").toLowerCase();
 
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
@@ -14,11 +14,11 @@ export const config = {
 
 export async function proxy(request: NextRequest) {
   const host = request.headers.get("host") || "";
-  const hostname = host.split(":")[0];
+  const hostname = host.split(":")[0].toLowerCase().replace(/\.$/, "");
 
   if (hostname !== BASE_DOMAIN && hostname.endsWith(`.${BASE_DOMAIN}`)) {
     const slug = hostname.slice(0, -1 * (BASE_DOMAIN.length + 1));
-    if (slug && slug !== "www" && slug !== "admin") {
+    if (/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(slug) && slug !== "www" && slug !== "admin") {
       const url = request.nextUrl.clone();
       url.pathname = `/p/${slug}${url.pathname === "/" ? "" : url.pathname}`;
       return NextResponse.rewrite(url);
@@ -41,15 +41,20 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  const isProtectedPage = pathname.startsWith("/admin") && pathname !== "/admin/login";
-  const isProtectedApi = pathname.startsWith("/api/admin") && pathname !== "/api/admin/login";
+  const isAdminPage = pathname === "/admin" || pathname.startsWith("/admin/");
+  const isAdminApi = pathname === "/api/admin" || pathname.startsWith("/api/admin/");
+  const isProtectedPage = isAdminPage && pathname !== "/admin/login";
+  const isProtectedApi = isAdminApi && pathname !== "/api/admin/login";
 
   if (isProtectedPage || isProtectedApi) {
     const token = request.cookies.get(ADMIN_COOKIE_NAME)?.value;
     const valid = await verifySessionToken(token);
     if (!valid) {
       if (isProtectedApi) {
-        return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+        return NextResponse.json(
+          { error: "unauthorized" },
+          { status: 401, headers: { "Cache-Control": "no-store" } },
+        );
       }
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = "/admin/login";

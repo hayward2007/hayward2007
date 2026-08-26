@@ -29,3 +29,4 @@ export async function startAutoSync() {
   await syncOnce();
   setInterval(syncOnce, SYNC_INTERVAL_MS);
 }
+import "server-only";

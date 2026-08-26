@@ -152,7 +152,7 @@ export function RoverRun() {
   return (
     <div className="flex flex-col items-center gap-4">
       <div
-        className="relative w-full max-w-xl cursor-pointer overflow-hidden rounded-2xl border"
+        className="relative w-full max-w-xl cursor-pointer overflow-hidden rounded-lg border"
         style={{ borderColor: "var(--line)" }}
         onClick={() => (started ? jump() : reset())}
       >
@@ -169,7 +169,7 @@ export function RoverRun() {
           </div>
         )}
       </div>
-      <div className="flex gap-8 font-mono text-sm">
+      <div className="type-index flex gap-8 text-base">
         <span>SCORE {score}</span>
         <span style={{ color: "var(--fg-3)" }}>BEST {best}</span>
       </div>

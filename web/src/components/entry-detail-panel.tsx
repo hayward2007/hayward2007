@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { X } from "lucide-react";
 import { TagPill } from "@/components/tag-pill";
 
 export type DetailEntry = {
@@ -27,16 +28,36 @@ export function EntryDetailPanel({
   emptyLabel: string;
   closeLabel: string;
 }) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const previousFocusRef = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
     if (!entry) return;
+    previousFocusRef.current = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    const panel = panelRef.current;
+    const focusable = panel?.querySelectorAll<HTMLElement>("a[href], button:not([disabled])");
+    focusable?.[0]?.focus();
+
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
+      if (e.key !== "Tab" || !focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
     }
     window.addEventListener("keydown", onKeyDown);
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
+      previousFocusRef.current?.focus();
     };
   }, [entry, onClose]);
 
@@ -56,7 +77,11 @@ export function EntryDetailPanel({
             onClick={onClose}
           />
           <motion.div
-            className="relative z-10 max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border p-6 md:rounded-2xl"
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="entry-detail-title"
+            className="relative z-10 max-h-[85vh] w-full max-w-lg overflow-y-auto rounded-t-lg border p-6 md:rounded-lg"
             style={{ background: "var(--bg)", borderColor: "var(--line)" }}
             initial={{ y: 24, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -65,8 +90,8 @@ export function EntryDetailPanel({
           >
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
-                <h3 className="text-lg font-medium">{entry.name}</h3>
-                <p className="mt-1 font-mono text-xs" style={{ color: "var(--fg-3)" }}>
+                <h3 id="entry-detail-title" className="type-card-title text-lg">{entry.name}</h3>
+                <p className="type-index mt-1 text-sm" style={{ color: "var(--fg-3)" }}>
                   {entry.meta}
                 </p>
               </div>
@@ -74,10 +99,12 @@ export function EntryDetailPanel({
                 type="button"
                 onClick={onClose}
                 data-cursor="true"
-                className="shrink-0 font-mono text-xs uppercase tracking-[0.08em]"
+                aria-label={closeLabel}
+                title={closeLabel}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border"
                 style={{ color: "var(--fg-3)" }}
               >
-                {closeLabel}
+                <X aria-hidden="true" size={17} strokeWidth={1.8} />
               </button>
             </div>
 
@@ -92,7 +119,7 @@ export function EntryDetailPanel({
             <div className="mt-6 border-t pt-5" style={{ borderColor: "var(--line)" }}>
               {entry.aiSummary ? (
                 <div
-                  className="space-y-3 text-[15px] leading-relaxed [&_p]:mt-0"
+                  className="rich-content space-y-3 text-[15px] leading-relaxed [&_p]:mt-0"
                   style={{ color: "var(--fg-2)" }}
                   dangerouslySetInnerHTML={{ __html: entry.aiSummary }}
                 />

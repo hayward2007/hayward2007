@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { Download } from "lucide-react";
 
 export function QrCodeTool() {
   const [text, setText] = useState("https://hayward.kim");
@@ -31,10 +32,12 @@ export function QrCodeTool() {
   return (
     <div className="max-w-xl space-y-6">
       <div>
-        <label className="text-sm" style={{ color: "var(--fg-3)" }}>
+          <label htmlFor="qr-content" className="type-label" style={{ color: "var(--fg-3)" }}>
           Text or URL
         </label>
         <textarea
+          id="qr-content"
+          name="qr-content"
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={3}
@@ -43,18 +46,19 @@ export function QrCodeTool() {
         />
       </div>
 
-      {error && <p className="text-sm" style={{ color: "var(--accent-signal)" }}>{error}</p>}
+      {error && <p role="alert" className="text-sm" style={{ color: "var(--accent-signal)" }}>{error}</p>}
 
       {text.trim() && dataUrl && (
-        <div className="flex flex-col items-start gap-4 rounded-xl border p-4" style={{ borderColor: "var(--line)" }}>
+        <div className="flex flex-col items-start gap-4 rounded-lg border p-4" style={{ borderColor: "var(--line)" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={dataUrl} alt="Generated QR code" width={240} height={240} className="rounded-lg" />
           <a
             href={dataUrl}
             download="qr-code.png"
-            className="inline-block rounded-lg px-4 py-2 text-sm font-medium"
+            className="type-nav inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm"
             style={{ background: "var(--fg)", color: "var(--bg)" }}
           >
+            <Download aria-hidden="true" size={15} strokeWidth={1.8} />
             Download PNG
           </a>
         </div>

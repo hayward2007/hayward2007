@@ -514,3 +514,4 @@ export async function syncFromNotion(token: string) {
 
   return { projectCount, competitionCount, activityCount };
 }
+import "server-only";

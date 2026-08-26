@@ -1,12 +1,22 @@
+import "server-only";
+
 import { prisma } from "@/lib/prisma";
 import { GAMES, TOOLS } from "@/lib/catalog";
-import { sanitizeHtml, stripHtml } from "@/lib/html";
+import { sanitizeExternalUrl, sanitizeHtml, stripHtml } from "@/lib/html";
+import { PROJECT_CASE_STUDY_INDEX } from "@/lib/project-case-studies";
+
+const caseStudyIndexBySlug = new Map(PROJECT_CASE_STUDY_INDEX.map((study) => [study.slug, study]));
+const PROJECT_COVER_FALLBACKS: Record<string, string> = {
+  "dimipay-kiosk": "/project-assets/dimipay-kiosk/hero.png",
+};
 
 function parseJsonArray(value: string | null | undefined): string[] {
   if (!value) return [];
   try {
     const parsed = JSON.parse(value);
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed)
+      ? parsed.filter((item): item is string => typeof item === "string").slice(0, 50)
+      : [];
   } catch {
     return [];
   }
@@ -19,21 +29,24 @@ export async function getPublicProjects() {
     include: { awards: { include: { competition: true } } },
   });
 
-  return projects.map((project) => {
+  const mappedProjects = projects.map((project) => {
     const ownTags = parseJsonArray(project.tags);
+    const caseStudy = caseStudyIndexBySlug.get(project.slug);
     return {
       id: project.id,
       slug: project.slug,
-      name: project.name,
-      descKo: stripHtml(project.descKo),
+      name: caseStudy?.name || project.name,
+      descKo: caseStudy?.description || stripHtml(project.descKo),
       descEn: stripHtml(project.descEn),
-      cover: project.cover || "",
+      cover: project.cover || caseStudy?.heroImage || PROJECT_COVER_FALLBACKS[project.slug] || "",
       icon: project.icon || "",
       // Real content tags (LLM-filled from the Notion write-up when Project.tags
       // is empty) take priority; award rank labels are only a fallback for
       // projects that haven't been summarized yet.
       tags:
-        ownTags.length > 0
+        caseStudy?.tags.length
+          ? caseStudy.tags
+          : ownTags.length > 0
           ? ownTags
           : ([...new Set(project.awards.map((a) => stripHtml(a.competition.rankLabel)).filter(Boolean))] as string[]),
       awards: project.awards.map((a) => ({
@@ -45,23 +58,59 @@ export async function getPublicProjects() {
       })),
     };
   });
+
+  const existingSlugs = new Set(mappedProjects.map((project) => project.slug));
+  for (const caseStudy of PROJECT_CASE_STUDY_INDEX) {
+    if (existingSlugs.has(caseStudy.slug)) continue;
+    mappedProjects.push({
+      id: `case-study-${caseStudy.slug}`,
+      slug: caseStudy.slug,
+      name: caseStudy.name,
+      descKo: caseStudy.description,
+      descEn: "",
+      cover: caseStudy.heroImage,
+      icon: "",
+      tags: caseStudy.tags,
+      awards: [],
+    });
+  }
+
+  return mappedProjects.sort((a, b) => {
+    const aOrder = caseStudyIndexBySlug.get(a.slug)?.order ?? Number.MAX_SAFE_INTEGER;
+    const bOrder = caseStudyIndexBySlug.get(b.slug)?.order ?? Number.MAX_SAFE_INTEGER;
+    return aOrder - bOrder;
+  });
 }
 
 export async function getProjectBySlug(slug: string) {
+  const caseStudy = caseStudyIndexBySlug.get(slug);
   const project = await prisma.project.findUnique({
     where: { slug },
     include: { awards: { include: { competition: true } } },
   });
-  if (!project || project.visibility !== "public") return null;
+  if (!project || project.visibility !== "public") {
+    if (!caseStudy) return null;
+    return {
+      id: `case-study-${caseStudy.slug}`,
+      slug: caseStudy.slug,
+      name: caseStudy.name,
+      descKo: caseStudy.description,
+      descEn: "",
+      aiSummary: "",
+      cover: caseStudy.heroImage,
+      icon: "",
+      awards: [],
+    };
+  }
 
   return {
     id: project.id,
     slug: project.slug,
-    name: project.name,
-    descKo: sanitizeHtml(project.descKo),
+    name: caseStudy?.name || project.name,
+    descKo: caseStudy?.description || sanitizeHtml(project.descKo),
     descEn: sanitizeHtml(project.descEn),
     aiSummary: sanitizeHtml(project.aiSummary),
-    cover: project.cover || "",
+    cover: project.cover || caseStudy?.heroImage || PROJECT_COVER_FALLBACKS[project.slug] || "",
     icon: project.icon || "",
     awards: project.awards.map((a) => ({
       name: a.competition.name,
@@ -195,7 +244,7 @@ export async function getPortfolioBySlug(slug: string) {
         name: item.project.name,
         descKo: stripHtml(item.project.descKo),
         descEn: stripHtml(item.project.descEn),
-        cover: item.project.cover || "",
+        cover: item.project.cover || PROJECT_COVER_FALLBACKS[item.project.slug] || "",
         awards: item.project.awards.map((a) => ({
           name: a.competition.name,
           rankLabel: a.competition.rankLabel || "",
@@ -225,7 +274,7 @@ export async function getPublishedBlogPosts() {
 export async function getBlogPostBySlug(slug: string) {
   const post = await prisma.blogPost.findUnique({
     where: { slug },
-    include: { comments: { orderBy: { createdAt: "asc" } } },
+    include: { comments: { orderBy: { createdAt: "desc" }, take: 100 } },
   });
   if (!post || !post.published) return null;
 
@@ -235,10 +284,10 @@ export async function getBlogPostBySlug(slug: string) {
     body: sanitizeHtml(post.body),
     createdAt: post.createdAt.toISOString(),
     source: post.source || "",
-    sourceUrl: post.sourceUrl || "",
+    sourceUrl: sanitizeExternalUrl(post.sourceUrl),
     field: post.field || "",
     tags: parseJsonArray(post.tags),
-    comments: post.comments.map((c) => ({
+    comments: post.comments.reverse().map((c) => ({
       id: c.id,
       name: c.name,
       body: c.body,

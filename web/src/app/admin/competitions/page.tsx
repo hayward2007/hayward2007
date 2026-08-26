@@ -39,7 +39,7 @@ export default function AdminCompetitionsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Competitions</h1>
+        <h1 className="type-section-title">Competitions</h1>
         <p className="mt-1 text-sm" style={{ color: "var(--fg-3)" }}>
           Read from Notion; fix a misread rank or reorder priority here without touching Notion.
         </p>
@@ -54,6 +54,8 @@ export default function AdminCompetitionsPage() {
               </p>
             </div>
             <input
+              aria-label={`${c.name} year`}
+              name={`competition-${c.id}-year`}
               defaultValue={c.year ?? ""}
               placeholder="year"
               onBlur={(e) => save(c.id, { year: e.target.value })}
@@ -61,6 +63,8 @@ export default function AdminCompetitionsPage() {
               style={{ borderColor: "var(--line-strong)" }}
             />
             <input
+              aria-label={`${c.name} priority`}
+              name={`competition-${c.id}-priority`}
               type="number"
               defaultValue={c.priority}
               onBlur={(e) => save(c.id, { priority: e.target.value })}
@@ -68,6 +72,8 @@ export default function AdminCompetitionsPage() {
               style={{ borderColor: "var(--line-strong)" }}
             />
             <select
+              aria-label={`${c.name} rank`}
+              name={`competition-${c.id}-rank`}
               defaultValue={c.rank}
               onChange={(e) => save(c.id, { rank: e.target.value })}
               className="rounded-lg border px-3 py-1.5 text-sm"

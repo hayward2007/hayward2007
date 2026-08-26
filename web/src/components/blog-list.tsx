@@ -40,7 +40,7 @@ export function BlogList({
           <button
             type="button"
             onClick={() => setFilter(null)}
-            className="rounded-full border px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.05em] transition-colors duration-150"
+            className="type-nav rounded-md border px-3 py-1.5 text-[11px] transition-colors duration-150"
             style={{
               borderColor: "var(--line-strong)",
               background: filter === null ? "var(--fg)" : "transparent",
@@ -54,7 +54,7 @@ export function BlogList({
               key={tag}
               type="button"
               onClick={() => setFilter(tag)}
-              className="rounded-full border px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.05em] transition-colors duration-150"
+              className="type-nav rounded-md border px-3 py-1.5 text-[11px] transition-colors duration-150"
               style={{
                 borderColor: "var(--line-strong)",
                 background: filter === tag ? "var(--fg)" : "transparent",
@@ -77,13 +77,13 @@ export function BlogList({
             style={{ borderColor: "var(--line)" }}
           >
             <div className="flex items-baseline justify-between gap-4">
-              <h2 className="text-lg font-medium">{post.title}</h2>
-              <span className="shrink-0 font-mono text-xs" style={{ color: "var(--fg-3)" }}>
+              <h2 className="type-card-title text-lg">{post.title}</h2>
+              <span className="type-index shrink-0 text-xs" style={{ color: "var(--fg-3)" }}>
                 {new Date(post.createdAt).toLocaleDateString(dateLocale)}
               </span>
             </div>
             {post.source && (
-              <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.06em]" style={{ color: "var(--accent-robotics)" }}>
+              <p className="type-label mt-1" style={{ color: "var(--accent-robotics)" }}>
                 Curated from {post.source}
               </p>
             )}

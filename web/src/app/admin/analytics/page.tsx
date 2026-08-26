@@ -5,8 +5,8 @@ export const dynamic = "force-dynamic";
 function BarList({ title, buckets }: { title: string; buckets: Bucket[] }) {
   const max = Math.max(1, ...buckets.map((b) => b.count));
   return (
-    <div className="rounded-xl border p-5" style={{ borderColor: "var(--line)" }}>
-      <p className="mb-4 text-sm font-medium">{title}</p>
+    <div className="rounded-lg border p-5" style={{ borderColor: "var(--line)" }}>
+      <p className="type-card-title mb-4 text-sm">{title}</p>
       {buckets.length === 0 ? (
         <p className="text-sm" style={{ color: "var(--fg-3)" }}>
           No data yet.
@@ -24,7 +24,7 @@ function BarList({ title, buckets }: { title: string; buckets: Bucket[] }) {
                   style={{ width: `${(b.count / max) * 100}%`, background: "var(--accent-robotics)" }}
                 />
               </div>
-              <span className="w-10 shrink-0 text-right font-mono text-xs tabular-nums" style={{ color: "var(--fg-3)" }}>
+              <span className="type-index w-10 shrink-0 text-right text-sm tabular-nums" style={{ color: "var(--fg-3)" }}>
                 {b.count}
               </span>
             </div>
@@ -41,7 +41,7 @@ export default async function AdminAnalyticsPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold">Analytics</h1>
+        <h1 className="type-section-title">Analytics</h1>
         <p className="mt-1 text-sm" style={{ color: "var(--fg-3)" }}>
           Logged client-side on every real page load. Append <code>?ref=name</code> to any link you share (LinkedIn,
           résumé, etc.) to see it broken out below.
@@ -50,14 +50,14 @@ export default async function AdminAnalyticsPage() {
 
       <div className="flex gap-10">
         <div>
-          <p className="text-2xl font-semibold tabular-nums">{summary.total7d}</p>
-          <p className="text-sm" style={{ color: "var(--fg-3)" }}>
+          <p className="type-stat">{summary.total7d}</p>
+          <p className="type-label mt-2" style={{ color: "var(--fg-3)" }}>
             Views, last 7 days
           </p>
         </div>
         <div>
-          <p className="text-2xl font-semibold tabular-nums">{summary.total30d}</p>
-          <p className="text-sm" style={{ color: "var(--fg-3)" }}>
+          <p className="type-stat">{summary.total30d}</p>
+          <p className="type-label mt-2" style={{ color: "var(--fg-3)" }}>
             Views, last 30 days
           </p>
         </div>
@@ -66,7 +66,7 @@ export default async function AdminAnalyticsPage() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <BarList title="Top pages (30d)" buckets={summary.topPaths} />
         <BarList title="Referrers (30d)" buckets={summary.topReferrers} />
-        <BarList title="Tracked links — ?ref= (30d)" buckets={summary.topRefs} />
+        <BarList title="Tracked links / ?ref= (30d)" buckets={summary.topRefs} />
       </div>
     </div>
   );

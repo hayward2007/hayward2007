@@ -8,6 +8,8 @@ export function PageviewBeacon() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
+    const privacyNavigator = navigator as Navigator & { globalPrivacyControl?: boolean };
+    if (navigator.doNotTrack === "1" || privacyNavigator.globalPrivacyControl === true) return;
     const params = searchParams;
     fetch("/api/analytics/pageview", {
       method: "POST",

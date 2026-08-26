@@ -67,13 +67,16 @@ export default function AdminBlogPage() {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-semibold">Blog</h1>
+      <h1 className="type-section-title">Blog</h1>
       <p className="text-sm" style={{ color: "var(--fg-3)" }}>
         Posts show on /social once published. Comments are public and go live immediately — no approval step.
       </p>
 
       <form onSubmit={createPost} className="flex gap-3">
+        <label htmlFor="new-post-title" className="sr-only">New post title</label>
         <input
+          id="new-post-title"
+          name="title"
           value={newTitle}
           onChange={(e) => setNewTitle(e.target.value)}
           placeholder="New post title…"
@@ -95,6 +98,8 @@ export default function AdminBlogPage() {
           <div key={post.id} className="py-4">
             <button
               type="button"
+              aria-expanded={openId === post.id}
+              aria-controls={`post-editor-${post.id}`}
               className="flex w-full items-center justify-between text-left"
               onClick={() => setOpenId(openId === post.id ? null : post.id)}
             >
@@ -109,26 +114,32 @@ export default function AdminBlogPage() {
             </button>
 
             {openId === post.id && (
-              <div className="mt-4 space-y-3 rounded-xl border p-4" style={{ borderColor: "var(--line)" }}>
-                <label className="block text-xs font-medium">Title</label>
+              <div id={`post-editor-${post.id}`} className="mt-4 space-y-3 rounded-lg border p-4" style={{ borderColor: "var(--line)" }}>
+                <label htmlFor={`post-${post.id}-title`} className="block text-xs font-medium">Title</label>
                 <input
+                  id={`post-${post.id}-title`}
+                  name="title"
                   defaultValue={post.title}
                   onBlur={(e) => save(post.id, { title: e.target.value })}
                   className="w-full rounded-lg border px-3 py-2 text-sm"
                   style={{ borderColor: "var(--line-strong)" }}
                 />
 
-                <label className="block text-xs font-medium">Slug</label>
+                <label htmlFor={`post-${post.id}-slug`} className="block text-xs font-medium">Slug</label>
                 <input
+                  id={`post-${post.id}-slug`}
+                  name="slug"
                   defaultValue={post.slug}
                   onBlur={(e) => save(post.id, { slug: e.target.value })}
                   className="w-full rounded-lg border px-3 py-2 text-sm"
                   style={{ borderColor: "var(--line-strong)" }}
                 />
 
-                <label className="block text-xs font-medium">Body</label>
+                <label htmlFor={`post-${post.id}-body`} className="block text-xs font-medium">Body</label>
                 <RichTextEditor
                   key={post.id}
+                  id={`post-${post.id}-body`}
+                  ariaLabel={`${post.title} body`}
                   value={post.body}
                   onSave={(html) => save(post.id, { body: html })}
                   placeholder="Write the post…"

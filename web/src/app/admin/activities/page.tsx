@@ -44,7 +44,7 @@ export default function AdminActivitiesPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Activities</h1>
+      <h1 className="type-section-title">Activities</h1>
       <div className="divide-y" style={{ borderColor: "var(--line)" }}>
         {activities.map((activity) => (
           <div key={activity.id} className="flex flex-wrap items-center gap-4 py-3">
@@ -55,6 +55,8 @@ export default function AdminActivitiesPage() {
               </p>
             </div>
             <input
+              aria-label={`${activity.name} tags`}
+              name={`activity-${activity.id}-tags`}
               defaultValue={parseTags(activity.tags)}
               placeholder="tags, comma separated"
               onBlur={(e) =>
@@ -64,6 +66,8 @@ export default function AdminActivitiesPage() {
               style={{ borderColor: "var(--line-strong)" }}
             />
             <select
+              aria-label={`${activity.name} visibility`}
+              name={`activity-${activity.id}-visibility`}
               defaultValue={activity.visibility}
               onChange={(e) => save(activity.id, { visibility: e.target.value })}
               className="rounded-lg border px-3 py-1.5 text-sm"

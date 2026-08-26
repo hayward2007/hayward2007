@@ -1,14 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { syncFromNotion, notionStatusHint, NotionApiError } from "@/lib/notion";
+import { authorizeAdminRequest } from "@/lib/admin-api";
+import { noStoreJson } from "@/lib/request-security";
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const denied = await authorizeAdminRequest(request);
+  if (denied) return denied;
+
   const token = process.env.NOTION_ACCESS_TOKEN;
   if (!token) {
-    return NextResponse.json(
-      { error: "notion_token_missing", message: "NOTION_ACCESS_TOKEN is not configured." },
-      { status: 500 },
-    );
+    return noStoreJson({ error: "notion_unavailable" }, { status: 503 });
   }
 
   try {
@@ -16,17 +18,17 @@ export async function POST() {
     await prisma.syncLog.create({
       data: { source: "notion", status: "success", message: JSON.stringify(result) },
     });
-    return NextResponse.json({ ok: true, ...result });
+    return noStoreJson({ ok: true, ...result });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    await prisma.syncLog.create({ data: { source: "notion", status: "error", message } });
+    await prisma.syncLog.create({ data: { source: "notion", status: "error", message: message.slice(0, 1000) } });
 
     if (error instanceof NotionApiError) {
-      return NextResponse.json(
+      return noStoreJson(
         { error: "notion_api_error", notionStatus: error.status, hint: notionStatusHint(error.status) },
         { status: 502 },
       );
     }
-    return NextResponse.json({ error: "sync_failed", message }, { status: 500 });
+    return noStoreJson({ error: "sync_failed" }, { status: 500 });
   }
 }

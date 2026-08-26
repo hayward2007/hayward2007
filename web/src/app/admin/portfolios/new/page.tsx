@@ -11,7 +11,7 @@ export default async function NewPortfolioPage() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <h1 className="text-2xl font-semibold">New portfolio</h1>
+      <h1 className="type-section-title">New portfolio</h1>
       <PortfolioForm projects={projects} />
     </div>
   );

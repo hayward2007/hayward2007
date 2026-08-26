@@ -28,7 +28,12 @@ export function MatrixRainEffect({ closing, onFinished }: EasterEggEffectProps) 
     canvasRef.current = canvas;
 
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) {
+      canvas.remove();
+      canvasRef.current = null;
+      onFinishedRef.current();
+      return;
+    }
 
     function resize() {
       canvas.width = window.innerWidth;

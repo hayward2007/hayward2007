@@ -2,13 +2,13 @@ import { MergePdfTool } from "@/components/tools/merge-pdf-tool";
 
 export default function MergePdfPage() {
   return (
-    <main className="py-20">
+    <main className="py-16 md:py-24">
       <div className="wrap">
-        <p className="font-mono text-xs uppercase tracking-[0.14em]" style={{ color: "var(--accent-ai)" }}>
+        <p className="type-page-kicker" style={{ color: "var(--accent-ai)" }}>
           Tools — Merge PDF
         </p>
-        <h1 className="mt-3 text-3xl font-semibold tracking-tight">Combine PDFs, client-side.</h1>
-        <div className="mt-10">
+        <h1 className="type-tool-title mt-4 max-w-4xl">Combine PDFs, client-side.</h1>
+        <div className="mt-12">
           <MergePdfTool />
         </div>
       </div>

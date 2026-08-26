@@ -2,8 +2,16 @@ services:
   web:
     build: .
     restart: unless-stopped
+    init: true
+    pids_limit: 256
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
     ports:
-      - "3000:3000"
+      # Caddy runs on the host per DEPLOYMENT.md; keep the app port off the
+      # public interface so production traffic cannot bypass TLS.
+      - "127.0.0.1:3000:3000"
     env_file:
       - .env.production
     environment:

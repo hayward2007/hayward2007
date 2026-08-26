@@ -55,17 +55,17 @@ export function UnitConverterTool() {
 
   return (
     <div className="max-w-xl space-y-6">
-      <div className="flex flex-wrap gap-2">
+      <div className="inline-flex flex-wrap rounded-lg border p-1" style={{ borderColor: "var(--line)", background: "var(--bg-muted)" }}>
         {(Object.keys(CATEGORIES) as CategoryKey[]).map((key) => (
           <button
             key={key}
             type="button"
             onClick={() => onCategoryChange(key)}
-            className="rounded-full border px-3 py-1.5 text-sm"
+            className="type-nav rounded-md px-3 py-1.5 text-xs"
             style={{
-              borderColor: "var(--line-strong)",
-              background: category === key ? "var(--fg)" : "transparent",
-              color: category === key ? "var(--bg)" : "var(--fg)",
+              background: category === key ? "var(--bg-raised)" : "transparent",
+              color: category === key ? "var(--fg)" : "var(--fg-3)",
+              boxShadow: category === key ? "var(--shadow-subtle)" : "none",
             }}
           >
             {CATEGORIES[key].label}
@@ -75,10 +75,12 @@ export function UnitConverterTool() {
 
       <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-3">
         <div>
-          <label className="text-sm" style={{ color: "var(--fg-3)" }}>
+          <label htmlFor="converter-value" className="type-label" style={{ color: "var(--fg-3)" }}>
             From
           </label>
           <input
+            id="converter-value"
+            name="converter-value"
             type="number"
             value={value}
             onChange={(e) => setValue(e.target.value)}
@@ -86,6 +88,8 @@ export function UnitConverterTool() {
             style={{ borderColor: "var(--line-strong)", background: "var(--bg-raised)" }}
           />
           <select
+            aria-label="Source unit"
+            name="converter-source-unit"
             value={from}
             onChange={(e) => setFrom(e.target.value)}
             className="mt-2 w-full rounded-lg border p-2.5 text-sm"
@@ -104,13 +108,15 @@ export function UnitConverterTool() {
         </span>
 
         <div>
-          <label className="text-sm" style={{ color: "var(--fg-3)" }}>
+          <label htmlFor="converter-target-unit" className="type-label" style={{ color: "var(--fg-3)" }}>
             To
           </label>
-          <p className="mt-2 truncate rounded-lg border p-2.5 text-sm font-medium" style={{ borderColor: "var(--line-strong)" }}>
-            {result === null ? "—" : trimNumber(result)}
+          <p aria-live="polite" className="font-display-expanded mt-2 truncate rounded-lg border p-2.5 text-sm font-black" style={{ borderColor: "var(--line-strong)" }}>
+            {result === null ? "-" : trimNumber(result)}
           </p>
           <select
+            id="converter-target-unit"
+            name="converter-target-unit"
             value={to}
             onChange={(e) => setTo(e.target.value)}
             className="mt-2 w-full rounded-lg border p-2.5 text-sm"

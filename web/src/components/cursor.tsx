@@ -16,6 +16,7 @@ export function Cursor() {
     // One-time client-only capability check on mount; not derivable during SSR render.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setEnabled(true);
+    document.documentElement.dataset.customCursor = "true";
 
     let mouseX = -100;
     let mouseY = -100;
@@ -48,6 +49,7 @@ export function Cursor() {
     raf = requestAnimationFrame(tick);
 
     return () => {
+      delete document.documentElement.dataset.customCursor;
       window.removeEventListener("mousemove", onMove);
       cancelAnimationFrame(raf);
     };

@@ -1,49 +1,76 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { authorizeAdminRequest } from "@/lib/admin-api";
+import { portfolioPatchSchema } from "@/lib/admin-validation";
+import { noStoreJson, readJsonObject } from "@/lib/request-security";
 
 export async function GET(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const denied = await authorizeAdminRequest(_request);
+  if (denied) return denied;
+
   const { id } = await params;
   const portfolio = await prisma.portfolioBuild.findUnique({
     where: { id },
     include: { items: { include: { project: true }, orderBy: { order: "asc" } } },
   });
   if (!portfolio) return NextResponse.json({ error: "not_found" }, { status: 404 });
-  return NextResponse.json({ portfolio });
+  return noStoreJson({ portfolio });
 }
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const denied = await authorizeAdminRequest(request);
+  if (denied) return denied;
+
   const { id } = await params;
-  const body = await request.json().catch(() => ({}));
+  const bodyResult = await readJsonObject(request, 32_000);
+  if (!bodyResult.ok) return bodyResult.response;
+  const parsed = portfolioPatchSchema.safeParse(bodyResult.value);
+  if (!parsed.success) return NextResponse.json({ error: "invalid_input" }, { status: 400 });
+  const { projectIds, highlightNotes, ...data } = parsed.data;
 
-  const data: Record<string, unknown> = {};
-  for (const field of ["title", "targetRole", "targetOrg", "intro", "accent", "isPublished"] as const) {
-    if (field in body) data[field] = body[field];
+  if (projectIds) {
+    const projectCount = await prisma.project.count({ where: { id: { in: projectIds } } });
+    if (projectCount !== projectIds.length) {
+      return NextResponse.json({ error: "invalid_projects" }, { status: 400 });
+    }
   }
 
-  await prisma.portfolioBuild.update({ where: { id }, data });
+  try {
+    const portfolio = await prisma.$transaction(async (tx) => {
+      await tx.portfolioBuild.update({ where: { id }, data });
 
-  if (Array.isArray(body.projectIds)) {
-    const projectIds: string[] = body.projectIds;
-    await prisma.portfolioProject.deleteMany({ where: { portfolioId: id } });
-    await prisma.portfolioProject.createMany({
-      data: projectIds.map((projectId, index) => ({
-        portfolioId: id,
-        projectId,
-        order: index,
-        highlightNote: body.highlightNotes?.[projectId] || null,
-      })),
+      if (projectIds) {
+        await tx.portfolioProject.deleteMany({ where: { portfolioId: id } });
+        await tx.portfolioProject.createMany({
+          data: projectIds.map((projectId, index) => ({
+            portfolioId: id,
+            projectId,
+            order: index,
+            highlightNote: highlightNotes?.[projectId] || null,
+          })),
+        });
+      }
+
+      return tx.portfolioBuild.findUnique({
+        where: { id },
+        include: { items: { include: { project: true }, orderBy: { order: "asc" } } },
+      });
     });
+    return noStoreJson({ portfolio });
+  } catch {
+    return NextResponse.json({ error: "update_failed" }, { status: 400 });
   }
-
-  const portfolio = await prisma.portfolioBuild.findUnique({
-    where: { id },
-    include: { items: { include: { project: true }, orderBy: { order: "asc" } } },
-  });
-  return NextResponse.json({ portfolio });
 }
 
 export async function DELETE(_request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const denied = await authorizeAdminRequest(_request);
+  if (denied) return denied;
+
   const { id } = await params;
-  await prisma.portfolioBuild.delete({ where: { id } });
-  return NextResponse.json({ ok: true });
+  try {
+    await prisma.portfolioBuild.delete({ where: { id } });
+    return noStoreJson({ ok: true });
+  } catch {
+    return NextResponse.json({ error: "delete_failed" }, { status: 400 });
+  }
 }

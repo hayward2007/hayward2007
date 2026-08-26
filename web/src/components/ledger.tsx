@@ -34,19 +34,19 @@ export function CompetitionLedger<T extends CompetitionItem>({
           >
             <div className="flex items-center gap-4">
               <span
-                className="font-mono text-[11px] tracking-[0.06em]"
+                className="type-index text-xs"
                 style={{ color: "var(--accent-signal)" }}
               >
                 {RANK_GLYPH[item.rank] || "—"}
               </span>
               <h3
-                className="text-sm font-medium transition-colors duration-150"
+                className="font-display text-sm font-semibold transition-colors duration-150"
                 style={{ color: onSelect ? undefined : "var(--fg)" }}
               >
                 <span className={onSelect ? "group-hover:text-[var(--accent-signal)]" : ""}>{item.name}</span>
               </h3>
             </div>
-            <span className="shrink-0 font-mono text-xs" style={{ color: "var(--fg-3)" }}>
+            <span className="type-index shrink-0 text-xs" style={{ color: "var(--fg-3)" }}>
               {item.year}
             </span>
           </button>
@@ -79,16 +79,16 @@ export function ActivityLedger<T extends ActivityItem>({
             style={{ borderColor: "var(--line)", background: "var(--bg)" }}
           >
             <div>
-              <h3 className="text-sm font-medium">
+              <h3 className="font-display text-sm font-semibold">
                 <span className={onSelect ? "group-hover:text-[var(--accent-ai)]" : ""}>{item.name}</span>
               </h3>
               {item.tags.length > 0 && (
-                <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.05em]" style={{ color: "var(--accent-ai)" }}>
+                <p className="type-label mt-1" style={{ color: "var(--accent-ai)" }}>
                   {item.tags.join(" · ")}
                 </p>
               )}
             </div>
-            <span className="shrink-0 font-mono text-xs" style={{ color: "var(--fg-3)" }}>
+            <span className="type-index shrink-0 text-xs" style={{ color: "var(--fg-3)" }}>
               {item.year}
             </span>
           </button>

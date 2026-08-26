@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { ArrowRight, Mail } from "lucide-react";
 import { Magnetic } from "@/components/magnetic";
 import { HeroDiagram } from "@/components/hero-diagram";
 import { useDict } from "@/components/locale-provider";
@@ -21,7 +22,7 @@ export function Hero() {
           initial="hidden"
           animate="show"
           variants={fadeUp}
-          className="mb-6 font-mono text-[12px] uppercase tracking-[0.14em]"
+          className="type-page-kicker mb-6"
           style={{ color: "var(--accent-robotics)" }}
         >
           {dict.hero.eyebrow}
@@ -31,7 +32,7 @@ export function Hero() {
           initial="hidden"
           animate="show"
           variants={{ show: { transition: { staggerChildren: 0.05 } } }}
-          className="max-w-4xl text-[clamp(2.2rem,6vw,4.6rem)] font-semibold leading-[1.05] tracking-tight"
+          className="type-page-title max-w-4xl"
         >
           <motion.span variants={fadeUp} className="block">
             {dict.hero.titleTop}
@@ -52,10 +53,11 @@ export function Hero() {
               href="/projects"
               data-cursor="View"
               data-physics
-              className="inline-flex h-12 items-center rounded-full px-6 text-sm font-medium"
+              className="type-nav inline-flex h-12 items-center gap-2 rounded-lg px-6 text-sm"
               style={{ background: "var(--fg)", color: "var(--bg)" }}
             >
               {dict.hero.viewProjects}
+              <ArrowRight aria-hidden="true" size={16} strokeWidth={1.8} />
             </Link>
           </Magnetic>
           <Magnetic strength={0.22}>
@@ -63,9 +65,10 @@ export function Hero() {
               href="/social"
               data-cursor="true"
               data-physics
-              className="inline-flex h-12 items-center rounded-full border px-6 text-sm font-medium"
+              className="type-nav inline-flex h-12 items-center gap-2 rounded-lg border px-6 text-sm"
               style={{ borderColor: "var(--line-strong)", background: "var(--bg)" }}
             >
+              <Mail aria-hidden="true" size={16} strokeWidth={1.8} />
               {dict.hero.getInTouch}
             </Link>
           </Magnetic>
@@ -81,10 +84,10 @@ export function Hero() {
               transition={{ duration: 0.4, delay: 0.18 + i * 0.06, ease: [0.16, 1, 0.3, 1] }}
               style={{ background: "var(--bg)" }}
             >
-              <h2 className="font-mono text-xs" style={{ color: "var(--accent-robotics)" }}>
+              <h2 className="type-index text-sm" style={{ color: "var(--accent-robotics)" }}>
                 {String(i + 1).padStart(2, "0")}
               </h2>
-              <p className="mt-2 text-lg font-medium">{item.label}</p>
+              <p className="type-card-title mt-2 text-lg">{item.label}</p>
               <p className="mt-1 text-sm" style={{ color: "var(--fg-3)" }}>
                 {item.desc}
               </p>

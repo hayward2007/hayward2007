@@ -4,14 +4,15 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
 const DOT_COUNT = 48;
+const DOTS = Array.from({ length: DOT_COUNT }, (_, index) => ({
+  x: (index * 37 + 11) % 100,
+  y: (index * 53 + 17) % 100,
+}));
 
 export function Preloader() {
   const [shouldRender, setShouldRender] = useState(false);
   const [progress, setProgress] = useState(0);
   const [phase, setPhase] = useState<"loading" | "aligning" | "exit">("loading");
-  const [dots] = useState(() =>
-    Array.from({ length: DOT_COUNT }, () => ({ x: Math.random() * 100, y: Math.random() * 100 })),
-  );
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -47,6 +48,7 @@ export function Preloader() {
 
   return (
     <motion.div
+      aria-hidden="true"
       className="fixed inset-0 z-[10000] flex flex-col justify-between overflow-hidden p-8"
       style={{ background: "var(--bg)", color: "var(--fg)" }}
       initial={{ y: 0 }}
@@ -54,13 +56,13 @@ export function Preloader() {
       transition={{ duration: 0.5, ease: [0.87, 0, 0.13, 1] }}
       onAnimationComplete={() => phase === "exit" && setShouldRender(false)}
     >
-      <div className="flex items-center justify-between font-mono text-xs uppercase tracking-[0.1em]">
-        <span>Hayward Kim — Physical AI Lab</span>
-        <span className="tabular-nums">{String(Math.floor(progress)).padStart(3, "0")}</span>
+      <div className="type-nav flex items-center justify-between text-xs">
+        <span>Hayward Kim / Physical AI Lab</span>
+        <span className="type-index tabular-nums">{String(Math.floor(progress)).padStart(3, "0")}</span>
       </div>
 
       <div className="relative flex-1">
-        {dots.map((dot, i) => {
+        {DOTS.map((dot, i) => {
           const aligned = phase !== "loading";
           const targetX = 10 + (i / (DOT_COUNT - 1)) * 80;
           return (
@@ -88,7 +90,7 @@ export function Preloader() {
         )}
       </div>
 
-      <p className="font-mono text-xs" style={{ color: "var(--fg-3)" }}>
+      <p className="type-label" style={{ color: "var(--fg-3)" }}>
         {phase === "loading" ? "Booting control loop…" : "Signal locked."}
       </p>
     </motion.div>

@@ -46,15 +46,15 @@ export function CompetitionsExplorer({
 
   return (
     <div>
-      <div className="mb-8 flex flex-wrap gap-2">
+      <div className="mb-8 inline-flex rounded-lg border p-1" style={{ borderColor: "var(--line)", background: "var(--bg-muted)" }}>
         <button
           type="button"
           onClick={() => setShowAll(false)}
-          className="rounded-full border px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.05em] transition-colors duration-150"
+          className="type-nav rounded-md px-3 py-1.5 text-[11px] transition-colors duration-150"
           style={{
-            borderColor: "var(--line-strong)",
-            background: !showAll ? "var(--fg)" : "transparent",
-            color: !showAll ? "var(--bg)" : "var(--fg-3)",
+            background: !showAll ? "var(--bg-raised)" : "transparent",
+            color: !showAll ? "var(--fg)" : "var(--fg-3)",
+            boxShadow: !showAll ? "var(--shadow-subtle)" : "none",
           }}
         >
           {placedOnlyLabel}
@@ -62,11 +62,11 @@ export function CompetitionsExplorer({
         <button
           type="button"
           onClick={() => setShowAll(true)}
-          className="rounded-full border px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.05em] transition-colors duration-150"
+          className="type-nav rounded-md px-3 py-1.5 text-[11px] transition-colors duration-150"
           style={{
-            borderColor: "var(--line-strong)",
-            background: showAll ? "var(--fg)" : "transparent",
-            color: showAll ? "var(--bg)" : "var(--fg-3)",
+            background: showAll ? "var(--bg-raised)" : "transparent",
+            color: showAll ? "var(--fg)" : "var(--fg-3)",
+            boxShadow: showAll ? "var(--shadow-subtle)" : "none",
           }}
         >
           {viewAllLabel}

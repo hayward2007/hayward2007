@@ -14,7 +14,7 @@ export default async function EditPortfolioPage({ params }: { params: Promise<{ 
 
   return (
     <div className="max-w-2xl space-y-6">
-      <h1 className="text-2xl font-semibold">{portfolio.title}</h1>
+      <h1 className="type-section-title">{portfolio.title}</h1>
       <PortfolioForm
         projects={projects}
         initial={{

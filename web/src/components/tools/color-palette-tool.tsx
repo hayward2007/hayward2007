@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { Check, Copy, ImagePlus } from "lucide-react";
 
 const SAMPLE_SIZE = 80; // downscale target — palette extraction doesn't need full resolution
 const BUCKET = 24; // quantization step per channel, groups near-identical colors together
@@ -70,10 +71,11 @@ export function ColorPaletteTool() {
   return (
     <div className="max-w-xl space-y-6">
       <label
-        className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed p-10 text-center text-sm"
+        className="surface-interactive flex cursor-pointer flex-col items-center justify-center gap-2 border-dashed p-10 text-center text-sm"
         style={{ borderColor: "var(--line-strong)" }}
       >
-        <span>{preview ? "Choose a different image" : "Click to choose an image"}</span>
+        <ImagePlus aria-hidden="true" size={24} strokeWidth={1.6} style={{ color: "var(--accent-ai)" }} />
+        <span className="font-display font-semibold">{preview ? "Choose a different image" : "Click to choose an image"}</span>
         <span style={{ color: "var(--fg-3)" }}>Processed locally in your browser</span>
         <input type="file" accept="image/*" onChange={onPick} className="hidden" />
       </label>
@@ -82,7 +84,7 @@ export function ColorPaletteTool() {
 
       {preview && (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={preview} alt="" className="max-h-56 w-full rounded-xl object-cover" />
+        <img src={preview} alt="" className="max-h-56 w-full rounded-lg object-cover" />
       )}
 
       {working && <p className="text-sm" style={{ color: "var(--fg-3)" }}>Sampling colors…</p>}
@@ -94,11 +96,14 @@ export function ColorPaletteTool() {
               key={s.hex}
               type="button"
               onClick={() => copy(s.hex)}
-              className="flex flex-col items-center gap-2 rounded-xl border p-2 text-xs"
+              className="flex flex-col items-center gap-2 rounded-lg border p-2 text-xs"
               style={{ borderColor: "var(--line)" }}
             >
               <span className="h-12 w-full rounded-lg" style={{ background: s.hex }} />
-              <span className="font-mono">{copied === s.hex ? "Copied" : s.hex}</span>
+              <span className="inline-flex min-h-4 items-center gap-1 font-mono">
+                {copied === s.hex ? <Check aria-hidden="true" size={11} /> : <Copy aria-hidden="true" size={11} />}
+                {copied === s.hex ? "Copied" : s.hex}
+              </span>
             </button>
           ))}
         </div>

@@ -104,9 +104,10 @@ export function SignalSequence() {
           <button
             key={pad.id}
             type="button"
+            aria-label={`Signal pad ${pad.id + 1}`}
             onClick={() => press(pad.id)}
             disabled={phase !== "input"}
-            className="aspect-square rounded-2xl border transition-transform duration-100"
+            className="aspect-square rounded-lg border transition-transform duration-100"
             style={{
               borderColor: "var(--line-strong)",
               background: active === pad.id ? pad.color : "var(--bg-raised)",
@@ -118,7 +119,7 @@ export function SignalSequence() {
           <button
             type="button"
             onClick={start}
-            className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl text-center text-sm"
+            className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-lg text-center text-sm"
             style={{ background: "color-mix(in srgb, var(--bg) 85%, transparent)" }}
           >
             {phase === "over" ? (
@@ -132,7 +133,7 @@ export function SignalSequence() {
           </button>
         )}
       </div>
-      <div className="flex gap-8 font-mono text-sm">
+      <div className="type-index flex gap-8 text-base">
         <span>SCORE {score}</span>
         <span style={{ color: "var(--fg-3)" }}>BEST {best}</span>
       </div>

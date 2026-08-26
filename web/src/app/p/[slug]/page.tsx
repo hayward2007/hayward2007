@@ -1,10 +1,16 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { ArrowUpRight, Mail } from "lucide-react";
 import { getPortfolioBySlug } from "@/lib/data";
-import { prisma } from "@/lib/prisma";
 import { Reveal } from "@/components/reveal";
 import { Magnetic } from "@/components/magnetic";
+import { PortfolioViewBeacon } from "@/components/portfolio-view-beacon";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "Shared portfolio",
+  robots: { index: false, follow: false },
+};
 
 const ACCENT_VAR: Record<string, string> = {
   teal: "var(--accent-robotics)",
@@ -17,18 +23,17 @@ export default async function PortfolioSharePage({ params }: { params: Promise<{
   const portfolio = await getPortfolioBySlug(slug);
   if (!portfolio) notFound();
 
-  await prisma.portfolioBuild.update({ where: { slug }, data: { viewCount: { increment: 1 } } }).catch(() => {});
-
   const accent = ACCENT_VAR[portfolio.accent] || ACCENT_VAR.teal;
 
   return (
     <main className="py-20">
+      <PortfolioViewBeacon slug={portfolio.slug} />
       <div className="wrap max-w-3xl">
-        <p className="font-mono text-xs uppercase tracking-[0.14em]" style={{ color: accent }}>
+        <p className="type-page-kicker" style={{ color: accent }}>
           {portfolio.targetOrg ? `Prepared for ${portfolio.targetOrg}` : "Application portfolio"}
         </p>
-        <h1 className="mt-4 text-[clamp(2rem,5vw,3.4rem)] font-semibold tracking-tight">
-          Hayward Kim{portfolio.targetRole ? ` — ${portfolio.targetRole}` : ""}
+        <h1 className="type-page-title mt-4">
+          Hayward Kim{portfolio.targetRole ? ` / ${portfolio.targetRole}` : ""}
         </h1>
         {portfolio.intro && (
           <p className="mt-6 text-lg leading-relaxed" style={{ color: "var(--fg-2)" }}>
@@ -41,15 +46,15 @@ export default async function PortfolioSharePage({ params }: { params: Promise<{
             <Reveal key={item.project.slug} delay={Math.min(i * 0.05, 0.3)}>
               <div className="border-t pt-8" style={{ borderColor: "var(--line)" }}>
                 <div className="flex items-start justify-between gap-4">
-                  <h2 className="text-2xl font-medium">{item.project.name}</h2>
+                  <h2 className="type-card-title text-2xl">{item.project.name}</h2>
                   {item.project.awards[0] && (
-                    <span className="shrink-0 font-mono text-xs" style={{ color: accent }}>
+                    <span className="type-label shrink-0" style={{ color: accent }}>
                       {item.project.awards[0].rankLabel}
                     </span>
                   )}
                 </div>
                 {item.highlightNote && (
-                  <p className="mt-2 text-sm font-medium" style={{ color: accent }}>
+                  <p className="font-display-condensed mt-2 text-sm font-semibold" style={{ color: accent }}>
                     {item.highlightNote}
                   </p>
                 )}
@@ -58,10 +63,11 @@ export default async function PortfolioSharePage({ params }: { params: Promise<{
                 </p>
                 <a
                   href={`/project/${item.project.slug}`}
-                  className="mt-3 inline-block text-sm underline"
+                  className="type-nav mt-4 inline-flex items-center gap-1.5 text-xs"
                   style={{ color: "var(--fg-3)" }}
                 >
-                  Full project page →
+                  Full project page
+                  <ArrowUpRight aria-hidden="true" size={14} strokeWidth={1.8} />
                 </a>
               </div>
             </Reveal>
@@ -72,9 +78,10 @@ export default async function PortfolioSharePage({ params }: { params: Promise<{
           <Magnetic strength={0.3}>
             <a
               href="mailto:hayward_kim@korea.ac.kr"
-              className="inline-flex h-12 items-center rounded-full px-6 text-sm font-medium"
+              className="type-nav inline-flex h-12 items-center gap-2 rounded-lg px-6 text-sm"
               style={{ background: "var(--fg)", color: "var(--bg)" }}
             >
+              <Mail aria-hidden="true" size={16} strokeWidth={1.8} />
               hayward_kim@korea.ac.kr
             </a>
           </Magnetic>

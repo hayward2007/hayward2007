@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LogOut } from "lucide-react";
 
 const LINKS = [
   { href: "/admin", label: "Dashboard" },
@@ -20,12 +21,14 @@ export function AdminNav() {
 
   return (
     <div className="border-b" style={{ borderColor: "var(--line)" }}>
-      <div className="wrap flex h-14 items-center justify-between">
-        <nav className="flex items-center gap-6 text-sm">
+      <div className="wrap flex h-14 min-w-0 items-center gap-3">
+        <nav aria-label="Admin" className="no-scrollbar type-nav flex min-w-0 flex-1 items-center gap-5 overflow-x-auto text-xs">
           {LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
+              aria-current={pathname === link.href ? "page" : undefined}
+              className="shrink-0"
               style={{ color: pathname === link.href ? "var(--fg)" : "var(--fg-3)" }}
             >
               {link.label}
@@ -34,8 +37,8 @@ export function AdminNav() {
         </nav>
         <button
           type="button"
-          className="text-sm"
-          style={{ color: "var(--fg-3)" }}
+          className="type-nav flex shrink-0 items-center gap-2 border-l pl-3 text-xs"
+          style={{ color: "var(--fg-3)", borderColor: "var(--line)" }}
           onClick={async () => {
             await fetch("/api/admin/logout", { method: "POST" });
             // Hard navigation: guarantees the cleared session cookie is honored on
@@ -44,6 +47,7 @@ export function AdminNav() {
             window.location.href = "/admin/login";
           }}
         >
+          <LogOut aria-hidden="true" size={14} strokeWidth={1.8} />
           Sign out
         </button>
       </div>

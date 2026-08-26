@@ -49,3 +49,4 @@ export async function getAnalyticsSummary() {
     topRefs: toBuckets(byRef.map((r) => ({ label: r.ref, count: r._count.ref }))),
   };
 }
+import "server-only";

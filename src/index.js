@@ -42,6 +42,21 @@ function getProp(props, names, fallback = null) {
   return fallback;
 }
 
+function coverUrl(cover) {
+  if (!cover) return "";
+  if (cover.type === "external") return cover.external?.url || "";
+  if (cover.type === "file") return cover.file?.url || "";
+  return "";
+}
+
+function iconValue(icon) {
+  if (!icon) return "";
+  if (icon.type === "emoji") return icon.emoji || "";
+  if (icon.type === "external") return icon.external?.url || "";
+  if (icon.type === "file") return icon.file?.url || "";
+  return "";
+}
+
 function flattenPage(page) {
   const props = Object.fromEntries(
     Object.entries(page.properties || {}).map(([key, value]) => [key, propValue(value)]),
@@ -52,6 +67,8 @@ function flattenPage(page) {
     url: page.url,
     createdTime: page.created_time,
     editedTime: page.last_edited_time,
+    cover: coverUrl(page.cover),
+    icon: iconValue(page.icon),
     props,
   };
 }
@@ -137,12 +154,23 @@ function transformData(raw) {
       const english = getProp(item.props, ["Introduction [ENG]", "INTRODUCTION (ENGLISH)"], "");
       const visibility = getProp(item.props, ["Visibility"], "");
       const competitionIds = getProp(item.props, ["Competition", "COMPETITION"], []);
-      const relatedAwards = competitionIds
+      const relatedCompetitions = competitionIds
         .map((id) => competitionById.get(id))
         .filter(Boolean)
-        .map((competition) => rankInfo(getProp(competition.props, ["Result", "RESULT"], "")))
-        .filter((rank) => rank.key !== "none")
-        .map((rank) => rank.label);
+        .map((competition) => {
+          const result = getProp(competition.props, ["Result", "RESULT"], "");
+          const rank = rankInfo(result);
+          const name = getProp(competition.props, ["Name", "NAME"], "");
+          return {
+            name,
+            result,
+            rank: rank.key,
+            rankLabel: rank.label,
+            year: yearFromName(name, competition.createdTime),
+          };
+        })
+        .filter((competition) => competition.rank !== "none");
+      const relatedAwards = relatedCompetitions.map((competition) => competition.rankLabel);
 
       return {
         id: item.id,
@@ -151,6 +179,9 @@ function transformData(raw) {
         desc,
         english,
         tags: [...new Set(relatedAwards)],
+        awards: relatedCompetitions,
+        cover: item.cover,
+        icon: item.icon,
         visibility,
         notionUrl: item.url,
         editedTime: item.editedTime,
@@ -163,6 +194,7 @@ function transformData(raw) {
     .map((item) => {
       const name = getProp(item.props, ["Name", "NAME"], "");
       const visibility = getProp(item.props, ["Visibility"], "");
+      const tags = getProp(item.props, ["Tags", "TAGS", "Type", "TYPE", "Category", "CATEGORY"], []);
 
       return {
         id: item.id,
@@ -170,7 +202,7 @@ function transformData(raw) {
         name,
         visibility,
         year: yearFromName(name, item.createdTime),
-        tags: [],
+        tags: Array.isArray(tags) ? tags : String(tags || "").split(",").map((value) => value.trim()).filter(Boolean),
         notionUrl: item.url,
         editedTime: item.editedTime,
       };

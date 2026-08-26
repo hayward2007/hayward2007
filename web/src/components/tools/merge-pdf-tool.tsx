@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PDFDocument } from "pdf-lib";
+import { Combine, FilePlus2, Trash2 } from "lucide-react";
 
 export function MergePdfTool() {
   const [files, setFiles] = useState<File[]>([]);
@@ -42,7 +43,7 @@ export function MergePdfTool() {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      setError("Couldn't merge those files — make sure they're all valid PDFs.");
+      setError("Couldn't merge those files. Make sure they're all valid PDFs.");
     } finally {
       setWorking(false);
     }
@@ -51,21 +52,29 @@ export function MergePdfTool() {
   return (
     <div className="max-w-xl space-y-6">
       <label
-        className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border border-dashed p-10 text-center text-sm"
+        className="surface-interactive flex cursor-pointer flex-col items-center justify-center gap-2 border-dashed p-10 text-center text-sm"
         style={{ borderColor: "var(--line-strong)" }}
       >
-        <span>Click to add PDF files</span>
+        <FilePlus2 aria-hidden="true" size={24} strokeWidth={1.6} style={{ color: "var(--accent-signal)" }} />
+        <span className="font-display font-semibold">Click to add PDF files</span>
         <span style={{ color: "var(--fg-3)" }}>Processed locally in your browser</span>
         <input type="file" accept="application/pdf" multiple onChange={onPick} className="hidden" />
       </label>
 
       {files.length > 0 && (
-        <ul className="divide-y rounded-xl border" style={{ borderColor: "var(--line)" }}>
+        <ul className="divide-y rounded-lg border" style={{ borderColor: "var(--line)" }}>
           {files.map((file, i) => (
             <li key={i} className="flex items-center justify-between px-4 py-2 text-sm">
               <span>{file.name}</span>
-              <button type="button" onClick={() => remove(i)} style={{ color: "var(--fg-3)" }}>
-                Remove
+              <button
+                type="button"
+                onClick={() => remove(i)}
+                aria-label={`Remove ${file.name}`}
+                title="Remove"
+                className="flex h-8 w-8 items-center justify-center rounded-md"
+                style={{ color: "var(--fg-3)" }}
+              >
+                <Trash2 aria-hidden="true" size={15} strokeWidth={1.8} />
               </button>
             </li>
           ))}
@@ -78,9 +87,10 @@ export function MergePdfTool() {
         type="button"
         onClick={merge}
         disabled={working}
-        className="rounded-lg px-4 py-2 text-sm font-medium"
+        className="type-nav inline-flex min-h-10 items-center gap-2 rounded-lg px-4 py-2 text-sm"
         style={{ background: "var(--fg)", color: "var(--bg)" }}
       >
+        <Combine aria-hidden="true" size={15} strokeWidth={1.8} />
         {working ? "Merging…" : "Merge & download"}
       </button>
     </div>

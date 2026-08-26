@@ -8,7 +8,7 @@ export function TagPill({ tag, className = "" }: { tag: string; className?: stri
   return (
     <span
       title={tag}
-      className={`inline-block max-w-[4.5rem] shrink-0 overflow-hidden whitespace-nowrap rounded-full border px-2 py-0.5 font-mono text-[9px] uppercase tracking-[0.06em] transition-[max-width] duration-300 ease-out hover:max-w-[11rem] group-hover:max-w-[11rem] ${className}`}
+      className={`type-label inline-block max-w-[4.5rem] shrink-0 overflow-hidden whitespace-nowrap rounded-md border px-2 py-1 transition-[max-width] duration-300 ease-out hover:max-w-[11rem] group-hover:max-w-[11rem] ${className}`}
       style={{ borderColor: "var(--line-strong)", color: "var(--fg-3)", background: "var(--bg-raised)" }}
     >
       {tag}

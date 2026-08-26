@@ -102,8 +102,10 @@ export function PortfolioForm({
     <form onSubmit={onSubmit} className="space-y-8">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <div>
-          <label className="block text-xs font-medium">Title (internal)</label>
+          <label htmlFor="portfolio-title" className="block text-xs font-medium">Title (internal)</label>
           <input
+            id="portfolio-title"
+            name="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder='e.g. "OH! Gym — RL Internship Application"'
@@ -112,8 +114,10 @@ export function PortfolioForm({
           />
         </div>
         <div>
-          <label className="block text-xs font-medium">Target organization</label>
+          <label htmlFor="portfolio-target-org" className="block text-xs font-medium">Target organization</label>
           <input
+            id="portfolio-target-org"
+            name="targetOrg"
             value={targetOrg}
             onChange={(e) => setTargetOrg(e.target.value)}
             placeholder="OH! Gym"
@@ -122,8 +126,10 @@ export function PortfolioForm({
           />
         </div>
         <div>
-          <label className="block text-xs font-medium">Target role</label>
+          <label htmlFor="portfolio-target-role" className="block text-xs font-medium">Target role</label>
           <input
+            id="portfolio-target-role"
+            name="targetRole"
             value={targetRole}
             onChange={(e) => setTargetRole(e.target.value)}
             placeholder="Robotics RL Intern"
@@ -132,8 +138,10 @@ export function PortfolioForm({
           />
         </div>
         <div>
-          <label className="block text-xs font-medium">Accent</label>
+          <label htmlFor="portfolio-accent" className="block text-xs font-medium">Accent</label>
           <select
+            id="portfolio-accent"
+            name="accent"
             value={accent}
             onChange={(e) => setAccent(e.target.value)}
             className="mt-1 w-full rounded-lg border px-3 py-2 text-sm"
@@ -149,8 +157,10 @@ export function PortfolioForm({
       </div>
 
       <div>
-        <label className="block text-xs font-medium">Intro blurb (shown at top of the shared page)</label>
+        <label htmlFor="portfolio-intro" className="block text-xs font-medium">Intro blurb (shown at top of the shared page)</label>
         <textarea
+          id="portfolio-intro"
+          name="intro"
           value={intro}
           onChange={(e) => setIntro(e.target.value)}
           rows={3}
@@ -161,8 +171,8 @@ export function PortfolioForm({
       </div>
 
       <div>
-        <label className="block text-xs font-medium">Projects to include</label>
-        <div className="mt-2 divide-y rounded-xl border" style={{ borderColor: "var(--line)" }}>
+        <p className="block text-xs font-medium">Projects to include</p>
+        <div className="mt-2 divide-y rounded-lg border" style={{ borderColor: "var(--line)" }}>
           {projects.map((project) => (
             <label key={project.id} className="flex cursor-pointer items-center gap-3 px-4 py-3 text-sm">
               <input type="checkbox" checked={selected.includes(project.id)} onChange={() => toggle(project.id)} />
@@ -196,7 +206,7 @@ export function PortfolioForm({
       </div>
 
       {savedSlug && (
-        <div className="rounded-xl border p-4 text-sm" style={{ borderColor: "var(--line)" }}>
+        <div className="rounded-lg border p-4 text-sm" style={{ borderColor: "var(--line)" }}>
           <p className="font-medium">Shareable links</p>
           <p className="mt-2">
             Works immediately: <a href={shareUrl} className="underline" style={{ color: "var(--accent-robotics)" }}>{shareUrl}</a>

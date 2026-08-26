@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { ArrowUpRight } from "lucide-react";
 import { Pictogram } from "@/components/pictogram";
 import { Reveal } from "@/components/reveal";
 import { TiltCard } from "@/components/tilt-card";
-import { TagPill } from "@/components/tag-pill";
 
 type ProjectCard = {
   slug: string;
@@ -63,7 +63,7 @@ export function ProjectGrid({ projects }: { projects: ProjectCard[] }) {
                 // CSS :hover (which bubbles up from the inner Link automatically),
                 // targeting this tile's own accent via a CSS var so each card's
                 // border matches its own fill color instead of one global accent.
-                className={`h-full overflow-hidden rounded-2xl border transition-colors duration-300 hover:[border-color:var(--tile-accent)] ${span.row > 1 ? "min-h-[260px]" : ""}`}
+                className={`h-full overflow-hidden rounded-lg border shadow-[var(--shadow-subtle)] transition-[transform,border-color] duration-300 hover:-translate-y-0.5 hover:[border-color:var(--tile-accent)] ${span.row > 1 ? "min-h-[260px]" : ""}`}
                 style={{ borderColor: "var(--line)", "--tile-accent": span.hoverStroke } as CSSProperties}
               >
                 <Link
@@ -105,14 +105,14 @@ export function ProjectGrid({ projects }: { projects: ProjectCard[] }) {
 
                   <div className="relative z-10 min-w-0">
                     <div className="flex min-w-0 items-start justify-between gap-4">
-                      <h3 className={`min-w-0 truncate ${wide ? "text-xl font-medium" : "text-lg font-medium"}`}>
+                      <h2 className={`type-card-title min-w-0 truncate ${wide ? "text-xl" : "text-lg"}`}>
                         {project.name}
-                      </h3>
+                      </h2>
                       <span
-                        className="mt-1 shrink-0 font-mono text-xs opacity-0 transition-opacity group-hover:opacity-100"
+                        className="mt-1 shrink-0 opacity-0 transition-opacity group-hover:opacity-100"
                         style={{ color: "var(--accent-robotics)" }}
                       >
-                        →
+                        <ArrowUpRight aria-hidden="true" size={16} strokeWidth={1.8} />
                       </span>
                     </div>
                     {(project.descKo || project.descEn) && (
@@ -122,14 +122,6 @@ export function ProjectGrid({ projects }: { projects: ProjectCard[] }) {
                       >
                         {project.descKo || project.descEn}
                       </p>
-                    )}
-
-                    {span.row > 1 && project.tags.length > 0 && (
-                      <div className="mt-3 flex min-w-0 flex-wrap gap-2">
-                        {project.tags.map((tag) => (
-                          <TagPill key={tag} tag={tag} />
-                        ))}
-                      </div>
                     )}
                   </div>
                 </Link>

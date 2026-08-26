@@ -21,6 +21,9 @@
 .DS_Store
 *.pem
 
+# local pre-redesign backups (not meant for version control)
+/.design-backups/
+
 # debug
 npm-debug.log*
 yarn-debug.log*

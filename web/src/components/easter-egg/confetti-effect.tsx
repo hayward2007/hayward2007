@@ -30,7 +30,12 @@ export function ConfettiEffect({ closing, onFinished }: EasterEggEffectProps) {
     canvas.height = window.innerHeight;
 
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) {
+      canvas.remove();
+      canvasRef.current = null;
+      onFinishedRef.current();
+      return;
+    }
 
     const pieces: Piece[] = Array.from({ length: COUNT }, () => ({
       x: Math.random() * canvas.width,

@@ -3,12 +3,30 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#050505" />
+    <meta name="theme-color" content="#ffffff" id="theme-color-meta" />
+    <meta name="color-scheme" content="light dark" />
     <meta
       name="description"
-      content="Hayward Kim portfolio - robotics, artificial intelligence, software projects, competitions, and activities."
+      content="Hayward Kim — robotics and AI engineer, competitor, and builder of shipped products. Portfolio of projects, competitions, and activities."
     />
-    <title>HAYWARD.KIM</title>
+    <title>Hayward Kim — Robotics &amp; AI</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css"
+    />
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("theme");
+          if (stored === "light" || stored === "dark") {
+            document.documentElement.setAttribute("data-theme", stored);
+          }
+        } catch (error) {}
+      })();
+    </script>
     <style>
       @font-face {
         font-family: "MonaSansCondensed";
@@ -18,25 +36,85 @@
       }
 
       :root {
-        --bg: #050505;
-        --panel: #101010;
-        --panel-2: #171717;
-        --line: #2a2a2a;
-        --text: #f5f5f0;
-        --muted: #a7a7a0;
-        --soft: #d7d7cf;
-        --mint: #70f0c8;
-        --amber: #f4c95d;
-        --coral: #ff7b64;
-        --cyan: #73d7ff;
-        --gold: #f5c84c;
-        --silver: #cfd8e3;
-        --bronze: #d79255;
+        color-scheme: light;
+        --bg: #ffffff;
+        --bg-raised: #f6f6f4;
+        --bg-inverted: #0a0a0a;
+        --fg-inverted: #f5f5f2;
+        --fg: #0b0b0c;
+        --fg-2: rgba(11, 11, 12, 0.68);
+        --fg-3: rgba(11, 11, 12, 0.58);
+        --fg-4: rgba(11, 11, 12, 0.26);
+        --line: rgba(11, 11, 12, 0.13);
+        --line-strong: rgba(11, 11, 12, 0.22);
+        --accent: #1f6b57;
+        --accent-soft: rgba(31, 107, 87, 0.1);
+        --accent-contrast: #f4fbf8;
+        --scrim: rgba(6, 8, 8, 0.5);
+        --shadow: 0 24px 60px rgba(10, 12, 12, 0.1);
+
         --max: 1180px;
+        --header-h: 68px;
+        --font-sans:
+          "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+          "Apple SD Gothic Neo", "Segoe UI", Roboto, "Noto Sans KR",
+          sans-serif;
+        --font-mono:
+          ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas,
+          monospace;
+        --ease: cubic-bezier(0.16, 1, 0.3, 1);
+        --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #0a0a0a;
+        --bg-raised: #131313;
+        --fg: #f2f2ee;
+        --fg-2: rgba(242, 242, 238, 0.7);
+        --fg-3: rgba(242, 242, 238, 0.55);
+        --fg-4: rgba(242, 242, 238, 0.28);
+        --line: rgba(242, 242, 238, 0.14);
+        --line-strong: rgba(242, 242, 238, 0.24);
+        --accent: #6be3b8;
+        --accent-soft: rgba(107, 227, 184, 0.12);
+        --accent-contrast: #04150f;
+        --scrim: rgba(0, 0, 0, 0.6);
+        --shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          color-scheme: dark;
+          --bg: #0a0a0a;
+          --bg-raised: #131313;
+          --fg: #f2f2ee;
+          --fg-2: rgba(242, 242, 238, 0.7);
+          --fg-3: rgba(242, 242, 238, 0.55);
+          --fg-4: rgba(242, 242, 238, 0.28);
+          --line: rgba(242, 242, 238, 0.14);
+          --line-strong: rgba(242, 242, 238, 0.24);
+          --accent: #6be3b8;
+          --accent-soft: rgba(107, 227, 184, 0.12);
+          --accent-contrast: #04150f;
+          --scrim: rgba(0, 0, 0, 0.6);
+          --shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+        }
       }
 
       * {
         box-sizing: border-box;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
       }
 
       html {
@@ -46,35 +124,13 @@
 
       body {
         margin: 0;
-        color: var(--text);
-        background: linear-gradient(
-          180deg,
-          #050505 0%,
-          #0a0a0a 46%,
-          #050505 100%
-        );
-        font-family:
-          Inter,
-          ui-sans-serif,
-          system-ui,
-          -apple-system,
-          BlinkMacSystemFont,
-          "Segoe UI",
-          sans-serif;
-        letter-spacing: 0;
-      }
-
-      body::before {
-        position: fixed;
-        inset: 0;
-        z-index: -1;
-        pointer-events: none;
-        content: "";
-        background-image: url("./assets/background.png");
-        background-size: cover;
-        background-position: center;
-        opacity: 0.045;
-        mix-blend-mode: screen;
+        color: var(--fg);
+        background: var(--bg);
+        font-family: var(--font-sans);
+        font-feature-settings: "tnum" 1;
+        transition:
+          background 220ms var(--ease),
+          color 220ms var(--ease);
       }
 
       a {
@@ -87,20 +143,49 @@
         max-width: 100%;
       }
 
+      button {
+        font: inherit;
+        color: inherit;
+      }
+
+      a:focus-visible,
+      button:focus-visible,
+      [tabindex]:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+        border-radius: 2px;
+      }
+
+      .wrap {
+        width: min(var(--max), calc(100% - 40px));
+        margin: 0 auto;
+      }
+
+      .mono {
+        font-family: var(--font-mono);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+      }
+
+      /* ---------- Header ---------- */
+
       .site-header {
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
-        z-index: 10;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(5, 5, 5, 0.78);
-        backdrop-filter: blur(18px);
+        z-index: 40;
+        height: var(--header-h);
+        display: flex;
+        align-items: center;
+        background: color-mix(in srgb, var(--bg) 82%, transparent);
+        backdrop-filter: blur(14px) saturate(160%);
+        -webkit-backdrop-filter: blur(14px) saturate(160%);
+        border-bottom: 1px solid var(--line);
       }
 
       .nav {
-        width: min(var(--max), calc(100% - 32px));
-        min-height: 64px;
+        width: min(var(--max), calc(100% - 40px));
         margin: 0 auto;
         display: flex;
         align-items: center;
@@ -109,877 +194,1446 @@
       }
 
       .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--fg);
+      }
+
+      .brand-mark {
+        width: 22px;
+        height: 22px;
+        flex: none;
+        color: var(--fg);
+      }
+
+      .brand-word {
         font-family: "MonaSansCondensed", Impact, sans-serif;
-        font-size: clamp(1.2rem, 3vw, 1.85rem);
-        line-height: 0.9;
+        font-size: 1.05rem;
+        letter-spacing: 0.01em;
         white-space: nowrap;
       }
 
       .nav-links {
         display: flex;
         align-items: center;
-        gap: clamp(10px, 2.5vw, 24px);
-        color: var(--muted);
-        font-size: 0.82rem;
-        font-weight: 700;
-        text-transform: uppercase;
+        gap: clamp(14px, 2.2vw, 28px);
+        color: var(--fg-3);
+        font-size: 0.78rem;
+        font-weight: 500;
       }
 
       .nav-links a {
-        padding: 8px 0;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 0;
+        transition: color 200ms var(--ease);
+      }
+
+      .nav-links a .idx {
+        color: var(--fg-3);
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        transition: color 200ms var(--ease);
+      }
+
+      .nav-links a::after {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 3px;
+        height: 1px;
+        border-radius: 2px;
+        background: var(--line-strong);
+        content: "";
+        transition:
+          width 260ms var(--ease),
+          background 260ms var(--ease);
+      }
+
+      .nav-links a:hover::after,
+      .nav-links a.is-active::after {
+        background: var(--accent);
       }
 
       .nav-links a:hover,
-      .nav-links a:focus-visible {
-        color: var(--text);
+      .nav-links a:focus-visible,
+      .nav-links a.is-active {
+        color: var(--fg);
+      }
+
+      .nav-links a:hover .idx,
+      .nav-links a.is-active .idx {
+        color: var(--accent);
+      }
+
+      .nav-links a.is-active::after {
+        width: 100%;
+      }
+
+      .nav-back {
+        display: none;
+        align-items: center;
+        gap: 8px;
+        color: var(--fg-2);
+        font-size: 0.82rem;
+        font-weight: 500;
+        transition: color 200ms var(--ease);
+      }
+
+      .nav-back:hover,
+      .nav-back:focus-visible {
+        color: var(--fg);
+      }
+
+      .nav-back svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      body.is-project-view .nav-links {
+        display: none;
+      }
+
+      body.is-project-view .nav-back {
+        display: inline-flex;
+      }
+
+      body.is-project-view .mobile-readout {
+        display: none;
+      }
+
+      .mobile-readout {
+        display: none;
+        align-items: baseline;
+        gap: 6px;
+        color: var(--fg-3);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+      }
+
+      .mobile-readout strong {
+        color: var(--fg);
+        font-weight: 600;
+      }
+
+      .scroll-progress {
+        display: none;
+        position: absolute;
+        left: 0;
+        bottom: -1px;
+        height: 2px;
+        width: 0%;
+        background: var(--accent);
+        transition: width 80ms linear;
+      }
+
+      .theme-toggle {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: none;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: transparent;
+        color: var(--fg);
+        cursor: pointer;
+        transition:
+          border-color 200ms var(--ease),
+          transform 200ms var(--ease-spring);
+      }
+
+      .theme-toggle:hover,
+      .theme-toggle:focus-visible {
+        border-color: var(--accent);
+      }
+
+      .theme-toggle:active {
+        transform: scale(0.92);
+      }
+
+      .theme-toggle svg {
+        width: 16px;
+        height: 16px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.7;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .theme-toggle .icon-sun {
+        display: none;
+      }
+
+      :root[data-theme="light"] .theme-toggle .icon-sun {
+        display: block;
+      }
+
+      :root[data-theme="light"] .theme-toggle .icon-moon {
+        display: none;
+      }
+
+      @media (max-width: 860px) {
+        .nav-links,
+        .nav-back span {
+          display: none;
+        }
+
+        .nav-back {
+          gap: 0;
+          margin-left: 10px;
+        }
+
+        body.is-project-view .nav {
+          justify-content: flex-start;
+        }
+
+        body.is-project-view .theme-toggle {
+          margin-left: auto;
+        }
+
+        .mobile-readout {
+          display: flex;
+        }
+
+        .scroll-progress {
+          display: block;
+        }
+      }
+
+      /* ---------- Hero ---------- */
+
+      #home-view {
+        padding-top: var(--header-h);
       }
 
       .hero {
-        min-height: 100svh;
-        padding: 92px 0 56px;
-        display: grid;
-        align-items: center;
         position: relative;
+        padding: clamp(56px, 9vw, 104px) 0 clamp(48px, 7vw, 88px);
         overflow: hidden;
-        background:
-          linear-gradient(
-            90deg,
-            rgba(0, 0, 0, 0.92) 0%,
-            rgba(0, 0, 0, 0.72) 42%,
-            rgba(0, 0, 0, 0.18) 100%
-          ),
-          linear-gradient(0deg, rgba(5, 5, 5, 1) 0%, rgba(5, 5, 5, 0) 22%),
-          url("./assets/banner.jpeg");
-        background-size: cover;
-        background-position: 64% center;
       }
 
-      .hero-inner,
-      .section-inner {
-        width: min(var(--max), calc(100% - 32px));
-        margin: 0 auto;
-      }
-
-    .hero-inner {
-      transform: translateY(10vh);
-    }
-
-      .eyebrow {
-        margin: 0 0 18px;
-        color: var(--mint);
-        font-size: 0.78rem;
-        font-weight: 900;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      h1,
-      h2,
-      h3,
-      p {
-        margin-top: 0;
-      }
-
-      h1 {
-        max-width: 820px;
-        margin-bottom: 22px;
-        font-family: "MonaSansCondensed", Impact, sans-serif;
-      font-size: clamp(4rem, 14vw, 12rem);
-      line-height: 0.78;
-      letter-spacing: 0;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .hero-copy {
-      max-width: 690px;
-      margin-bottom: 32px;
-      color: var(--soft);
-      font-size: clamp(1.02rem, 2vw, 1.32rem);
-      line-height: 1.65;
-      word-break: keep-all;
-    }
-
-    .hero-list {
-      display: grid;
-      gap: 8px;
-      max-width: 720px;
-      margin: 0 0 32px;
-      padding: 0;
-      color: var(--soft);
-      list-style: none;
-      font-size: clamp(0.98rem, 1.8vw, 1.18rem);
-      line-height: 1.45;
-    }
-
-    .hero-list li {
-      position: relative;
-      padding-left: 18px;
-    }
-
-    .hero-list li::before {
-      position: absolute;
-      left: 0;
-      top: 0.62em;
-      width: 6px;
-      height: 6px;
-      border-radius: 999px;
-      background: var(--mint);
-      content: "";
-    }
-
-      .hero-actions {
+      .hero-eyebrow {
         display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-      }
-
-      .button {
-        min-height: 44px;
-        display: inline-flex;
         align-items: center;
-        gap: 10px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        border-radius: 8px;
-        padding: 0 16px;
-        background: rgba(255, 255, 255, 0.08);
-        color: var(--text);
-        font-size: 0.88rem;
+        gap: 12px;
+        margin-bottom: 28px;
+        color: var(--fg-3);
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+      }
+
+      .hero-eyebrow::before {
+        width: 28px;
+        height: 1px;
+        background: var(--line-strong);
+        content: "";
+      }
+
+      .hero-title {
+        margin: 0 0 28px;
+        max-width: 920px;
+        font-size: clamp(2.4rem, 2rem + 4vw, 5.2rem);
         font-weight: 800;
+        line-height: 1.06;
+        letter-spacing: -0.03em;
       }
 
-      .button.primary {
-        border-color: rgba(112, 240, 200, 0.58);
-        background: var(--mint);
-        color: #03110d;
+      .hero-title .full {
+        color: var(--fg);
       }
 
-      .button:hover,
-      .button:focus-visible {
-        transform: translateY(-1px);
+      .hero-title .muted {
+        color: var(--fg-3);
       }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(240px, 360px);
+        gap: 40px;
+        align-items: start;
+      }
+
+      .hero-diagram {
+        aspect-ratio: 1 / 1;
+        max-width: 360px;
+        color: var(--fg-3);
+        justify-self: end;
+      }
+
+      .hero-diagram svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      .hero-diagram .node {
+        animation: node-pulse 3.6s ease-in-out infinite;
+      }
+
+      @keyframes node-pulse {
+        0%,
+        100% {
+          opacity: 0.55;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      .identity-strip {
+        margin-top: clamp(40px, 6vw, 64px);
+        padding-top: 28px;
+        border-top: 1px solid var(--line);
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 28px;
+      }
+
+      .identity-item .idx {
+        display: block;
+        margin-bottom: 10px;
+        color: var(--accent);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+      }
+
+      .identity-item h2 {
+        margin: 0 0 8px;
+        font-size: 0.98rem;
+        font-weight: 600;
+      }
+
+      .identity-item p {
+        margin: 0;
+        color: var(--fg-2);
+        font-size: 0.88rem;
+        line-height: 1.6;
+      }
+
+      .scroll-cue {
+        position: absolute;
+        left: 50%;
+        bottom: 8px;
+        transform: translateX(-50%);
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        color: var(--fg-4);
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+      }
+
+      .scroll-cue::after {
+        width: 1px;
+        height: 24px;
+        background: linear-gradient(180deg, var(--fg-4), transparent);
+        content: "";
+      }
+
+      @media (min-width: 900px) {
+        .scroll-cue {
+          display: flex;
+        }
+      }
+
+      /* ---------- Sections (generic) ---------- */
 
       section {
-        padding: clamp(44px, 7vw, 76px) 0;
+        padding: clamp(56px, 8vw, 96px) 0;
+      }
+
+      .section-border {
+        border-top: 1px solid var(--line);
       }
 
       .section-head {
-        display: grid;
-        grid-template-columns: minmax(0, 0.9fr) minmax(280px, 1fr);
-        gap: 28px;
-        align-items: end;
-        margin-bottom: 32px;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: clamp(28px, 4vw, 44px);
       }
 
-      #projects .section-head {
-        margin-top: clamp(44px, 7vw, 76px);
+      .section-head-left {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
       }
 
-      .section-kicker {
-        margin-bottom: 10px;
-        color: var(--amber);
-        font-size: 0.78rem;
-        font-weight: 900;
-        text-transform: uppercase;
+      .section-idx {
+        color: var(--fg-3);
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
       }
 
-      h2 {
-        margin-bottom: 0;
-        font-family:
-          Inter,
-          ui-sans-serif,
-          system-ui,
-          -apple-system,
-          BlinkMacSystemFont,
-          "Segoe UI",
-          sans-serif;
-        font-size: clamp(1.8rem, 4vw, 3.4rem);
-        font-weight: 780;
-        line-height: 1;
-        text-transform: uppercase;
+      .section-title {
+        margin: 0;
+        font-size: clamp(1.4rem, 1.1rem + 1.3vw, 2rem);
+        font-weight: 700;
+        letter-spacing: -0.015em;
+      }
+
+      .section-count {
+        color: var(--fg-3);
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* reveal-on-scroll, shared */
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(16px);
         transition:
-          font-weight 260ms ease,
-          text-shadow 260ms ease,
-          transform 260ms ease;
+          opacity 480ms var(--ease),
+          transform 480ms var(--ease);
       }
 
-      .section-inner.is-visible h2 {
-        font-weight: 950;
-        text-shadow: 0 0 26px rgba(112, 240, 200, 0.14);
+      .section-inner.is-visible .reveal {
+        opacity: 1;
+        transform: translateY(0);
       }
 
-      .stats {
+      .section-inner.is-visible .reveal:nth-child(1) {
+        transition-delay: 0ms;
+      }
+      .section-inner.is-visible .reveal:nth-child(2) {
+        transition-delay: 40ms;
+      }
+      .section-inner.is-visible .reveal:nth-child(3) {
+        transition-delay: 80ms;
+      }
+      .section-inner.is-visible .reveal:nth-child(4) {
+        transition-delay: 120ms;
+      }
+      .section-inner.is-visible .reveal:nth-child(5) {
+        transition-delay: 160ms;
+      }
+      .section-inner.is-visible .reveal:nth-child(6) {
+        transition-delay: 200ms;
+      }
+
+      /* ---------- About ---------- */
+
+      .about-grid {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 1px;
-        margin-bottom: 18px;
+        grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+        gap: clamp(28px, 5vw, 64px);
+        align-items: start;
+      }
+
+      .about-portrait {
+        aspect-ratio: 4 / 5;
+        overflow: hidden;
+        background: var(--bg-raised);
         border: 1px solid var(--line);
-        background: var(--line);
       }
 
-      .stat {
-        min-height: 122px;
-        padding: 22px;
-        background: rgba(12, 12, 12, 0.94);
+      .about-portrait img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 64% center;
+        filter: grayscale(1) contrast(1.05);
       }
 
-      .stat strong {
-        display: block;
-        margin-bottom: 8px;
-        font-family: "MonaSansCondensed", Impact, sans-serif;
-        font-size: clamp(2rem, 5vw, 4rem);
-        line-height: 0.8;
+      .about-quote {
+        margin: 0 0 28px;
+        max-width: 640px;
+        font-size: clamp(1.15rem, 1rem + 1vw, 1.55rem);
+        font-weight: 600;
+        line-height: 1.45;
+        letter-spacing: -0.01em;
       }
 
-      .stat span {
-        color: var(--muted);
-        font-size: 0.82rem;
-        font-weight: 800;
-        text-transform: uppercase;
+      .about-body p {
+        max-width: 620px;
+        margin: 0 0 18px;
+        color: var(--fg-2);
+        font-size: 0.98rem;
+        line-height: 1.8;
+        word-break: keep-all;
       }
+
+      .about-body p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* ---------- Projects ---------- */
 
       .project-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 12px;
-      }
-
-      .project-card,
-      .award-card,
-      .activity-row {
+        gap: 1px;
+        background: var(--line);
         border: 1px solid var(--line);
-        border-radius: 8px;
-        background: rgba(15, 15, 15, 0.82);
       }
 
       .project-card {
         cursor: pointer;
-        min-height: 270px;
-        padding: 22px;
+        background: var(--bg);
+        padding: 0;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
-        transition:
-          border-color 160ms ease,
-          background 160ms ease,
-          transform 160ms ease;
+        transition: background 200ms var(--ease);
       }
 
-      .project-card:hover {
-        border-color: rgba(112, 240, 200, 0.62);
-        background: rgba(21, 21, 21, 0.96);
-        transform: translateY(-2px);
+      .project-card:hover,
+      .project-card:focus-visible {
+        background: var(--bg-raised);
       }
 
-      .project-card:hover .project-name,
-      .award-card:hover h3,
-      .activity-row:hover h3 {
-        font-weight: 950;
+      .project-tile {
+        aspect-ratio: 16 / 10;
+        background: var(--bg-raised);
+        color: var(--fg-3);
+        overflow: hidden;
+        position: relative;
       }
 
-      .project-top {
+      .project-tile img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .project-tile svg {
+        width: 100%;
+        height: 100%;
+      }
+
+      .project-body {
+        padding: 20px;
+        flex: 1;
         display: flex;
-        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .project-top-row {
+        display: flex;
+        align-items: baseline;
         justify-content: space-between;
-        gap: 14px;
+        gap: 10px;
+        margin-bottom: 8px;
       }
 
       .project-name {
-        margin-bottom: 14px;
-        font-family:
-          Inter,
-          ui-sans-serif,
-          system-ui,
-          -apple-system,
-          BlinkMacSystemFont,
-          "Segoe UI",
-          sans-serif;
-        font-size: clamp(1.25rem, 2.2vw, 1.85rem);
-        font-weight: 820;
-        line-height: 1.08;
-        text-transform: uppercase;
-        overflow-wrap: anywhere;
-        transition: font-weight 180ms ease;
+        margin: 0;
+        font-size: 1.02rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
       }
 
-      .project-index {
-        flex: 0 0 auto;
-        color: var(--coral);
-        font-size: 0.74rem;
-        font-weight: 900;
+      .project-idx {
+        flex: none;
+        color: var(--fg-3);
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
       }
 
       .project-desc {
-        color: var(--soft);
-        line-height: 1.58;
+        margin: 0 0 14px;
+        color: var(--fg-2);
+        font-size: 0.86rem;
+        line-height: 1.6;
         word-break: keep-all;
       }
 
-      .project-meta {
+      .project-tags {
+        margin-top: auto;
         display: flex;
         flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 28px;
+        gap: 6px;
       }
 
-      .pill {
+      .tag {
         display: inline-flex;
         align-items: center;
-        max-width: 100%;
-        min-height: 28px;
-        border: 1px solid rgba(255, 255, 255, 0.14);
+        border: 1px solid var(--line);
         border-radius: 999px;
-        padding: 5px 10px;
-        color: var(--muted);
-        font-size: 0.72rem;
-        font-weight: 800;
-        line-height: 1.25;
-        text-transform: uppercase;
-        white-space: normal;
-        overflow-wrap: anywhere;
+        padding: 4px 10px;
+        color: var(--fg-3);
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
       }
 
-      .pill.win {
-        border-color: rgba(244, 201, 93, 0.42);
-        color: var(--amber);
+      .tag.tag-accent {
+        border-color: var(--accent);
+        color: var(--accent);
       }
 
-      .pill.robotics {
-        border-color: rgba(115, 215, 255, 0.46);
-        color: var(--cyan);
-      }
+      /* ---------- Awards / Activities ledger ---------- */
 
-      .award-list {
-        display: grid;
-        gap: 14px;
-      }
-
-      .proof-grid {
+      .ledger-group-rows {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
-        align-items: start;
+        column-gap: 40px;
       }
 
-      .proof-panel {
-        min-width: 0;
-        width: 100%;
-      }
-
-      .proof-panel-head {
-        min-height: 44px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        margin-bottom: 12px;
-      }
-
-      .proof-panel-head h3 {
-        margin-bottom: 0;
-        font-size: 1rem;
-        font-weight: 900;
-        text-transform: uppercase;
-      }
-
-      .award-card {
-        min-height: 78px;
-        padding: 14px 16px;
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 14px;
-        align-items: center;
+      .more-link {
         cursor: pointer;
-        overflow: hidden;
-        transition:
-          border-color 160ms ease,
-          transform 160ms ease,
-          background 160ms ease;
+        background: none;
+        border: none;
+        padding: 0;
+        color: var(--fg-3);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        transition: color 200ms var(--ease);
       }
 
-      .award-card:hover,
-      .activity-row:hover {
-        transform: translateY(-1px);
+      .more-link:hover,
+      .more-link:focus-visible {
+        color: var(--accent);
       }
 
-      .award-card.gold {
-        border-color: rgba(245, 200, 76, 0.55);
-        background: rgba(15, 15, 15, 0.88);
+      .group-label {
+        margin: 20px 0 4px;
+        color: var(--fg-3);
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
       }
 
-      .award-card.silver {
-        border-color: rgba(207, 216, 227, 0.48);
-        background: rgba(15, 15, 15, 0.88);
-      }
-
-      .award-card.bronze {
-        border-color: rgba(215, 146, 85, 0.52);
-        background: rgba(15, 15, 15, 0.88);
-      }
-
-      .award-card.encouragement {
-        border-color: rgba(115, 215, 255, 0.34);
-      }
-
-      .award-card.special {
-        border-color: rgba(112, 240, 200, 0.62);
-        background: rgba(112, 240, 200, 0.08);
-        box-shadow: inset 0 0 0 1px rgba(112, 240, 200, 0.08);
-      }
-
-      .award-card h3,
-      .activity-row h3 {
-        margin-bottom: 9px;
-        font-size: 1rem;
-        font-weight: 780;
-        line-height: 1.45;
-        word-break: keep-all;
-        transition: font-weight 180ms ease;
-      }
-
-      .award-card p,
-      .activity-row p {
-        margin-bottom: 0;
-        color: var(--muted);
-        font-size: 0.88rem;
-        line-height: 1.55;
-      }
-
-      .award-detail {
-        min-width: 0;
-      }
-
-      .award-meta-line {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: flex-end;
-        gap: 8px;
+      .group-label:first-child {
         margin-top: 0;
       }
 
-      .more-button {
+      .ledger-row {
         cursor: pointer;
-        min-height: 36px;
-        padding: 0 12px;
-        font-size: 0.78rem;
-      }
-
-      .activity-list {
-        display: grid;
-        gap: 14px;
-      }
-
-      .activity-year-group {
-        display: grid;
-        gap: 8px;
-      }
-
-      .activity-year-label {
-        margin: 8px 0 2px;
-        color: var(--mint);
-        font-size: 0.78rem;
-        font-weight: 900;
-        text-transform: uppercase;
-      }
-
-      .award-priority-group {
-        display: grid;
-        gap: 8px;
-      }
-
-      .award-priority-label {
-        margin: 8px 0 2px;
-        color: var(--mint);
-        font-size: 0.78rem;
-        font-weight: 900;
-        text-transform: uppercase;
-      }
-
-      .activity-row {
-        min-height: 78px;
-        padding: 14px 16px;
-        display: grid;
-        grid-template-columns: 1fr auto;
-        gap: 14px;
+        display: flex;
         align-items: center;
-        cursor: pointer;
-        transition:
-          border-color 160ms ease,
-          transform 160ms ease,
-          background 160ms ease;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 0;
+        border-top: 1px solid var(--line);
+        transition: padding-left 200ms var(--ease);
       }
 
-      .activity-row > div:first-child {
+      .ledger-row:hover,
+      .ledger-row:focus-visible {
+        padding-left: 8px;
+      }
+
+      .ledger-main {
         min-width: 0;
       }
 
-      .activity-row:hover {
-        border-color: rgba(112, 240, 200, 0.36);
-        background: rgba(21, 21, 21, 0.96);
+      .ledger-main h3 {
+        margin: 0 0 4px;
+        font-size: 0.92rem;
+        font-weight: 600;
+        line-height: 1.4;
+        word-break: keep-all;
       }
 
-      .year {
-        display: none;
+      .ledger-main p {
+        margin: 0;
+        color: var(--fg-3);
+        font-size: 0.78rem;
       }
 
-      .tag-list {
+      .ledger-meta {
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .rank-glyph {
+        font-family: var(--font-mono);
+        font-size: 0.66rem;
+        color: var(--fg-3);
+      }
+
+      .rank-glyph.rank-gold,
+      .rank-glyph.rank-special {
+        color: var(--accent);
+      }
+
+      /* ---------- Contact / Footer ---------- */
+
+      .contact-headline {
+        margin: 0 0 32px;
+        max-width: 760px;
+        font-size: clamp(1.6rem, 1.2rem + 2.4vw, 3.2rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.15;
+      }
+
+      .contact-links {
         display: flex;
         flex-wrap: wrap;
-        justify-content: flex-end;
-        gap: 8px;
+        gap: 14px;
       }
+
+      .contact-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid var(--line-strong);
+        border-radius: 6px;
+        padding: 14px 20px;
+        font-size: 0.98rem;
+        font-weight: 600;
+        transition:
+          border-color 200ms var(--ease),
+          background 200ms var(--ease);
+      }
+
+      .contact-link:hover,
+      .contact-link:focus-visible {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .contact-link svg {
+        width: 16px;
+        height: 16px;
+        color: var(--fg-3);
+      }
+
+      footer.site-footer {
+        border-top: 1px solid var(--line);
+        padding: 24px 0 40px;
+      }
+
+      .footer-inner {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 10px;
+        color: var(--fg-3);
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+      }
+
+      /* ---------- Modal (awards / activities quick view) ---------- */
 
       .modal {
         position: fixed;
         inset: 0;
-        z-index: 50;
-        display: none;
+        z-index: 60;
+        visibility: hidden;
       }
 
       .modal[aria-hidden="false"] {
-        display: block;
+        visibility: visible;
       }
 
       .modal-backdrop {
         position: absolute;
         inset: 0;
-        background: rgba(0, 0, 0, 0.72);
-        backdrop-filter: blur(10px);
+        background: var(--scrim);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        opacity: 0;
+        transition: opacity 240ms var(--ease);
+      }
+
+      .modal[aria-hidden="false"] .modal-backdrop {
+        opacity: 1;
       }
 
       .modal-panel {
         position: absolute;
         top: 50%;
         left: 50%;
-        width: min(760px, calc(100% - 28px));
-        max-height: min(760px, calc(100svh - 28px));
+        width: min(640px, calc(100% - 32px));
+        max-height: min(680px, calc(100svh - 32px));
         overflow: auto;
-        transform: translate(-50%, -50%);
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        border-radius: 8px;
-        padding: clamp(22px, 5vw, 38px);
-        background: rgba(12, 12, 12, 0.98);
-        box-shadow: 0 28px 90px rgba(0, 0, 0, 0.58);
+        transform: translate(-50%, -50%) scale(0.97);
+        border: 1px solid var(--line);
+        padding: clamp(24px, 5vw, 40px);
+        background: var(--bg);
+        box-shadow: var(--shadow);
+        opacity: 0;
+        transition:
+          transform 260ms var(--ease-spring),
+          opacity 200ms var(--ease);
+      }
+
+      .modal[aria-hidden="false"] .modal-panel {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
       }
 
       .modal-close {
         position: absolute;
         top: 14px;
         right: 14px;
-        width: 38px;
-        height: 38px;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.06);
-        color: var(--text);
-        font-size: 1.4rem;
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: transparent;
+        color: var(--fg);
+        font-size: 1.2rem;
         cursor: pointer;
+        transition: transform 200ms var(--ease-spring);
+      }
+
+      .modal-close:hover,
+      .modal-close:focus-visible {
+        transform: rotate(90deg);
+      }
+
+      .modal-kicker {
+        margin: 0 0 14px;
+        color: var(--accent);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+      }
+
+      .modal-title {
+        margin: 0 0 18px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
       }
 
       .modal-meta {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
-        margin: 18px 0 24px;
+        margin-bottom: 20px;
       }
 
       .modal-body {
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        padding: 18px;
-        background: var(--panel);
-        color: var(--soft);
-        line-height: 1.72;
+        border-top: 1px solid var(--line);
+        padding-top: 18px;
+        color: var(--fg-2);
+        font-size: 0.94rem;
+        line-height: 1.75;
         word-break: keep-all;
+      }
+
+      .modal-body p {
+        margin: 0 0 12px;
       }
 
       .modal-body p:last-child {
         margin-bottom: 0;
       }
 
-      footer {
-        padding: 42px 0 52px;
-        color: var(--muted);
-        font-size: 0.86rem;
+      /* ---------- Project detail view ---------- */
+
+      #project-view {
+        display: none;
+        padding-top: var(--header-h);
       }
 
-      .footer-inner {
-        width: min(var(--max), calc(100% - 32px));
-        margin: 0 auto;
-        display: flex;
-        justify-content: space-between;
-        gap: 18px;
-        border-top: 1px solid var(--line);
-        padding-top: 20px;
+      body.is-project-view #project-view {
+        display: block;
       }
+
+      body.is-project-view #home-view {
+        display: none;
+      }
+
+      .pv-hero {
+        position: relative;
+        min-height: 66vh;
+        display: flex;
+        align-items: flex-end;
+        overflow: hidden;
+        background: var(--bg-inverted);
+        color: var(--fg-inverted);
+      }
+
+      .pv-hero-media {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+      }
+
+      .pv-hero-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0.55;
+      }
+
+      .pv-hero-media svg {
+        width: 100%;
+        height: 100%;
+        opacity: 0.35;
+      }
+
+      .pv-hero-scrim {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        background: linear-gradient(
+          0deg,
+          var(--bg-inverted) 4%,
+          color-mix(in srgb, var(--bg-inverted) 35%, transparent) 55%,
+          color-mix(in srgb, var(--bg-inverted) 10%, transparent) 100%
+        );
+      }
+
+      .pv-hero-inner {
+        position: relative;
+        z-index: 2;
+        padding: 64px 0 56px;
+      }
+
+      .pv-eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+        color: color-mix(in srgb, var(--fg-inverted) 64%, transparent);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+      }
+
+      .pv-title {
+        margin: 0 0 16px;
+        max-width: 900px;
+        font-size: clamp(2.2rem, 1.7rem + 4vw, 4.8rem);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        line-height: 1.04;
+      }
+
+      .pv-tagline {
+        max-width: 620px;
+        margin: 0;
+        color: color-mix(in srgb, var(--fg-inverted) 78%, transparent);
+        font-size: clamp(1rem, 0.9rem + 0.5vw, 1.2rem);
+        line-height: 1.6;
+      }
+
+      .pv-subnav {
+        position: sticky;
+        top: var(--header-h);
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        height: 56px;
+        background: transparent;
+        border-bottom: 1px solid transparent;
+        transition:
+          background 200ms var(--ease),
+          border-color 200ms var(--ease);
+      }
+
+      .pv-subnav.is-stuck {
+        background: color-mix(in srgb, var(--bg) 92%, transparent);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-color: var(--line);
+      }
+
+      .pv-subnav-name {
+        font-weight: 700;
+        font-size: 0.92rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .pv-subnav-tabs {
+        display: flex;
+        gap: 22px;
+        color: var(--fg-3);
+        font-size: 0.82rem;
+      }
+
+      .pv-subnav-tabs a:hover {
+        color: var(--fg);
+      }
+
+      .pv-subnav-cta {
+        flex: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        border: 1px solid var(--line-strong);
+        border-radius: 999px;
+        padding: 7px 16px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        white-space: nowrap;
+        transition: border-color 200ms var(--ease);
+      }
+
+      .pv-subnav-cta:hover {
+        border-color: var(--accent);
+      }
+
+      @media (max-width: 700px) {
+        .pv-subnav-tabs {
+          display: none;
+        }
+      }
+
+      .pv-section {
+        padding: clamp(48px, 8vw, 88px) 0;
+      }
+
+      .pv-section.is-raised {
+        background: var(--bg-raised);
+      }
+
+      .pv-section.is-inverted {
+        --fg: var(--fg-inverted);
+        --fg-2: color-mix(in srgb, var(--fg-inverted) 72%, transparent);
+        --fg-3: color-mix(in srgb, var(--fg-inverted) 50%, transparent);
+        --fg-4: color-mix(in srgb, var(--fg-inverted) 30%, transparent);
+        --line: color-mix(in srgb, var(--fg-inverted) 18%, transparent);
+        --line-strong: color-mix(in srgb, var(--fg-inverted) 30%, transparent);
+        --accent: #6be3b8;
+        --accent-soft: rgba(107, 227, 184, 0.14);
+        background: var(--bg-inverted);
+        color: var(--fg);
+      }
+
+      .pv-eyebrow2 {
+        margin: 0 0 14px;
+        color: var(--fg-3);
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+      }
+
+      .pv-statement {
+        max-width: 760px;
+        margin: 0;
+        font-size: clamp(1.4rem, 1.1rem + 1.8vw, 2.6rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.28;
+        word-break: keep-all;
+      }
+
+      .pv-statement + .pv-substatement {
+        margin-top: 18px;
+      }
+
+      .pv-substatement {
+        max-width: 620px;
+        color: var(--fg-2);
+        font-size: 1.02rem;
+        line-height: 1.75;
+        word-break: keep-all;
+      }
+
+      .pv-stat-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 32px;
+        margin-top: 8px;
+      }
+
+      .pv-stat-num {
+        font-size: clamp(2.6rem, 2rem + 3vw, 4.5rem);
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        line-height: 1;
+      }
+
+      .pv-stat-label {
+        margin-top: 10px;
+        color: var(--fg-3);
+        font-size: 0.85rem;
+      }
+
+      .pv-award-list {
+        margin-top: 32px;
+        display: grid;
+        gap: 1px;
+        background: var(--line);
+        border: 1px solid var(--line);
+      }
+
+      .pv-award-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 20px;
+        background: var(--bg);
+      }
+
+      .pv-award-name {
+        font-weight: 600;
+        font-size: 0.94rem;
+      }
+
+      .pv-award-meta {
+        color: var(--fg-3);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        white-space: nowrap;
+      }
+
+      .pv-tag-row {
+        margin-top: 24px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .pv-footer-cta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 16px;
+        margin-top: 8px;
+      }
+
+      .pv-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--line-strong);
+        border-radius: 6px;
+        padding: 13px 22px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition:
+          border-color 200ms var(--ease),
+          background 200ms var(--ease);
+      }
+
+      .pv-btn:hover {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .pv-btn.is-quiet {
+        border-color: transparent;
+        color: var(--fg-3);
+      }
+
+      .pv-btn.is-quiet:hover {
+        border-color: var(--line-strong);
+        background: transparent;
+        color: var(--fg);
+      }
+
+      .pv-empty-note {
+        color: var(--fg-3);
+        font-size: 0.92rem;
+      }
+
+      /* ---------- Responsive ---------- */
 
       @media (max-width: 900px) {
-        .nav {
-          min-height: 58px;
-        }
-
-        .nav-links {
-          gap: 12px;
-          font-size: 0.74rem;
-        }
-
-        .hero {
-          min-height: 100svh;
-          background:
-            linear-gradient(
-              180deg,
-              rgba(0, 0, 0, 0.28) 0%,
-              rgba(0, 0, 0, 0.9) 66%,
-              rgba(5, 5, 5, 1) 100%
-            ),
-            url("./assets/banner.jpeg");
-          background-size: cover;
-          background-position: 56% center;
-        }
-
-        .section-head {
+        .hero-grid {
           grid-template-columns: 1fr;
         }
 
-        .stats,
+        .hero-diagram {
+          display: none;
+        }
+
+        .identity-strip,
+        .ledger-group-rows,
+        .about-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .about-portrait {
+          max-width: 260px;
+          aspect-ratio: 1;
+        }
+
         .project-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .proof-grid {
-          grid-template-columns: 1fr;
         }
       }
 
       @media (max-width: 620px) {
+        .wrap,
         .nav {
-          width: min(var(--max), calc(100% - 24px));
-          align-items: flex-start;
-          flex-direction: column;
-          justify-content: center;
-          gap: 8px;
-          padding: 12px 0;
+          width: calc(100% - 32px);
         }
 
-        .nav-links {
-          width: 100%;
-          overflow-x: auto;
-          padding-bottom: 2px;
-        }
-
-        .hero-inner,
-        .section-inner,
-        .footer-inner {
-          width: calc(100% - 24px);
-        }
-
-        .hero {
-          padding-top: 122px;
-        }
-
-      h1 {
-        font-size: clamp(3.25rem, 18vw, 6.6rem);
-      }
-
-      .hero-inner {
-        transform: translateY(6vh);
-      }
-
-        .hero-copy {
-          font-size: 1rem;
-        }
-
-        .button {
-          width: 100%;
-          justify-content: center;
-        }
-
-        section {
-          padding: 54px 0;
-        }
-
-        .stats,
         .project-grid {
           grid-template-columns: 1fr;
         }
 
-        .stat {
-          min-height: 104px;
+        .identity-strip {
+          gap: 24px;
         }
 
-        .project-card {
-          min-height: 238px;
+        .section-count {
+          display: none;
         }
 
-        .award-card,
-        .activity-row {
-          grid-template-columns: 1fr;
-          gap: 10px;
-        }
-
-        .tag-list {
-          justify-content: flex-start;
-        }
-
-        .footer-inner {
-          flex-direction: column;
+        .contact-link {
+          flex: 1 1 auto;
+          justify-content: center;
         }
       }
     </style>
   </head>
   <body>
-    <header class="site-header" aria-label="Primary navigation">
+    <header class="site-header">
       <nav class="nav">
-        <a class="brand" href="#top">HAYWARD.KIM</a>
-        <div class="nav-links">
-          <a href="#projects">Projects</a>
-          <a href="#awards">Awards</a>
-          <a href="#activities">Activities</a>
+        <a class="brand" href="/" id="brand-link" aria-label="Hayward Kim — home">
+          <svg class="brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2 20.66 7v10L12 22 3.34 17V7Z" />
+            <path d="M12 2v9M12 22v-9M3.34 7 12 11M20.66 7 12 11M3.34 17 12 11M20.66 17 12 11" />
+            <circle cx="12" cy="11" r="1.6" fill="currentColor" stroke="none" />
+          </svg>
+          <span class="brand-word">HAYWARD.KIM</span>
+        </a>
+
+        <a class="nav-back" href="/" data-nav-home>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M15 5 8 12l7 7" />
+          </svg>
+          <span>Portfolio</span>
+        </a>
+
+        <div class="nav-links" id="nav-links">
+          <a href="#about"><span class="idx">01</span>About</a>
+          <a href="#projects"><span class="idx">02</span>Projects</a>
+          <a href="#awards"><span class="idx">03</span>Awards</a>
+          <a href="#activities"><span class="idx">04</span>Activities</a>
+          <a href="#contact"><span class="idx">05</span>Contact</a>
         </div>
+
+        <div class="mobile-readout" id="mobile-readout">
+          <strong id="mobile-readout-idx">00</strong>
+          <span id="mobile-readout-label">Index</span>
+        </div>
+
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle light and dark theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />
+          </svg>
+        </button>
       </nav>
+      <div class="scroll-progress" id="scroll-progress"></div>
     </header>
 
-    <main id="top">
+    <main id="home-view">
       <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-inner">
-          <p class="eyebrow">Robotics / AI / Product Engineering</p>
-          <h1 id="hero-title">Hayward Kim</h1>
-          <ul class="hero-list" aria-label="Education and focus">
-            <li>Robotics, artificial intelligence, and product engineering</li>
-            <li>Korea Digital Media High School, Hacking Defense, 22nd cohort</li>
-            <li>Korea University College of Engineering</li>
-          </ul>
-          <div class="hero-actions">
-            <a class="button primary" href="#projects">View Projects</a>
-            <a
-              class="button"
-              href="https://github.com/hayward2007"
-              rel="noreferrer"
-              >GitHub</a
-            >
+        <div class="wrap">
+          <p class="hero-eyebrow">INDEX 00 — HAYWARD KIM</p>
+          <div class="hero-grid">
+            <div>
+              <h1 class="hero-title" id="hero-title">
+                <span class="full">Robotics and AI, built to compete.</span>
+                <br />
+                <span class="muted">Now shipping as products people use.</span>
+              </h1>
+            </div>
+            <div class="hero-diagram" aria-hidden="true" id="hero-diagram"></div>
+          </div>
+
+          <div class="identity-strip">
+            <div class="identity-item">
+              <span class="idx mono">01 · Engineer</span>
+              <h2>Robots &amp; software</h2>
+              <p>From a six-legged rotating platform to an AI-run payment kiosk running in production today.</p>
+            </div>
+            <div class="identity-item">
+              <span class="idx mono">02 · Competitor</span>
+              <h2>30 competitions entered</h2>
+              <p>Capped by the 2024 Korea Talent Award — Deputy Prime Minister and Minister of Education.</p>
+            </div>
+            <div class="identity-item">
+              <span class="idx mono">03 · Operator</span>
+              <h2>Products in the real world</h2>
+              <p>An all-in-one school app, an AI spending coach, and activities from NAVER LABS to national broadcast.</p>
+            </div>
+          </div>
+        </div>
+        <p class="scroll-cue" aria-hidden="true">Scroll</p>
+      </section>
+
+      <section id="about" aria-labelledby="about-title" class="section-border">
+        <div class="wrap section-inner">
+          <div class="section-head reveal">
+            <div class="section-head-left">
+              <span class="section-idx">01</span>
+              <h2 class="section-title" id="about-title">About</h2>
+            </div>
+          </div>
+          <div class="about-grid">
+            <div class="about-portrait reveal">
+              <img src="./assets/banner.jpeg" alt="Hayward Kim" loading="lazy" />
+            </div>
+            <div class="reveal">
+              <p class="about-quote">
+                "I'd rather ship something people actually use than something that only gets graded."
+              </p>
+              <div class="about-body">
+                <p>
+                  I'm Hayward Kim — Kim Hyeong-seok — and I work at the point where robotics, AI, and software meet the people who end up using them.
+                </p>
+                <p>
+                  I graduated from the Hacking Defense department at Korea Digital Media High School, 22nd cohort, and I'm currently at Korea University's College of Engineering.
+                </p>
+                <p>
+                  Most of what I build starts as a competition entry — a six-legged robot, an AI consumption coach, an unmanned delivery bot — and the ones that hold up keep going. DIMIPAY KIOSK still runs payments at my old high school; AIO is still the app students use to get through the day.
+                </p>
+                <p>
+                  Along the way that track record earned the 2024 Korea Talent Award, 30 competition entries, and a handful of stages — from an EBS broadcast panel to a robotics collaboration with NAVER LABS.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="projects" aria-labelledby="projects-title">
-        <div class="section-inner">
-          <div class="stats" id="stats" aria-label="Portfolio statistics"></div>
-          <div class="section-head">
-            <div>
-              <h2 id="projects-title">Projects</h2>
+      <section id="projects" aria-labelledby="projects-title" class="section-border">
+        <div class="wrap section-inner">
+          <div class="section-head reveal">
+            <div class="section-head-left">
+              <span class="section-idx">02</span>
+              <h2 class="section-title" id="projects-title">Projects</h2>
             </div>
+            <span class="section-count" id="projects-count">00</span>
           </div>
-          <div class="project-grid" id="project-grid"></div>
+          <div class="project-grid reveal" id="project-grid"></div>
         </div>
       </section>
 
-      <section id="awards" aria-labelledby="highlights-title">
-        <div class="section-inner">
-          <div class="section-head">
-            <div>
-              <h2 id="highlights-title">Highlights</h2>
+      <section id="awards" aria-labelledby="awards-title" class="section-border">
+        <div class="wrap section-inner">
+          <div class="section-head reveal">
+            <div class="section-head-left">
+              <span class="section-idx">03</span>
+              <h2 class="section-title" id="awards-title">Awards</h2>
+            </div>
+            <button class="more-link mono" id="award-more-button" type="button">View All</button>
+          </div>
+          <div class="reveal" id="award-list"></div>
+        </div>
+      </section>
+
+      <section id="activities" aria-labelledby="activities-title" class="section-border">
+        <div class="wrap section-inner">
+          <div class="section-head reveal">
+            <div class="section-head-left">
+              <span class="section-idx">04</span>
+              <h2 class="section-title" id="activities-title">Activities</h2>
+            </div>
+            <span class="section-count" id="activities-count">00</span>
+          </div>
+          <div class="reveal" id="activity-list"></div>
+        </div>
+      </section>
+
+      <section id="contact" aria-labelledby="contact-title" class="section-border">
+        <div class="wrap section-inner">
+          <div class="section-head reveal">
+            <div class="section-head-left">
+              <span class="section-idx">05</span>
+              <h2 class="section-title" id="contact-title">Contact</h2>
             </div>
           </div>
-          <div class="proof-grid">
-            <div class="proof-panel">
-              <div class="proof-panel-head">
-                <h3>Awards</h3>
-                <button
-                  class="button more-button"
-                  id="award-more-button"
-                  type="button"
-                >
-                  View All
-                </button>
-              </div>
-              <div class="award-list" id="award-list"></div>
-            </div>
-            <div class="proof-panel" id="activities">
-              <div class="proof-panel-head">
-                <h3>Activities</h3>
-              </div>
-              <div class="activity-list" id="activity-list"></div>
-            </div>
+          <p class="contact-headline reveal">
+            Building something in robotics, AI, or product? I'd like to hear about it.
+          </p>
+          <div class="contact-links reveal">
+            <a class="contact-link" href="mailto:hayward_kim@korea.ac.kr">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18v12H3z" /><path d="m3 6 9 7 9-7" /></svg>
+              hayward_kim@korea.ac.kr
+            </a>
+            <a class="contact-link" href="https://github.com/hayward2007" target="_blank" rel="noreferrer">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2a10 10 0 0 0-3.16 19.5c.5.1.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.46-1.15-1.11-1.46-1.11-1.46-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.36 1.09 2.93.83.09-.65.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.95 0-1.09.39-1.98 1.03-2.68-.1-.26-.45-1.28.1-2.66 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.9-1.29 2.75-1.02 2.75-1.02.55 1.38.2 2.4.1 2.66.64.7 1.03 1.59 1.03 2.68 0 3.85-2.34 4.7-4.57 4.94.36.31.68.92.68 1.85v2.75c0 .26.18.58.69.48A10 10 0 0 0 12 2Z" /></svg>
+              GitHub
+            </a>
           </div>
         </div>
       </section>
     </main>
 
+    <main id="project-view"></main>
+
     <div class="modal" id="detail-modal" aria-hidden="true">
       <div class="modal-backdrop" data-close-modal></div>
-      <section
-        class="modal-panel"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="modal-title"
-      >
-        <button
-          class="modal-close"
-          type="button"
-          data-close-modal
-          aria-label="Close"
-        >
-          ×
-        </button>
-        <p class="section-kicker" id="modal-kicker">Detail</p>
-        <h2 id="modal-title">Loading</h2>
+      <section class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title" tabindex="-1">
+        <button class="modal-close" type="button" data-close-modal aria-label="Close">×</button>
+        <p class="modal-kicker mono" id="modal-kicker">Detail</p>
+        <h2 class="modal-title" id="modal-title">Loading</h2>
         <div class="modal-meta" id="modal-meta"></div>
         <div class="modal-body" id="modal-body"></div>
       </section>
     </div>
 
-    <footer>
-    <div class="footer-inner">
-      <span>HAYWARD.KIM</span>
-      <a href="mailto:hayward_kim@korea.ac.kr">hayward_kim@korea.ac.kr</a>
-    </div>
-  </footer>
+    <footer class="site-footer">
+      <div class="wrap footer-inner">
+        <span>© 2026 Hayward Kim</span>
+        <span id="footer-sync"></span>
+      </div>
+    </footer>
 
     <script>
       const fallbackData = {
         projects: [
           {
-            type: "project",
+            id: "scone",
             name: "SCONE",
             desc: "회전운동이 가능한 6족 로봇, 스콘",
             english: "Six-legged robot capable of rotating motion",
             tags: ["Silver", "Bronze"],
+            awards: [
+              { name: "2023 제 21회 KSEF", rankLabel: "Silver", year: "2023" },
+              { name: "2018 제 3회 부천판타지아 로봇경진대회", rankLabel: "Silver", year: "2018" },
+            ],
           },
           {
-            type: "project",
+            id: "aared",
             name: "AARED",
             desc: "무인 자동제세동기 전달 로봇, AARED",
             english: "Unmanned AED transporting robot",
             tags: ["Robotics"],
+            awards: [],
           },
           {
-            type: "project",
+            id: "aio",
             name: "AIO",
             desc: "학교 학생 종합 서비스, AIO",
             english: "All student service in one app",
             tags: ["Silver"],
+            awards: [{ name: "2022 제 4회 한국코드페어", rankLabel: "Silver", year: "2022" }],
           },
           {
-            type: "project",
+            id: "pluto",
             name: "PLUTO",
             desc: "펠티어로 제어가능한 인공근육",
-            english:
-              "Peltier-controlled artificial muscle using conductive thread",
+            english: "Peltier-controlled artificial muscle using conductive thread",
             tags: ["Hardware"],
+            awards: [],
           },
           {
-            type: "project",
+            id: "noongil",
             name: "NOONGIL",
             desc: "눈을 따라가는 커서, 눈길",
             english: "Eye-tracking cursor experience",
             tags: ["Accessibility"],
+            awards: [],
           },
           {
-            type: "project",
+            id: "hanpoon",
             name: "HANPOON",
             desc: "AI를 통한 현명한 소비, 한푼",
             english: "Smarter consumption through AI",
             tags: ["AI"],
+            awards: [{ name: "2024 App Jam", rankLabel: "Gold", year: "2024" }],
           },
         ],
         competitions: [
@@ -1292,68 +1946,46 @@
           },
         ],
         activities: [
-          {
-            type: "activity",
-            year: "2024",
-            name: "EBS 시장단 발표",
-            tags: ["Speaker"],
-          },
-          {
-            type: "activity",
-            year: "2025",
-            name: "NAVER LABS",
-            tags: ["Robotics"],
-          },
-          {
-            type: "activity",
-            year: "2025",
-            name: "Link Demo Day 발표 연사",
-            tags: ["Speaker"],
-          },
-          {
-            type: "activity",
-            year: "2023",
-            name: "ROBOTIS 협찬",
-            tags: ["Robotics"],
-          },
+          { type: "activity", year: "2024", name: "EBS 시장단 발표", tags: ["Speaker"] },
+          { type: "activity", year: "2025", name: "NAVER LABS", tags: ["Robotics"] },
+          { type: "activity", year: "2025", name: "Link Demo Day 발표 연사", tags: ["Speaker"] },
+          { type: "activity", year: "2023", name: "ROBOTIS 협찬", tags: ["Robotics"] },
         ],
-        counts: {
-          projects: 19,
-          competitions: 30,
-          activities: 16,
-          visibleProjects: 6,
-          visibleActivities: 4,
-        },
+        counts: { projects: 19, competitions: 30, activities: 16, visibleProjects: 6, visibleActivities: 4 },
       };
 
       const state = {
         data: fallbackData,
         showAllCompetitions: false,
         items: new Map(),
+        route: { view: "home", slug: null },
+        lastHomeScroll: 0,
+        slugToProject: new Map(),
+        projectToSlug: new Map(),
+        modalRequestId: 0,
+        modalTriggerEl: null,
       };
 
-      const statsRoot = document.querySelector("#stats");
       const projectRoot = document.querySelector("#project-grid");
       const awardRoot = document.querySelector("#award-list");
       const activityRoot = document.querySelector("#activity-list");
       const awardMoreButton = document.querySelector("#award-more-button");
+      const projectsCountEl = document.querySelector("#projects-count");
+      const activitiesCountEl = document.querySelector("#activities-count");
       const modal = document.querySelector("#detail-modal");
+      const modalPanel = document.querySelector(".modal-panel");
       const modalTitle = document.querySelector("#modal-title");
       const modalKicker = document.querySelector("#modal-kicker");
       const modalMeta = document.querySelector("#modal-meta");
       const modalBody = document.querySelector("#modal-body");
+      const projectView = document.querySelector("#project-view");
+      const footerSync = document.querySelector("#footer-sync");
 
       function escapeHtml(value) {
         return String(value ?? "").replace(
           /[&<>"']/g,
           (char) =>
-            ({
-              "&": "&amp;",
-              "<": "&lt;",
-              ">": "&gt;",
-              '"': "&quot;",
-              "'": "&#39;",
-            })[char],
+            ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char],
         );
       }
 
@@ -1361,14 +1993,12 @@
         return String(name || fallback).match(/\b(19|20)\d{2}\b/)?.[0] || "";
       }
 
-      function cleanAwardName(name, year) {
-        return String(name || "")
-          .replace(/^(19|20)\d{2}\s*/, "")
-          .trim();
+      function cleanAwardName(name) {
+        return String(name || "").replace(/^(19|20)\d{2}\s*/, "").trim();
       }
 
       function priorityGroupLabel(priority) {
-        if (priority === 0) return "Most Prominent Awards";
+        if (priority === 0) return "Most Prominent";
         if (priority === 1) return "Major Awards";
         if (priority === 2) return "Selected Awards";
         return "All Competitions";
@@ -1377,90 +2007,130 @@
       function rankInfo(result = "") {
         const text = String(result);
         const lower = text.toLowerCase();
-        if (
-          lower.includes("gold") ||
-          text.includes("금") ||
-          text.includes("🥇")
-        )
-          return { key: "gold", label: "Gold", short: "Gold", weight: 1 };
-        if (
-          lower.includes("silver") ||
-          text.includes("은") ||
-          text.includes("🥈")
-        )
-          return { key: "silver", label: "Silver", short: "Silver", weight: 2 };
-        if (
-          lower.includes("bronze") ||
-          text.includes("동") ||
-          text.includes("🥉")
-        )
-          return { key: "bronze", label: "Bronze", short: "Bronze", weight: 3 };
-        if (
-          lower.includes("encouragement") ||
-          text.includes("장려") ||
-          text.includes("🏅")
-        )
-          return {
-            key: "encouragement",
-            label: "Encouragement",
-            short: "Enc.",
-            weight: 4,
-          };
+        if (lower.includes("gold") || text.includes("금") || text.includes("🥇"))
+          return { key: "gold", label: "Gold", short: "GLD", weight: 1 };
+        if (lower.includes("silver") || text.includes("은") || text.includes("🥈"))
+          return { key: "silver", label: "Silver", short: "SLV", weight: 2 };
+        if (lower.includes("bronze") || text.includes("동") || text.includes("🥉"))
+          return { key: "bronze", label: "Bronze", short: "BRZ", weight: 3 };
+        if (lower.includes("encouragement") || text.includes("장려") || text.includes("🏅"))
+          return { key: "encouragement", label: "Encouragement", short: "ENC", weight: 4 };
         if (lower.includes("none") || text.includes("❌"))
-          return {
-            key: "none",
-            label: "Participated",
-            short: "Join",
-            weight: 8,
-          };
-        return { key: "special", label: "Award", short: "Award", weight: 0 };
-      }
-
-      function tagClass(tag) {
-        const lower = String(tag).toLowerCase();
-        if (
-          lower.includes("gold") ||
-          lower.includes("silver") ||
-          lower.includes("bronze")
-        )
-          return "win";
-        if (lower.includes("robot")) return "robotics";
-        return "";
+          return { key: "none", label: "Participated", short: "—", weight: 8 };
+        return { key: "special", label: "Award", short: "★", weight: 0 };
       }
 
       function itemKey(item, fallbackIndex) {
         return `${item.type || "item"}:${item.id || item.name || fallbackIndex}`;
       }
 
-      function normalizeCompetition(item) {
-        const inferredRank = rankInfo(item.result);
-        const rank = item.rank
-          ? {
-              key: item.rank,
-              label: item.rankLabel || inferredRank.label || item.rank,
-              short: inferredRank.short || item.rankLabel || item.rank,
-            }
-          : inferredRank;
-        return {
-          ...item,
-          rank: rank.key,
-          rankLabel: item.rankLabel || rank.label,
-          rankShort: rank.short || rank.label,
-          isAward:
-            typeof item.isAward === "boolean"
-              ? item.isAward
-              : rank.key !== "none",
-          year: item.year || yearFromName(item.name),
-          host: Array.isArray(item.host)
-            ? item.host
-            : String(item.host || "")
-                .split(",")
-                .map((value) => value.trim())
-                .filter(Boolean),
-          priority: Number.isFinite(Number(item.priority))
-            ? Number(item.priority)
-            : 99,
+      function slugify(name) {
+        return String(name || "")
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9가-힣]+/g, "-")
+          .replace(/^-+|-+$/g, "") || "project";
+      }
+
+      function buildProjectSlugs(projects) {
+        const used = new Map();
+        const slugToProject = new Map();
+        const projectToSlug = new Map();
+        projects.forEach((project) => {
+          const base = slugify(project.name || project.id);
+          const count = used.get(base) || 0;
+          used.set(base, count + 1);
+          const slug = count === 0 ? base : `${base}-${count + 1}`;
+          slugToProject.set(slug, project);
+          projectToSlug.set(project, slug);
+        });
+        return { slugToProject, projectToSlug };
+      }
+
+      function hashSeed(text) {
+        let h = 2166136261;
+        for (let i = 0; i < text.length; i++) {
+          h ^= text.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return h >>> 0;
+      }
+
+      function mulberry32(seed) {
+        let t = seed;
+        return function () {
+          t |= 0;
+          t = (t + 0x6d2b79f5) | 0;
+          let r = Math.imul(t ^ (t >>> 15), 1 | t);
+          r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+          return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
         };
+      }
+
+      function pictogramSvg(seed, variant, dotRadius = 3) {
+        const rand = mulberry32(seed);
+        const pick = variant ?? Math.floor(rand() * 4);
+        const S = 200;
+        const stroke = 'stroke="currentColor" stroke-width="1.1" fill="none" vector-effect="non-scaling-stroke"';
+        let inner = "";
+        if (pick === 0) {
+          const cols = 5,
+            rows = 4;
+          const nodes = [];
+          for (let x = 0; x < cols; x++) {
+            for (let y = 0; y < rows; y++) {
+              if (rand() > 0.4) nodes.push([16 + x * 42, 30 + y * 42]);
+            }
+          }
+          let lines = "";
+          for (let i = 0; i < nodes.length; i++) {
+            for (let j = i + 1; j < nodes.length; j++) {
+              const [x1, y1] = nodes[i];
+              const [x2, y2] = nodes[j];
+              if (Math.hypot(x1 - x2, y1 - y2) < 60 && rand() > 0.55) {
+                lines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" ${stroke} stroke-opacity="0.5" />`;
+              }
+            }
+          }
+          const dots = nodes
+            .map(([x, y]) => `<circle cx="${x}" cy="${y}" r="${dotRadius}" fill="currentColor" />`)
+            .join("");
+          inner = lines + dots;
+        } else if (pick === 1) {
+          let rows = "";
+          for (let r = 0; r < 6; r++) {
+            const y = 24 + r * 26;
+            let x = 20;
+            while (x < S - 20) {
+              const w = 8 + rand() * 40;
+              if (rand() > 0.42) {
+                rows += `<rect x="${x}" y="${y}" width="${w}" height="7" fill="currentColor" fill-opacity="${0.25 + rand() * 0.5}" />`;
+              }
+              x += w + 8;
+            }
+          }
+          inner = rows;
+        } else if (pick === 2) {
+          let arcs = "";
+          for (let i = 0; i < 5; i++) {
+            const r = 14 + i * 18;
+            arcs += `<circle cx="${100 + (rand() - 0.5) * 20}" cy="${100 + (rand() - 0.5) * 20}" r="${r}" ${stroke} stroke-opacity="${0.85 - i * 0.13}" />`;
+          }
+          inner = arcs;
+        } else {
+          let chevrons = "";
+          for (let row = 0; row < 5; row++) {
+            const y = 20 + row * 34;
+            for (let col = 0; col < 6; col++) {
+              const x = 14 + col * 30;
+              if (rand() > 0.3) {
+                chevrons += `<path d="M${x} ${y + 10} l7 -10 l7 10" ${stroke} stroke-opacity="${0.4 + rand() * 0.5}" />`;
+              }
+            }
+          }
+          inner = chevrons;
+        }
+        return `<svg viewBox="0 0 ${S} ${S}" preserveAspectRatio="xMidYMid slice" role="presentation">${inner}</svg>`;
       }
 
       function registerItem(item, index) {
@@ -1471,60 +2141,65 @@
 
       function renderPortfolio(data) {
         state.items.clear();
+        const { slugToProject, projectToSlug } = buildProjectSlugs(data.projects || []);
+        state.slugToProject = slugToProject;
+        state.projectToSlug = projectToSlug;
         const competitions = (data.competitions || [])
-          .map(normalizeCompetition)
+          .map((item) => {
+            const inferredRank = rankInfo(item.result);
+            const rank = item.rank
+              ? { key: item.rank, label: item.rankLabel || inferredRank.label, short: inferredRank.short }
+              : inferredRank;
+            return {
+              ...item,
+              rank: rank.key,
+              rankLabel: item.rankLabel || rank.label,
+              rankShort: rank.short || rank.label,
+              isAward: typeof item.isAward === "boolean" ? item.isAward : rank.key !== "none",
+              year: item.year || yearFromName(item.name),
+              host: Array.isArray(item.host)
+                ? item.host
+                : String(item.host || "").split(",").map((v) => v.trim()).filter(Boolean),
+              priority: Number.isFinite(Number(item.priority)) ? Number(item.priority) : 99,
+            };
+          })
           .sort(
             (a, b) =>
               a.priority - b.priority ||
               rankInfo(a.result).weight - rankInfo(b.result).weight ||
               Number(b.year || 0) - Number(a.year || 0),
           );
-        const priorityCompetitions = competitions.filter(
-          (item) => item.priority < 99,
-        );
+
+        const priorityCompetitions = competitions.filter((item) => item.priority < 99);
         const initialCompetitions = priorityCompetitions.length
           ? priorityCompetitions
           : competitions.filter((item) => item.isAward);
-        const visibleCompetitions = state.showAllCompetitions
-          ? competitions
-          : initialCompetitions;
+        const visibleCompetitions = state.showAllCompetitions ? competitions : initialCompetitions;
 
-        const stats = [
-          [String(data.projects?.length || 0), "Visible Projects"],
-          [
-            String(data.counts?.competitions ?? competitions.length),
-            "Competitions",
-          ],
-          [String(data.activities?.length || 0), "Visible Activities"],
-          [String(initialCompetitions.length), "Featured Awards"],
-        ];
-
-        statsRoot.innerHTML = stats
-          .map(
-            ([value, label]) => `
-        <div class="stat">
-          <strong>${escapeHtml(value)}</strong>
-          <span>${escapeHtml(label)}</span>
-        </div>
-      `,
-          )
-          .join("");
+        if (projectsCountEl) projectsCountEl.textContent = String((data.projects || []).length).padStart(2, "0");
+        if (activitiesCountEl)
+          activitiesCountEl.textContent = String((data.activities || []).length).padStart(2, "0");
 
         projectRoot.innerHTML = (data.projects || [])
           .map((project, index) => {
             const key = registerItem({ ...project, type: "project" }, index);
+            const slug = projectToSlug.get(project);
+            const seed = hashSeed(String(project.id || project.name));
+            const tile = project.cover
+              ? `<img src="${escapeHtml(project.cover)}" alt="" loading="lazy" />`
+              : pictogramSvg(seed);
             return `
-          <article class="project-card" role="button" tabindex="0" data-detail-key="${escapeHtml(key)}">
-            <div>
-              <div class="project-top">
+          <article class="project-card" role="button" tabindex="0" data-detail-key="${escapeHtml(key)}" data-project-slug="${escapeHtml(slug)}">
+            <div class="project-tile">${tile}</div>
+            <div class="project-body">
+              <div class="project-top-row">
                 <h3 class="project-name">${escapeHtml(project.name)}</h3>
-                <span class="project-index">${String(index + 1).padStart(2, "0")}</span>
+                <span class="project-idx">${String(index + 1).padStart(2, "0")}</span>
               </div>
-              <p class="project-desc">${escapeHtml(project.desc || "프로젝트 상세를 준비 중입니다.")}</p>
-              ${project.english ? `<p class="project-desc">${escapeHtml(project.english)}</p>` : ""}
-            </div>
-            <div class="project-meta">
-              ${(project.tags || []).map((tag) => `<span class="pill ${tagClass(tag)}">${escapeHtml(tag)}</span>`).join("")}
+              <p class="project-desc">${escapeHtml(project.desc || project.english || "Case study in progress.")}</p>
+              <div class="project-tags">
+                ${(project.tags || []).map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`).join("")}
+              </div>
             </div>
           </article>
         `;
@@ -1532,61 +2207,48 @@
           .join("");
 
         let awardIndex = 0;
-        const competitionsByPriority = visibleCompetitions.reduce(
-          (groups, competition) => {
-            const groupKey = competition.priority < 99 ? competition.priority : 99;
-            if (!groups.has(groupKey)) groups.set(groupKey, []);
-            groups.get(groupKey).push(competition);
-            return groups;
-          },
-          new Map(),
-        );
+        const competitionsByPriority = visibleCompetitions.reduce((groups, competition) => {
+          const groupKey = competition.priority < 99 ? competition.priority : 99;
+          if (!groups.has(groupKey)) groups.set(groupKey, []);
+          groups.get(groupKey).push(competition);
+          return groups;
+        }, new Map());
 
         awardRoot.innerHTML = [...competitionsByPriority.entries()]
           .map(
-            ([priority, competitionsInGroup]) => `
-        <div class="award-priority-group">
-          <div class="award-priority-label">${escapeHtml(priorityGroupLabel(priority))}</div>
-          ${competitionsInGroup
+            ([priority, group]) => `
+        <div>
+          <div class="group-label mono">${escapeHtml(priorityGroupLabel(priority))}</div>
+          <div class="ledger-group-rows">
+          ${group
             .map((competition) => {
-              const key = registerItem(
-                { ...competition, type: "competition" },
-                awardIndex++,
-              );
-              const cleanName = cleanAwardName(competition.name, competition.year);
-              const resultText = [competition.result || competition.rankLabel, competition.year]
-                .filter(Boolean)
-                .join(" · ");
-              const meta = [...(competition.host || [])].filter(Boolean);
+              const key = registerItem({ ...competition, type: "competition" }, awardIndex++);
+              const cleanName = cleanAwardName(competition.name) || competition.name;
+              const meta = [competition.year, ...(competition.host || [])].filter(Boolean).join(" · ");
               return `
-              <article class="award-card ${competition.rank}" role="button" tabindex="0" data-detail-key="${escapeHtml(key)}">
-                <div class="award-detail">
-                  <h3>${escapeHtml(cleanName || competition.name)}</h3>
-                  <p>${escapeHtml(resultText)}</p>
+              <article class="ledger-row" role="button" tabindex="0" data-detail-key="${escapeHtml(key)}">
+                <div class="ledger-main">
+                  <h3>${escapeHtml(cleanName)}</h3>
+                  <p>${escapeHtml(meta)}</p>
                 </div>
-                <div class="award-meta-line">
-                  ${meta.map((tag) => `<span class="pill ${competition.isAward ? "win" : ""}">${escapeHtml(tag)}</span>`).join("")}
+                <div class="ledger-meta">
+                  <span class="rank-glyph mono rank-${escapeHtml(competition.rank)}">${escapeHtml(competition.rankShort || competition.rankLabel)}</span>
                 </div>
               </article>
             `;
             })
             .join("")}
+          </div>
         </div>
       `,
           )
           .join("");
 
-        awardMoreButton.hidden =
-          competitions.length <= initialCompetitions.length;
-        awardMoreButton.textContent = state.showAllCompetitions
-          ? "Show Featured"
-          : `View All ${competitions.length}`;
+        awardMoreButton.hidden = competitions.length <= initialCompetitions.length;
+        awardMoreButton.textContent = state.showAllCompetitions ? "Show Featured" : `View All ${competitions.length}`;
 
         const activitiesByYear = (data.activities || [])
-          .map((activity) => ({
-            ...activity,
-            year: activity.year || yearFromName(activity.name) || "Other",
-          }))
+          .map((activity) => ({ ...activity, year: activity.year || yearFromName(activity.name) || "Other" }))
           .sort((a, b) => Number(b.year || 0) - Number(a.year || 0))
           .reduce((groups, activity) => {
             if (!groups.has(activity.year)) groups.set(activity.year, []);
@@ -1598,31 +2260,34 @@
         activityRoot.innerHTML = [...activitiesByYear.entries()]
           .map(
             ([year, activities]) => `
-        <div class="activity-year-group">
-          <div class="activity-year-label">${escapeHtml(year)}</div>
+        <div>
+          <div class="group-label mono">${escapeHtml(year)}</div>
+          <div class="ledger-group-rows">
           ${activities
             .map((activity) => {
-              const key = registerItem(
-                { ...activity, type: "activity" },
-                activityIndex++,
-              );
+              const key = registerItem({ ...activity, type: "activity" }, activityIndex++);
               return `
-              <article class="activity-row" role="button" tabindex="0" data-detail-key="${escapeHtml(key)}">
-                <div>
+              <article class="ledger-row" role="button" tabindex="0" data-detail-key="${escapeHtml(key)}">
+                <div class="ledger-main">
                   <h3>${escapeHtml(activity.name)}</h3>
-                  <p>${escapeHtml(activity.progress || "Activity")}</p>
-                </div>
-                <div class="tag-list">
-                  ${(activity.tags || []).map((tag) => `<span class="pill">${escapeHtml(tag)}</span>`).join("")}
+                  <p>${escapeHtml((activity.tags || []).join(", ") || "Activity")}</p>
                 </div>
               </article>
             `;
             })
             .join("")}
+          </div>
         </div>
       `,
           )
           .join("");
+
+        if (footerSync && data.syncedAt) {
+          const date = new Date(data.syncedAt);
+          if (!Number.isNaN(date.getTime())) {
+            footerSync.textContent = `Synced ${date.toISOString().slice(0, 10)}`;
+          }
+        }
       }
 
       function modalFields(item) {
@@ -1633,13 +2298,6 @@
             ["Year", item.year],
           ];
         }
-        if (item.type === "project") {
-          return [
-            ["Korean", item.desc],
-            ["English", item.english],
-            ["Tags", (item.tags || []).join(", ")],
-          ];
-        }
         return [
           ["Year", item.year],
           ["Tags", (item.tags || []).join(", ")],
@@ -1647,54 +2305,46 @@
       }
 
       function openModal(item) {
+        state.modalTriggerEl = document.activeElement;
+        const requestId = ++state.modalRequestId;
         modalKicker.textContent = item.type || "Detail";
         modalTitle.textContent = item.name || "Untitled";
-        modalMeta.innerHTML = [
-          item.year,
-          item.rankLabel,
-          item.notionUrl ? "Notion" : "",
-        ]
+        modalMeta.innerHTML = [item.year, item.rankLabel]
           .filter(Boolean)
-          .map((tag) => `<span class="pill">${escapeHtml(tag)}</span>`)
+          .map((tag) => `<span class="tag">${escapeHtml(tag)}</span>`)
           .join("");
 
         const fields = modalFields(item).filter(
-          ([, value]) =>
-            value !== undefined && value !== null && String(value).trim(),
+          ([, value]) => value !== undefined && value !== null && String(value).trim(),
         );
         modalBody.innerHTML = fields.length
-          ? fields
-              .map(
-                ([label, value]) =>
-                  `<p><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</p>`,
-              )
-              .join("")
+          ? fields.map(([label, value]) => `<p><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</p>`).join("")
           : "<p>상세 내용이 아직 정리되지 않았습니다.</p>";
 
         if (item.notionUrl) {
           modalBody.insertAdjacentHTML(
             "beforeend",
-            `<p><a class="button" href="${escapeHtml(item.notionUrl)}" target="_blank" rel="noreferrer">Open Notion</a></p>`,
+            `<p><a class="pv-btn is-quiet" href="${escapeHtml(item.notionUrl)}" target="_blank" rel="noreferrer">Open in Notion →</a></p>`,
           );
         }
 
         modal.setAttribute("aria-hidden", "false");
         document.body.style.overflow = "hidden";
-        loadPageBlocks(item);
+        modalPanel.focus();
+        loadPageBlocks(item, requestId);
       }
 
-      async function loadPageBlocks(item) {
+      async function loadPageBlocks(item, requestId) {
         if (!item.id) return;
         try {
-          const response = await fetch(
-            `/api/notion?page=${encodeURIComponent(item.id)}`,
-          );
+          const response = await fetch(`/api/notion?page=${encodeURIComponent(item.id)}`);
           if (!response.ok) return;
           const data = await response.json();
+          if (requestId !== state.modalRequestId) return;
           const blocks = (data.blocks || []).filter((block) => block.text);
           if (!blocks.length) return;
           modalBody.insertAdjacentHTML(
-            "beforeend",
+            "afterbegin",
             blocks.map((block) => `<p>${escapeHtml(block.text)}</p>`).join(""),
           );
         } catch (error) {
@@ -1705,45 +2355,252 @@
       function closeModal() {
         modal.setAttribute("aria-hidden", "true");
         document.body.style.overflow = "";
+        if (state.modalTriggerEl && document.contains(state.modalTriggerEl)) {
+          state.modalTriggerEl.focus();
+        }
+        state.modalTriggerEl = null;
       }
+
+      /* ---------- Project detail view ---------- */
+
+      function renderProjectDetail(project, index, total) {
+        const seed = hashSeed(String(project.id || project.name));
+        const media = project.cover
+          ? `<img src="${escapeHtml(project.cover)}" alt="" />`
+          : pictogramSvg(seed, undefined, 0.9);
+
+        const hasStory = Boolean(project.desc || project.english);
+        const awards = project.awards || [];
+        const tags = project.tags || [];
+
+        const storySection = hasStory
+          ? `
+          <section class="pv-section">
+            <div class="wrap">
+              <p class="pv-eyebrow2 mono">The idea</p>
+              ${project.desc ? `<p class="pv-statement">${escapeHtml(project.desc)}</p>` : ""}
+              ${project.english ? `<p class="pv-substatement">${escapeHtml(project.english)}</p>` : ""}
+            </div>
+          </section>`
+          : `
+          <section class="pv-section">
+            <div class="wrap">
+              <p class="pv-eyebrow2 mono">The idea</p>
+              <p class="pv-empty-note">Full write-up is still being put together — the source material lives in Notion for now.</p>
+            </div>
+          </section>`;
+
+        const recognitionSection = awards.length
+          ? `
+          <section class="pv-section is-raised" id="pv-recognition">
+            <div class="wrap">
+              <p class="pv-eyebrow2 mono">Recognition</p>
+              <div class="pv-stat-row">
+                <div>
+                  <div class="pv-stat-num">${awards.length}</div>
+                  <div class="pv-stat-label">Competition${awards.length === 1 ? "" : "s"} placed</div>
+                </div>
+              </div>
+              <div class="pv-award-list">
+                ${awards
+                  .map(
+                    (award) => `
+                  <div class="pv-award-row">
+                    <span class="pv-award-name">${escapeHtml(cleanAwardName(award.name) || award.name)}</span>
+                    <span class="pv-award-meta mono">${escapeHtml([award.rankLabel, award.year].filter(Boolean).join(" · "))}</span>
+                  </div>
+                `,
+                  )
+                  .join("")}
+              </div>
+            </div>
+          </section>`
+          : "";
+
+        const tagsSection = tags.length
+          ? `
+          <section class="pv-section">
+            <div class="wrap">
+              <p class="pv-eyebrow2 mono">Domain</p>
+              <div class="pv-tag-row">
+                ${tags.map((tag) => `<span class="tag tag-accent">${escapeHtml(tag)}</span>`).join("")}
+              </div>
+            </div>
+          </section>`
+          : "";
+
+        const ctaSection = `
+          <section class="pv-section is-inverted">
+            <div class="wrap">
+              <p class="pv-eyebrow2 mono">Project ${String(index + 1).padStart(2, "0")} of ${String(total).padStart(2, "0")}</p>
+              <p class="pv-statement">Want the full picture?</p>
+              <div class="pv-footer-cta">
+                ${project.notionUrl ? `<a class="pv-btn" href="${escapeHtml(project.notionUrl)}" target="_blank" rel="noreferrer">View source in Notion ↗</a>` : ""}
+                <a class="pv-btn is-quiet" href="/" data-nav-home>← Back to all projects</a>
+              </div>
+            </div>
+          </section>`;
+
+        projectView.innerHTML = `
+          <div class="pv-hero">
+            <div class="pv-hero-media">${media}</div>
+            <div class="pv-hero-scrim"></div>
+            <div class="pv-hero-inner wrap">
+              <p class="pv-eyebrow">PROJECT — ${String(index + 1).padStart(2, "0")}</p>
+              <h1 class="pv-title">${escapeHtml(project.name)}</h1>
+              ${project.english ? `<p class="pv-tagline">${escapeHtml(project.english)}</p>` : ""}
+            </div>
+          </div>
+          <div class="pv-subnav wrap" id="pv-subnav">
+            <span class="pv-subnav-name">${escapeHtml(project.name)}</span>
+            <div class="pv-subnav-tabs mono">
+              ${awards.length ? `<a href="#pv-recognition">Recognition</a>` : ""}
+            </div>
+            <a class="pv-subnav-cta" href="/" data-nav-home>← Portfolio</a>
+          </div>
+          ${storySection}
+          ${recognitionSection}
+          ${tagsSection}
+          ${ctaSection}
+        `;
+
+        const subnav = projectView.querySelector("#pv-subnav");
+        if (subnav && "IntersectionObserver" in window) {
+          const sentinel = document.createElement("div");
+          sentinel.style.position = "absolute";
+          sentinel.style.top = "0";
+          sentinel.style.height = "1px";
+          sentinel.style.width = "1px";
+          projectView.querySelector(".pv-hero").style.position = "relative";
+          projectView.querySelector(".pv-hero").appendChild(sentinel);
+          new IntersectionObserver(
+            ([entry]) => subnav.classList.toggle("is-stuck", !entry.isIntersecting),
+            { rootMargin: `-${document.querySelector(".site-header").offsetHeight + 56}px 0px 0px 0px` },
+          ).observe(sentinel);
+        }
+      }
+
+      /* ---------- Router ---------- */
+
+      function currentSlugFromPath() {
+        const match = location.pathname.match(/^\/project\/([^/]+)\/?$/);
+        return match ? decodeURIComponent(match[1]) : null;
+      }
+
+      function showHomeView({ correctUrl = false } = {}) {
+        document.body.classList.remove("is-project-view");
+        state.route = { view: "home", slug: null };
+        document.title = "Hayward Kim — Robotics & AI";
+        if (correctUrl && location.pathname !== "/") {
+          history.replaceState({}, "", "/");
+        }
+      }
+
+      function showProjectView(slug) {
+        const projects = state.data.projects || [];
+        const project = state.slugToProject.get(slug);
+        const index = project ? projects.indexOf(project) : -1;
+        if (!project || index < 0) {
+          showHomeView({ correctUrl: true });
+          return;
+        }
+        document.body.classList.add("is-project-view");
+        state.route = { view: "project", slug };
+        document.title = `${project.name} — Hayward Kim`;
+        renderProjectDetail(project, index, projects.length);
+        window.scrollTo(0, 0);
+      }
+
+      function renderRoute() {
+        const slug = currentSlugFromPath();
+        if (slug) {
+          showProjectView(slug);
+        } else {
+          showHomeView();
+        }
+      }
+
+      function navigateTo(path) {
+        if (location.pathname === path) return;
+        if (state.route.view === "home") {
+          state.lastHomeScroll = window.scrollY;
+        }
+        history.pushState({}, "", path);
+        renderRoute();
+        if (path === "/") {
+          window.scrollTo(0, state.lastHomeScroll || 0);
+        }
+      }
+
+      window.addEventListener("popstate", () => renderRoute());
+
+      /* ---------- Live data ---------- */
 
       async function loadLiveData() {
         try {
-          const response = await fetch("/api/notion", {
-            headers: { Accept: "application/json" },
-          });
+          const response = await fetch("/api/notion", { headers: { Accept: "application/json" } });
           if (!response.ok) throw new Error(`API ${response.status}`);
-        const data = await response.json();
-        state.data = data;
-        renderPortfolio(data);
-      } catch (error) {
-        console.warn(error);
-      }
+          const data = await response.json();
+          state.data = data;
+          renderPortfolio(data);
+          if (state.route.view === "project" && state.route.slug) {
+            showProjectView(state.route.slug);
+          }
+        } catch (error) {
+          console.warn(error);
+        }
       }
 
+      /* ---------- Events ---------- */
+
       document.addEventListener("click", (event) => {
+        const homeLink = event.target.closest("[data-nav-home]");
+        if (homeLink) {
+          event.preventDefault();
+          navigateTo("/");
+          return;
+        }
+
+        const brand = event.target.closest("#brand-link");
+        if (brand) {
+          event.preventDefault();
+          navigateTo("/");
+          return;
+        }
+
         const closeTarget = event.target.closest("[data-close-modal]");
         if (closeTarget) {
           closeModal();
           return;
         }
 
+        const projectCard = event.target.closest("[data-project-slug]");
+        if (projectCard) {
+          event.preventDefault();
+          navigateTo(`/project/${projectCard.dataset.projectSlug}`);
+          return;
+        }
+
         const card = event.target.closest("[data-detail-key]");
-        if (!card) return;
-        const item = state.items.get(card.dataset.detailKey);
-        if (item) openModal(item);
+        if (card) {
+          const item = state.items.get(card.dataset.detailKey);
+          if (item) openModal(item);
+        }
       });
 
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape") closeModal();
-        if (
-          (event.key === "Enter" || event.key === " ") &&
-          document.activeElement?.matches("[data-detail-key]")
-        ) {
+        if (event.key !== "Enter" && event.key !== " ") return;
+
+        const active = document.activeElement;
+        if (active?.matches("[data-project-slug]")) {
           event.preventDefault();
-          const item = state.items.get(
-            document.activeElement.dataset.detailKey,
-          );
+          navigateTo(`/project/${active.dataset.projectSlug}`);
+          return;
+        }
+        if (active?.matches("[data-detail-key]")) {
+          event.preventDefault();
+          const item = state.items.get(active.dataset.detailKey);
           if (item) openModal(item);
         }
       });
@@ -1753,20 +2610,129 @@
         renderPortfolio(state.data);
       });
 
-      const sectionObserver = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            entry.target.classList.toggle("is-visible", entry.isIntersecting);
-          });
-        },
-        { threshold: 0.28 },
-      );
+      const themeToggle = document.querySelector("#theme-toggle");
+      const themeColorMeta = document.querySelector("#theme-color-meta");
+      const rootEl = document.documentElement;
 
-      document
-        .querySelectorAll(".section-inner")
-        .forEach((section) => sectionObserver.observe(section));
+      function resolvedTheme() {
+        const explicit = rootEl.getAttribute("data-theme");
+        if (explicit === "light" || explicit === "dark") return explicit;
+        return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+
+      function applyThemeColorMeta(theme) {
+        themeColorMeta.setAttribute("content", theme === "dark" ? "#0a0a0a" : "#ffffff");
+      }
+
+      applyThemeColorMeta(resolvedTheme());
+
+      themeToggle.addEventListener("click", () => {
+        const next = resolvedTheme() === "light" ? "dark" : "light";
+        rootEl.setAttribute("data-theme", next);
+        applyThemeColorMeta(next);
+        try {
+          localStorage.setItem("theme", next);
+        } catch (error) {}
+      });
+
+      /* ---------- Scroll reveal + scrollspy + progress ---------- */
+
+      if ("IntersectionObserver" in window) {
+        const sectionObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              entry.target.classList.toggle("is-visible", entry.isIntersecting);
+            });
+          },
+          { threshold: 0.2 },
+        );
+        document.querySelectorAll(".section-inner").forEach((section) => sectionObserver.observe(section));
+      } else {
+        document.querySelectorAll(".section-inner").forEach((section) => section.classList.add("is-visible"));
+      }
+
+      const SECTION_INDEX = [
+        { id: "about", idx: "01", label: "About" },
+        { id: "projects", idx: "02", label: "Projects" },
+        { id: "awards", idx: "03", label: "Awards" },
+        { id: "activities", idx: "04", label: "Activities" },
+        { id: "contact", idx: "05", label: "Contact" },
+      ];
+
+      const navLinks = [...document.querySelectorAll(".nav-links a")];
+      const mobileIdx = document.querySelector("#mobile-readout-idx");
+      const mobileLabel = document.querySelector("#mobile-readout-label");
+
+      function setActiveSection(entry) {
+        const meta = SECTION_INDEX.find((s) => s.id === entry.id);
+        if (!meta) return;
+        navLinks.forEach((link) => link.classList.remove("is-active"));
+        const link = navLinks.find((item) => item.getAttribute("href") === `#${meta.id}`);
+        if (link) link.classList.add("is-active");
+        if (mobileIdx) mobileIdx.textContent = meta.idx;
+        if (mobileLabel) mobileLabel.textContent = meta.label;
+      }
+
+      if ("IntersectionObserver" in window) {
+        const navObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) setActiveSection(entry.target);
+            });
+          },
+          { rootMargin: "-45% 0px -50% 0px" },
+        );
+        SECTION_INDEX.forEach((meta) => {
+          const el = document.getElementById(meta.id);
+          if (el) navObserver.observe(el);
+        });
+      }
+
+      const scrollProgressEl = document.querySelector("#scroll-progress");
+      function updateScrollProgress() {
+        if (!scrollProgressEl || document.body.classList.contains("is-project-view")) {
+          if (scrollProgressEl) scrollProgressEl.style.width = "0%";
+          return;
+        }
+        const height = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = height > 0 ? Math.min(100, Math.max(0, (window.scrollY / height) * 100)) : 0;
+        scrollProgressEl.style.width = `${pct}%`;
+      }
+      window.addEventListener("scroll", updateScrollProgress, { passive: true });
+      window.addEventListener("resize", updateScrollProgress);
+
+      /* ---------- Hero diagram ---------- */
+
+      (function renderHeroDiagram() {
+        const host = document.querySelector("#hero-diagram");
+        if (!host) return;
+        const rand = mulberry32(hashSeed("hayward-hero"));
+        const nodes = [];
+        const cols = 5,
+          rows = 5;
+        for (let x = 0; x < cols; x++) {
+          for (let y = 0; y < rows; y++) {
+            if (rand() > 0.35) nodes.push([20 + x * 40, 20 + y * 40]);
+          }
+        }
+        let lines = "";
+        for (let i = 0; i < nodes.length; i++) {
+          for (let j = i + 1; j < nodes.length; j++) {
+            const [x1, y1] = nodes[i];
+            const [x2, y2] = nodes[j];
+            if (Math.hypot(x1 - x2, y1 - y2) < 58 && rand() > 0.5) {
+              lines += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="currentColor" stroke-width="1" stroke-opacity="0.35" />`;
+            }
+          }
+        }
+        const dots = nodes
+          .map(([x, y], i) => `<circle class="node" style="animation-delay:${(i % 6) * 0.3}s" cx="${x}" cy="${y}" r="2.6" fill="currentColor" />`)
+          .join("");
+        host.innerHTML = `<svg viewBox="0 0 220 220">${lines}${dots}</svg>`;
+      })();
 
       renderPortfolio(fallbackData);
+      renderRoute();
       loadLiveData();
     </script>
   </body>

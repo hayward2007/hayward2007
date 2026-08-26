@@ -39,7 +39,7 @@ export function ActivitiesExplorer({
           <button
             type="button"
             onClick={() => setFilter(null)}
-            className="rounded-full border px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.05em] transition-colors duration-150"
+            className="type-nav rounded-md border px-3 py-1.5 text-[11px] transition-colors duration-150"
             style={{
               borderColor: "var(--line-strong)",
               background: filter === null ? "var(--fg)" : "transparent",
@@ -53,7 +53,7 @@ export function ActivitiesExplorer({
               key={tag}
               type="button"
               onClick={() => setFilter(tag)}
-              className="rounded-full border px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.05em] transition-colors duration-150"
+              className="type-nav rounded-md border px-3 py-1.5 text-[11px] transition-colors duration-150"
               style={{
                 borderColor: "var(--line-strong)",
                 background: filter === tag ? "var(--fg)" : "transparent",

@@ -127,7 +127,7 @@ export function SignalCatch() {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border" style={{ borderColor: "var(--line)" }}>
+      <div className="relative w-full max-w-xl overflow-hidden rounded-lg border" style={{ borderColor: "var(--line)" }}>
         <canvas ref={canvasRef} width={WIDTH} height={HEIGHT} className="block w-full cursor-none" />
         {!started && (
           <button
@@ -151,7 +151,7 @@ export function SignalCatch() {
           </button>
         )}
       </div>
-      <div className="flex gap-8 font-mono text-sm">
+      <div className="type-index flex gap-8 text-base">
         <span>SCORE {score}</span>
         <span>LIVES {lives}</span>
         <span style={{ color: "var(--fg-3)" }}>BEST {best}</span>

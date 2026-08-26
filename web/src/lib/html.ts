@@ -1,3 +1,5 @@
+import "server-only";
+
 import DOMPurify from "isomorphic-dompurify";
 
 // Kept intentionally small — this only needs to round-trip what the
@@ -20,4 +22,14 @@ export function sanitizeHtml(value: string | null | undefined): string {
 export function stripHtml(value: string | null | undefined): string {
   const text = DOMPurify.sanitize(value || "", { ALLOWED_TAGS: [] });
   return text.replace(/\s*\n\s*/g, " ").replace(/\s+/g, " ").trim();
+}
+
+export function sanitizeExternalUrl(value: string | null | undefined): string {
+  if (!value) return "";
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:" ? url.toString() : "";
+  } catch {
+    return "";
+  }
 }
