@@ -46,3 +46,9 @@ next-env.d.ts
 /prisma/*.db
 /prisma/*.db-journal
 /data
+
+# Portfolio PDFs/zip are large (one appendix is ~190MB) and would blow past
+# GitHub's 100MB per-file limit — deployed by direct rsync to the server
+# instead of through git. See project memory / deploy notes.
+/public/portfolio/*.pdf
+/public/portfolio/*.zip

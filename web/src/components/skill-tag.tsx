@@ -1,8 +1,9 @@
-import { Box, Gauge, type LucideIcon } from "lucide-react";
+import { Box, FileCode2, Gauge, type LucideIcon } from "lucide-react";
 
 const FALLBACK_ICONS: Record<string, LucideIcon> = {
   "Fusion 360": Box,
   MuJoCo: Gauge,
+  URDF: FileCode2,
 };
 
 // Brand hexes near-black (e.g. Next.js's #000000) would vanish against the

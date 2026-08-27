@@ -21,6 +21,7 @@ export function SiteHeader() {
     { num: "03", label: dict.nav.awards, href: "/awards" },
     { num: "04", label: dict.nav.play, href: "/play" },
     { num: "05", label: dict.nav.contact, href: "/social" },
+    { num: "06", label: dict.nav.resume, href: "/portfolio" },
   ];
 
   useEffect(() => {
