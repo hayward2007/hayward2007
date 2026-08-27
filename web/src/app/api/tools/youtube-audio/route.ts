@@ -26,6 +26,26 @@ const YOUTUBE_HOSTS = new Set([
   "www.youtube-nocookie.com",
 ]);
 
+// Matches Constants.CLIENTS.IOS.USER_AGENT inside youtubei.js (not part of
+// its public exports, so duplicated here rather than deep-importing).
+// info.getBasicInfo({ client: "IOS" }) negotiates and signs the playback URL
+// as if the request came from this exact client — but info.download()'s
+// actual fetch to googlevideo.com goes through Constants.STREAM_HEADERS,
+// which carries no User-Agent at all, so it arrives looking like a plain
+// Node request that doesn't match what the URL was signed for. YouTube's
+// CDN increasingly 403s on that mismatch. youtubei.js has no public option
+// to set headers on that specific fetch, but Innertube.create's `fetch`
+// option *does* wrap every request the client makes (session negotiation
+// and the CDN download alike), so patching the User-Agent in there fixes
+// both without touching library internals.
+const IOS_USER_AGENT = "com.google.ios.youtube/20.11.6 (iPhone10,4; U; CPU iOS 16_7_7 like Mac OS X)";
+
+async function fetchAsIosClient(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  const headers = new Headers(init?.headers);
+  if (!headers.has("user-agent")) headers.set("user-agent", IOS_USER_AGENT);
+  return fetch(input, { ...init, headers });
+}
+
 let youtubeClient: Promise<Innertube> | undefined;
 
 function getYouTubeClient() {
@@ -33,6 +53,7 @@ function getYouTubeClient() {
     generate_session_locally: true,
     enable_session_cache: true,
     retrieve_player: true,
+    fetch: fetchAsIosClient,
   });
   return youtubeClient;
 }
@@ -115,8 +136,29 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("YouTube audio preparation failed.", error);
     youtubeClient = undefined;
+
+    // YouTube 403s the playback URL itself (not the metadata lookup, which
+    // already succeeded above) for videos it protects more aggressively —
+    // in practice, almost always licensed music. There's no header/client
+    // fix for this from a plain server request; going further would mean
+    // solving YouTube's BotGuard/PoToken challenge, which this app doesn't
+    // (and isn't set up to) do. Surface that distinctly so the error
+    // message can point at the working "upload audio" path instead of
+    // implying a transient failure worth retrying.
+    if (isForbiddenStreamError(error)) {
+      return noStoreJson({ error: "audio_protected" }, { status: 422 });
+    }
+
     return noStoreJson({ error: "upstream_failed" }, { status: 502 });
   }
+}
+
+function isForbiddenStreamError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const info = (error as { info?: unknown }).info;
+  if (!info || typeof info !== "object") return false;
+  const response = (info as { response?: unknown }).response;
+  return Boolean(response && typeof response === "object" && (response as { status?: unknown }).status === 403);
 }
 
 function parseYouTubeVideoId(value: string) {

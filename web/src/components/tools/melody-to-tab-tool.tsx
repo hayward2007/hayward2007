@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import {
   AudioLines,
   Clock3,
@@ -24,6 +24,8 @@ import {
   type GuitarTabNote,
 } from "@/lib/guitar-tab";
 import { downloadGuitarTabPdf } from "@/lib/guitar-tab-pdf";
+import { buildSheetMusicMeasures, estimateSecondsPerBeat } from "@/lib/sheet-music";
+import { SheetMusicStaff } from "@/components/tools/sheet-music-staff";
 
 type SourceMode = "youtube" | "file";
 type Stage = "idle" | "fetching" | "decoding" | "model" | "transcribing" | "formatting" | "done";
@@ -37,6 +39,7 @@ type AnalysisResult = {
   sourceDurationSeconds: number;
   notes: GuitarTabNote[];
   segments: GuitarTabSegment[];
+  secondsPerBeat: number;
   fileStem: string;
 };
 
@@ -191,6 +194,7 @@ export function MelodyToTabTool() {
         sourceDurationSeconds: sourceDuration,
         notes,
         segments: createTabSegments(notes),
+        secondsPerBeat: estimateSecondsPerBeat(notes),
         fileStem,
       });
       setProgress(100);
@@ -444,10 +448,11 @@ export function MelodyToTabTool() {
 
             <div className="mt-4 space-y-4">
               {result.segments.map((segment) => (
-                <TabStaff
+                <SegmentCard
                   key={segment.startTimeSeconds}
                   segment={segment}
                   sourceOffsetSeconds={result.sourceOffsetSeconds}
+                  secondsPerBeat={result.secondsPerBeat}
                 />
               ))}
             </div>
@@ -460,8 +465,16 @@ export function MelodyToTabTool() {
   );
 }
 
-function TabStaff({ segment, sourceOffsetSeconds }: { segment: GuitarTabSegment; sourceOffsetSeconds: number }) {
-  const ticks = [0, 2, 4, 6, 8];
+function SegmentCard({
+  segment,
+  sourceOffsetSeconds,
+  secondsPerBeat,
+}: {
+  segment: GuitarTabSegment;
+  sourceOffsetSeconds: number;
+  secondsPerBeat: number;
+}) {
+  const measures = useMemo(() => buildSheetMusicMeasures(segment, secondsPerBeat), [segment, secondsPerBeat]);
 
   return (
     <article className="overflow-hidden rounded-lg border" style={{ borderColor: "var(--line)", background: "var(--bg-raised)" }}>
@@ -471,50 +484,73 @@ function TabStaff({ segment, sourceOffsetSeconds }: { segment: GuitarTabSegment;
         </span>
         <span style={{ color: "var(--fg-3)" }}>{segment.notes.length} notes</span>
       </header>
-      <div className="overflow-x-auto p-4 sm:p-5">
-        <div className="relative min-w-[680px]">
-          <div className="ml-9 flex h-5 items-start justify-between font-mono text-[10px]" style={{ color: "var(--fg-4)" }}>
-            {ticks.map((tick) => <span key={tick}>{tick}s</span>)}
-          </div>
-          <div className="pointer-events-none absolute bottom-1 left-9 right-0 top-5 flex justify-between" aria-hidden="true">
-            {ticks.map((tick) => (
-              <span key={tick} className="h-full border-l" style={{ borderColor: "var(--line)" }} />
-            ))}
-          </div>
-          {GUITAR_STRINGS.map((string) => (
-            <div key={string.number} className="relative flex h-7 items-center">
-              <span className="w-9 shrink-0 font-mono text-xs font-semibold" style={{ color: "var(--fg-3)" }}>
-                {string.label}
-              </span>
-              <div className="relative h-full flex-1">
-                <span className="absolute left-0 right-0 top-1/2 border-t" style={{ borderColor: "var(--line-strong)" }} />
-                {segment.notes
-                  .filter((note) => note.stringNumber === string.number)
-                  .map((note, index) => {
-                    const left = Math.max(
-                      0.8,
-                      Math.min(
-                        98.2,
-                        ((note.startTimeSeconds - segment.startTimeSeconds) / segment.durationSeconds) * 100,
-                      ),
-                    );
-                    return (
-                      <span
-                        key={`${note.startTimeSeconds}-${note.pitchMidi}-${index}`}
-                        className="absolute top-1/2 z-10 min-w-5 -translate-x-1/2 -translate-y-1/2 rounded-[3px] px-1 text-center font-mono text-[11px] font-bold"
-                        style={{ left: `${left}%`, background: "var(--bg-raised)", color: "var(--accent-ai)" }}
-                        title={`${note.noteName}, string ${note.stringNumber}, fret ${note.fret}, ${formatTabTime(sourceOffsetSeconds + note.startTimeSeconds)}`}
-                      >
-                        {note.fret}
-                      </span>
-                    );
-                  })}
-              </div>
-            </div>
-          ))}
+
+      <div className="border-b p-4 sm:p-5" style={{ borderColor: "var(--line)" }}>
+        <span className="type-label" style={{ color: "var(--fg-3)" }}>
+          Sheet music
+        </span>
+        <div className="mt-3 overflow-x-auto">
+          <SheetMusicStaff measures={measures} />
+        </div>
+      </div>
+
+      <div className="p-4 sm:p-5">
+        <span className="type-label" style={{ color: "var(--fg-3)" }}>
+          Tab
+        </span>
+        <div className="mt-3 overflow-x-auto">
+          <TabGrid segment={segment} sourceOffsetSeconds={sourceOffsetSeconds} />
         </div>
       </div>
     </article>
+  );
+}
+
+function TabGrid({ segment, sourceOffsetSeconds }: { segment: GuitarTabSegment; sourceOffsetSeconds: number }) {
+  const ticks = [0, 2, 4, 6, 8];
+
+  return (
+    <div className="relative min-w-[680px]">
+      <div className="ml-9 flex h-5 items-start justify-between font-mono text-[10px]" style={{ color: "var(--fg-4)" }}>
+        {ticks.map((tick) => <span key={tick}>{tick}s</span>)}
+      </div>
+      <div className="pointer-events-none absolute bottom-1 left-9 right-0 top-5 flex justify-between" aria-hidden="true">
+        {ticks.map((tick) => (
+          <span key={tick} className="h-full border-l" style={{ borderColor: "var(--line)" }} />
+        ))}
+      </div>
+      {GUITAR_STRINGS.map((string) => (
+        <div key={string.number} className="relative flex h-7 items-center">
+          <span className="w-9 shrink-0 font-mono text-xs font-semibold" style={{ color: "var(--fg-3)" }}>
+            {string.label}
+          </span>
+          <div className="relative h-full flex-1">
+            <span className="absolute left-0 right-0 top-1/2 border-t" style={{ borderColor: "var(--line-strong)" }} />
+            {segment.notes
+              .filter((note) => note.stringNumber === string.number)
+              .map((note, index) => {
+                const left = Math.max(
+                  0.8,
+                  Math.min(
+                    98.2,
+                    ((note.startTimeSeconds - segment.startTimeSeconds) / segment.durationSeconds) * 100,
+                  ),
+                );
+                return (
+                  <span
+                    key={`${note.startTimeSeconds}-${note.pitchMidi}-${index}`}
+                    className="absolute top-1/2 z-10 min-w-5 -translate-x-1/2 -translate-y-1/2 rounded-[3px] px-1 text-center font-mono text-[11px] font-bold"
+                    style={{ left: `${left}%`, background: "var(--bg-raised)", color: "var(--accent-ai)" }}
+                    title={`${note.noteName}, string ${note.stringNumber}, fret ${note.fret}, ${formatTabTime(sourceOffsetSeconds + note.startTimeSeconds)}`}
+                  >
+                    {note.fret}
+                  </span>
+                );
+              })}
+          </div>
+        </div>
+      ))}
+    </div>
   );
 }
 
@@ -591,6 +627,8 @@ function errorMessage(caught: unknown) {
     video_too_long: "Choose a non-live YouTube video under 15 minutes.",
     audio_too_large: "That audio source is too large to analyze here.",
     no_audio: "No playable audio track was found for that video.",
+    audio_protected:
+      "YouTube blocks direct audio access for this video — usually licensed music. Play it, record your device audio, or download the track another way, then use \"Audio file\" instead.",
     upstream_failed: "YouTube did not provide a usable audio track. Try another video or upload an audio file.",
     too_many_requests: "Too many analyses were started. Please wait a few minutes.",
     decode_failed: "The browser could not decode this audio format. Try an MP3, WAV, M4A, or another video.",
